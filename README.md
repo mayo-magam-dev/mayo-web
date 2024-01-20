@@ -20,11 +20,11 @@
     - [x] 완료 주문을 누르면 reservation의 documentid를 받아 완료된 주문의 상세 정보를 출력합니다.
 
 
-- [ ] 등록
+- [x] 등록
     - [x] 해당 가게의 모든 item을 가져와 뷰 템플릿에 표시합니다.
-    - [ ] 체크된 item의 item_quantity와 item_on_sale 값을 가져옵니다.
-    - [ ] 마감하기 버튼으로 가게의 모든 메뉴의 item_quantity를 0으로 바꾸고 on_sale을 false로 바꿉니다. 가게의 open_state를 false로 바꿉니다.
-    - [ ] 오픈하기 버튼으로 체크박스에 선택된 아이템의 id를 받아 각 수량에 맞게 item_quantity를 바꾸고, item_on_sale을 true로 바꿉니다. 가게의 open_state를 true로 바꿉니다.
+    - [x] 체크된 item의 item_quantity 값을 가져옵니다.
+    - [x] 마감하기 버튼으로 가게의 모든 메뉴의 item_quantity를 0으로 바꾸고 on_sale을 false로 바꿉니다. 가게의 open_state를 false로 바꿉니다.
+    - [x] 오픈하기 버튼으로 체크박스에 선택된 아이템의 id를 받아 각 수량에 맞게 item_quantity를 바꾸고, item_on_sale을 true로 바꿉니다. 가게의 open_state를 true로 바꿉니다.
 
 - [x] 마이페이지
     - [x] 상품 정보에서 가게정보를 입력받아 가게의 모든 아이템을 가져와서 추가, 수정, 삭제를 할 수 있습니다.
