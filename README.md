@@ -7,15 +7,20 @@
 
 ## 기능목록
 
-- [x] 가게 주문 확인 및 상태 변경
-    - [x] 가게에 들어온 주문을 분류합니다. 
-        - [x] store_ref 값이 해당 가게인 모든 reservation 객체를 가져와 reservation_state 값으로 분류합니다.
-    - [x] 받아온 reservation객체의 상태를 변경할 수 있습니다. 
-        - [x] thymeleaf 템플릿을 활용하여 에약자, 시간, 전화번호 등을 페이지에 표시합니다.
-        - [x] 수락 / 거절 버튼으로 신규 주문의 상태를 바꿉니다.
-        - [x] 완료 버튼으로 진행중인 주문의 상태를 바꿉니다.
+- [x] 처리중
+    - [x] 가게 documentid를 받아 신규 및 진행 주문으로 분류합니다.
+        - [x] 신규 주문을 선택하면 reservation의 documentid를 받아 에약의 상세 정보와 수락 및 거절 버튼을 출력합니다.
+        - [x] 수락 버튼을 누르면 reservation의 reservation_state를 1(진행)으로 바꿉니다.
+        - [x] 거절 버튼을 누르면 reservation의 reservation_state를 3(실패)으로 바꿉니다.
+        - [x] 진행 주문을 선택하면 reservation의 documentid를 받아 에약의 상세 정보와 주문 완료 버튼을 출력합니다.
+        - [x] 주문완료 버튼을 누르면 reservation의 reservation_state를 2(완료)으로 바꿉니다.
 
-- [ ] 가게 오픈 등록
+- [x] 완료
+    - [x] 가게 documentid를 받아 완료 주문을 받아옵니다.
+    - [x] 완료 주문을 누르면 reservation의 documentid를 받아 완료된 주문의 상세 정보를 출력합니다.
+
+
+- [ ] 등록
     - [x] 해당 가게의 모든 item을 가져와 뷰 템플릿에 표시합니다.
     - [ ] 체크된 item의 item_quantity와 item_on_sale 값을 가져옵니다.
     - [ ] 마감하기 버튼으로 가게의 모든 메뉴의 item_quantity를 0으로 바꾸고 on_sale을 false로 바꿉니다. 가게의 open_state를 false로 바꿉니다.
