@@ -19,7 +19,7 @@
 .rectangle-1981-sRo {
     background-color: #000000;
     border-radius: 1.7rem;
-    height: 127rem;
+    height: 110rem;
     left: 0;
     position: absolute;
     top: 0;
@@ -30,7 +30,7 @@
     background-position: -0.7679rem -2.4471rem;
     background-size: 107.045% 213.235%;
     height: 3.9rem;
-    left: 5rem;
+    left: 3rem;
     position: relative;
     top: 102.3rem;
     width: 10.9rem;
@@ -42,7 +42,7 @@
     left: 0;
     position: absolute;
     top: 0;
-    width: 225.3rem;
+    width: 191rem;
 }
 .rectangle-2009-A3X {
     background-color: #474a51;
@@ -59,6 +59,10 @@
     position: absolute;
     top: 29.9rem;
     width: 61.5rem;
+    color: #f6f6f6;
+    font-family: Inter, 'Source Sans Pro';
+    font-size: 6rem;
+    font-weight: 700;
 }
 .rectangle-2013-Rk9 {
     background-color: #25272b;
@@ -79,6 +83,10 @@
     position: absolute;
     top: 54.2rem;
     width: 61.5rem;
+    color: #f6f6f6;
+    font-family: Inter, 'Source Sans Pro';
+    font-size: 6rem;
+    font-weight: 700;
 }
 .rectangle-2014-HGZ {
     background-color: #25272b;
@@ -87,6 +95,10 @@
     position: absolute;
     top: 80.5rem;
     width: 61.5rem;
+    color: #f6f6f6;
+    font-family: Inter, 'Source Sans Pro';
+    font-size: 6rem;
+    font-weight: 700;
 }
 .rectangle-2016-1yF {
     background-color: #25272b;
@@ -95,6 +107,10 @@
     position: absolute;
     top: 80.7rem;
     width: 61.5rem;
+    color: #f6f6f6;
+    font-family: Inter, 'Source Sans Pro';
+    font-size: 6rem;
+    font-weight: 700;
 }
 .rectangle-2012-MXK {
     background-color: #25272b;
@@ -103,6 +119,10 @@
     position: absolute;
     top: 29.5rem;
     width: 61.5rem;
+    color: #f6f6f6;
+    font-family: Inter, 'Source Sans Pro';
+    font-size: 6rem;
+    font-weight: 700;
 }
 .item-0808-14-48-GuB {
     color: #ffffff;
