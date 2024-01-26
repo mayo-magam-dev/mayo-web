@@ -9,15 +9,15 @@
 
 - [x] 처리중
     - [x] 가게 documentid를 받아 신규 및 진행 주문으로 분류합니다.
-        - [x] 신규 주문을 선택하면 reservation의 documentid를 받아 에약의 상세 정보와 수락 및 거절 버튼을 출력합니다.
+        - [x] 신규 주문을 선택하면 reservation의 documentid를 받아 에약의 상세 정보와 수락 및 거절 버튼을 created_at의 내림차순 출력합니다.
         - [x] 수락 버튼을 누르면 reservation의 reservation_state를 1(진행)으로 바꿉니다.
         - [x] 거절 버튼을 누르면 reservation의 reservation_state를 3(실패)으로 바꿉니다.
         - [x] 진행 주문을 선택하면 reservation의 documentid를 받아 에약의 상세 정보와 주문 완료 버튼을 출력합니다.
         - [x] 주문완료 버튼을 누르면 reservation의 reservation_state를 2(완료)으로 바꿉니다.
 
 - [x] 완료
-    - [x] 가게 documentid를 받아 완료 주문을 받아옵니다.
-    - [x] 완료 주문을 누르면 reservation의 documentid를 받아 완료된 주문의 상세 정보를 출력합니다.
+    - [x] 가게 documentid를 받아 완료 주문을 받아와 created_at의 내림차순으로 출력합니다.
+    - [x] 완료 주문을 누르면 reservation의 documentid를 받아 완료된 주문, 실패된 주문의 상세 정보를 출력합니다.
 
 
 - [x] 등록
