@@ -17,7 +17,7 @@ export default function MayoProcessing() {
   }
 
   return (
-    <main className="rounded-[2rem] w-[95%] h-[105rem] m-[5rem]">
+    <main className="rounded-[2rem] w-[95%] h-[100rem] m-[5rem]">
       <header>
         <MayoHeader />
       </header>
@@ -27,10 +27,8 @@ export default function MayoProcessing() {
           <div>
             <MayoProcessingMain />
           </div>
-          <div className="text-white text-6xl font-bold">2</div>
           <div></div>
         </div>
-        <div>2</div>
       </div>
     </main>
   );

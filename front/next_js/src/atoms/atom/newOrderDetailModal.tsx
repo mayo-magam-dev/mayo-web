@@ -10,9 +10,11 @@ export default function NewOrderDetailModal(props: NewOrderDetailModalProps) {
   return (
     <div className="absolute top-[20rem] left-[105rem] flex flex-col justify-center text-black text-5xl h-[90rem] w-[128rem] ">
       <div className="flex justify-center items-center font-bold h-[20rem] border border-black">
-        <div>메뉴 1개 총 7,000원</div>
-        <div>수락</div>
-        <div>거절</div>
+        <div className="w-[60rem]">메뉴 1개 총 7,000원</div>
+        <div className="flex w-[60rem]">
+          <div>수락</div>
+          <div>거절</div>
+        </div>
       </div>
       <div className="flex justify-center">
         <div>
