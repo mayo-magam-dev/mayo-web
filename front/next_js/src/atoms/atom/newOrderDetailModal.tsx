@@ -2,13 +2,9 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-interface NewOrderDetailModalProps {
-  newOrderId: string;
-}
-
-export default function NewOrderDetailModal(props: NewOrderDetailModalProps) {
+export default function NewOrderDetailModal() {
   return (
-    <div className="absolute top-[20rem] left-[105rem] flex flex-col justify-center text-black text-5xl h-[90rem] w-[128rem] ">
+    <div className=" absolute top-[20rem] left-[105rem] flex flex-col justify-center text-black text-5xl h-[90rem] w-[128rem] ">
       <div className="flex justify-center items-center font-bold h-[20rem] border border-black">
         <div className="w-[60rem]">메뉴 1개 총 7,000원</div>
         <div className="flex w-[60rem]">
@@ -26,9 +22,7 @@ export default function NewOrderDetailModal(props: NewOrderDetailModalProps) {
             </div>
           </div>
           <div className="h-[60rem] w-[79rem]  border border-black m-[1rem] p-[2rem]">
-            <div className="font-bold  h-[8rem] ">
-              주문내역 {props.newOrderId}
-            </div>
+            <div className="font-bold  h-[8rem] ">주문내역</div>
             <div>
               <div className="mb-[5rem]">함박 촉촉 스테이크 1 7.000원</div>
               <div className="mb-[5rem]">함박 촉촉 스테이크 1 7.000원</div>
