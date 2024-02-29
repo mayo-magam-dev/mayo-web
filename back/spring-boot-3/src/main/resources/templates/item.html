@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Item</title>
+    <link rel="stylesheet" href="../static/css/menubar.css">
+    <link rel="stylesheet" href="../static/css/order.css">
+    <script src="https://kit.fontawesome.com/ee8e433d97.js" crossorigin="anonymous">
+    </script>
+</head>
+<body>
+<nav class="navbar">
+    <div class="open_state">
+        <i class="fa-solid fa-circle fa-2xs" style="color: #2bff00;"></i>
+        <a>&nbsp영업중</a>
+    </div>
+    <div class="time">
+        <h1 id="clock" style="color:white;">clock</h1>
+        <script>
+            var Target = document.getElementById("clock");
+            function clock() {
+                var time = new Date();
+
+                var month = time.getMonth();
+                var date = time.getDate();
+                var day = time.getDay();
+                var week = ['일', '월', '화', '수', '목', '금', '토'];
+
+                var hours = time.getHours();
+                var minutes = time.getMinutes();
+                var seconds = time.getSeconds();
+
+                Target.innerText =
+                    `${month + 1}. ${date}. (${week[day]}) ` + `${hours < 10 ? `0${hours}` : hours}:${minutes < 10 ? `0${minutes}` : minutes}:${seconds < 10 ? `0${seconds}` : seconds}`;
+
+            }
+            clock();
+            setInterval(clock, 1000); // 1초마다 실행
+        </script>
+    </div>
+</nav>
+<input type="checkbox" id="menuicon">
+<label for="menuicon">
+  <span></span>
+  <span></span>
+  <span></span>
+</label>
+<div class="sidebar">
+    <div class="bar">
+        <div class="list">
+            <li class="invoice"><i class="fa-solid fa-file-invoice" style="color: #ffffff;"></i><br><a href="">주문</a></li>
+            <li class="complete"><i class="fa-regular fa-square-check" style="color: #ffffff;"></i><br><a href="">완료</a></li>
+            <li><i class="fa-solid fa-house" style="color: #ffffff;"></i><br><a href="">상점</a></li>
+            <li><i class="fa-solid fa-gear" style="color: #ffffff;"></i><br><a href="">설정</a></li>
+        </div>
+        <div class="mayoimage">
+            <img src = "https://firebasestorage.googleapis.com/v0/b/mayo-app-280d4.appspot.com/o/mayo%2F%E1%84%86%E1%85%A1%E1%84%8B%E1%85%AD-%E1%84%85%E1%85%A9%E1%84%80%E1%85%A9%20%E1%84%8C%E1%85%A1%E1%84%85%E1%85%B3%E1%86%AB%E1%84%80%E1%85%A5.png?alt=media&token=e3f25fb0-a80d-4284-8ace-b8fa546a39b6"
+                 width = 120px height="45px">
+        </div>
+    </div>
+</div>
+<div class="layout_left">
+    <div>
+        <a class="신규">신규 n건</a>
+    </div>
+    <div class="new_detail">
+        <h>포장 30분 후</h><br>
+        <a>곰취냉면 1개</a>
+    </div>
+    <div>
+        <a class="진행">진행 n건</a>
+    </div>
+    <div class="진행_detail">
+        <h>포장 30분 후</h><br>
+        <a>곰취냉면 1개</a>
+    </div>
+</div>
+<div class="layout_right">
+    <h>포장</h>
+    <button class="reject">거절</button>
+    <button class="accept">수락</button>
+    <br>
+    <a>메뉴 1개 총 5천원</a>
+    <div class="request">
+        <h>요청사항</h><br>
+        <a>곰취는 빼주세요.</a><br>
+        <a class="plastic">일회용품 사용 여부 : </a> &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+        &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+        <a>필요해요!</a>
+    </div>
+    <div class="order_detail">
+        <h>주문내역</h><br>
+        <a>곰취냉면</a> &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+        &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+        &nbsp&nbsp&nbsp&nbsp&nbsp
+        <a>1</a>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+        <a>5000원</a><br><br><br><br><br><br>
+        <hr>
+        &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+        &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+        &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+        <a>1</a>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+        <a>5000원</a>
+    </div>
+    <div class="call">
+        <h>고객 연락처</h><br>
+        <a class="number">010 - 8523 - 0054</a><br>
+        <a class="num"> 안심번호는 주문 접수 후 최대 3시간까지 유효합니다. </a><br><br><br>
+        <div class="order_num">
+            <h>주문 번호 : </h> <a>alksa12dfjliua</a><br>
+            <h>주문 시간 : </h> <a> 14 : 40</a><br>
+            <h>픽업 예정시간 : </h> <a> 16 : 00</a><br>
+        </div>
+    </div>
+</div>
+</body>
+</html>

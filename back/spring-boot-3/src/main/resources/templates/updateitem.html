@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <link href="/css/updateitem.css" type="text/css" rel="stylesheet" />
+</head>
+<body>
+<div class="rectangle-2532-MqW" id="1514:1924">
+  <div th:style=" 'background-image: url(' + ${item.item_image} + ')' " class="rectangle-2770-rqz" id="1655:3308"></div>
+  <p class="item--zNg" id="1514:1932">상품 관리</p>
+  <form th:action="'/mayo/mypage/' + ${storeid} + '/iteminfo/' + ${itemid} + '/updateitem'" method="post">
+    <input th:field = "*{item.itemId}" type="hidden" name="itemId">
+    <input th:field="*{item.item_name}" name="item_name" class="group-14-89S" id="1514:1940">
+    <input th:field="*{item.item_description}" name="item_description" class="rectangle-2535-5uv" id="1514:1933">
+    <input th:field="*{item.original_price}" name= "original_price" class="rectangle-2536-Pvc" id="1514:1934">
+    <input th:field="*{item.sale_price}" name="sale_price" class="rectangle-2537-7bi" id="1514:1935">
+    <input th:field="*{item.sale_percent}" name="sale_percent" class="rectangle-2538-zfW" id="1514:1936">
+    <input th:field="*{item.additional_information}" name="additional_information" class="rectangle-2564-14p" id="1514:1938">
+    <input th:field="*{item.cooking_time}" name="cooking_time" class="rectangle-2565-6Te" id="1514:1937">
+    <div class="item--DD7" id="1514:2964">
+      <button class="save" type="submit">저장</button>
+    </div>
+    <div class="item-delete">
+      <button th:onclick="|location.href='@{'/mayo/mypage/'+ ${storeid} + '/iteminfo/' + ${item.itemId} + '/deleteitem'}'|" class="delete">삭제</button>
+    </div>
+  </form>
+  <div class="item--XhN" id="1514:1943">상품명</div>
+  <div class="item--E5z" id="1514:1944">상품설명</div>
+  <div class="item--vex" id="1514:1950">할인 전 가격</div>
+  <div class="item--CcU" id="1514:1951">할인 후 가격</div>
+  <div class="item--ToJ" id="1514:1952">할인율</div>
+  <div class="item--ASp" id="1514:1953">조리시간</div>
+  <div class="item--cy2" id="1514:1954">추가 전달사항</div>
+</div>
+</body>
+</html>
