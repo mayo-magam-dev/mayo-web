@@ -1,9 +1,12 @@
 "use client";
+import EndOrders from "@/atoms/molecule/endOrders";
 // http://localhost:3000/mayo/processing/Asb0QBuQ9gmEyyWlSVhY
 import MayoHeader from "@/atoms/molecule/mayoHeader";
 import MayoProcessingMain from "@/atoms/molecule/mayoProcessingMain";
 import NavigationLeft from "@/atoms/molecule/navigationLeft";
+import NewOrders from "@/atoms/molecule/newOrders";
 import NewOrder from "@/atoms/molecule/newOrders";
+import ProcessingOrders from "@/atoms/molecule/processingOrders";
 import { usePathname } from "next/navigation";
 export default function MayoProcessing() {
   const pathName: string = usePathname();
@@ -23,11 +26,8 @@ export default function MayoProcessing() {
       </header>
       <div className="flex ">
         <NavigationLeft id={id} />
-        <div>
-          <div>
-            <MayoProcessingMain />
-          </div>
-          <div></div>
+        <div className="h-[90rem] text-6xl  bg-[#0E0E0E] w-[80rem]">
+          <EndOrders />
         </div>
       </div>
     </main>

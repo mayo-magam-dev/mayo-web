@@ -1,4 +1,6 @@
 "use client";
+import ProcessingOrderDetailModal from "@/atoms/atom/ProcessingOrderDetailModal";
+import NewOrderDetailModal from "@/atoms/atom/newOrderDetailModal";
 // http://localhost:3000/mayo/processing/Asb0QBuQ9gmEyyWlSVhY
 import MayoHeader from "@/atoms/molecule/mayoHeader";
 import MayoProcessingMain from "@/atoms/molecule/mayoProcessingMain";
@@ -27,7 +29,7 @@ export default function MayoProcessing() {
           <div>
             <MayoProcessingMain />
           </div>
-          <div></div>
+          <ProcessingOrderDetailModal />
         </div>
       </div>
     </main>
