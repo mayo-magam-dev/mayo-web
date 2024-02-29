@@ -3,7 +3,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 type data = {
-  id: string;
+  id: string | undefined;
 };
 
 export default function NavigationLeft({ id }: data) {
