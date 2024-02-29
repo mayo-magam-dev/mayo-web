@@ -23,9 +23,6 @@ export default function NewOrders() {
         <NewOrder newOrderId={"2"} onClick={handleNewOrderOpenModal} />
         <NewOrder newOrderId={"3"} onClick={handleNewOrderOpenModal} />
       </div>
-      {selectedNewOrderId !== null && (
-        <NewOrderDetailModal newOrderId={selectedNewOrderId} />
-      )}
     </div>
   );
 }
