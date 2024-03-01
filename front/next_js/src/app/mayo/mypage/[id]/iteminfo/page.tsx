@@ -40,7 +40,7 @@ export default function MayoProcessing() {
       <div className="flex ">
         <NavigationLeft id={id} />
 
-        <div className="flex h-[90rem] w-[200rem] border border-black overflow-y-auto flex-wrap m-[10rem]">
+        <div className="flex h-[80rem] w-[200rem] border border-black overflow-y-auto flex-wrap m-[5rem]">
           <div className="text-[#595D66] text-4xl m-[4rem]">
             <div className="flex flex-col justify-center items-center h-[24rem] w-[24rem]  font-bold rounded-[4rem] border border-black">
               추가
