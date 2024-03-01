@@ -7,7 +7,7 @@ interface ProcessingOrderProps {
 
 export default function ProcessingOrder(props: ProcessingOrderProps) {
   return (
-    <div className="flex flex-col text-[#CFCFCF] justify-center text-4xl h-[14rem] pl-[2rem] bg-[#333439]">
+    <div className="flex flex-col text-[#CFCFCF] justify-center text-4xl h-[14rem] pl-[2rem] bg-[#333439] cursor-pointer">
       <div className="flex items-center mb-[1rem]">
         <div>주문 메뉴: {props.processingOrderId}</div>
         <div className="text-6xl font-bold">함박 촉촉 스테이크</div>
