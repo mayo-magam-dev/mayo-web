@@ -1,4 +1,6 @@
 "use client";
+import EndOrderDetailModal from "@/atoms/atom/endOrderDetailModal";
+import IteminfoDetailModal from "@/atoms/atom/iteminfoDetailModal";
 import NewOrderDetailModal from "@/atoms/atom/newOrderDetailModal";
 import ManageMenu from "@/atoms/molecule/manageMenu";
 // http://localhost:3000/mayo/processing/Asb0QBuQ9gmEyyWlSVhY
@@ -7,16 +9,26 @@ import MayoProcessingMain from "@/atoms/molecule/mayoProcessingMain";
 import NavigationLeft from "@/atoms/molecule/navigationLeft";
 import NewOrder from "@/atoms/molecule/newOrders";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
+
 export default function MayoProcessing() {
   const pathName: string = usePathname();
   let id: string | undefined;
-
   if (typeof pathName === "string") {
     id = pathName.split("/").pop();
   } else {
     // pathName이 undefined인 경우에 대한 처리
     id = undefined;
   }
+  const [selectedItemInfoId, setSelectedNewOrderId] = useState<string | null>(
+    null
+  );
+
+  // 모달 열기 함수
+  const handleOpenModal = (selectedItemInfoId: string) => {
+    setSelectedNewOrderId(selectedItemInfoId);
+  };
+
   return (
     <main className="rounded-[2rem] w-[95%] h-[100rem] m-[5rem] ">
       <header>
@@ -32,10 +44,17 @@ export default function MayoProcessing() {
             </div>
           </div>
           {Array.from({ length: 100 }, (_, index) => (
-            <ManageMenu key={index} />
+            <ManageMenu
+              key={index}
+              endOrderId={index + ""}
+              onClick={handleOpenModal}
+            />
           ))}
         </div>
       </div>
+      {selectedItemInfoId !== null && (
+        <IteminfoDetailModal selectedItemInfoId={selectedItemInfoId} />
+      )}
     </main>
   );
 }
