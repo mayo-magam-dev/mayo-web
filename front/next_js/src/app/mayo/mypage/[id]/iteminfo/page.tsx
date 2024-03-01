@@ -1,6 +1,7 @@
 "use client";
 import EndOrderDetailModal from "@/atoms/atom/endOrderDetailModal";
-import IteminfoDetailModal from "@/atoms/atom/iteminfoDetailModal";
+import ManageIteminfoDetailModal from "@/atoms/atom/magageIteminfoDetailModal";
+import IteminfoDetailModal from "@/atoms/atom/magageIteminfoDetailModal";
 import NewOrderDetailModal from "@/atoms/atom/newOrderDetailModal";
 import ManageMenu from "@/atoms/molecule/manageMenu";
 // http://localhost:3000/mayo/processing/Asb0QBuQ9gmEyyWlSVhY
@@ -20,13 +21,15 @@ export default function MayoProcessing() {
     // pathName이 undefined인 경우에 대한 처리
     id = undefined;
   }
-  const [selectedItemInfoId, setSelectedNewOrderId] = useState<string | null>(
-    null
-  );
+  const [selectedManageItemInfoId, setSelectedNewOrderId] = useState<
+    string | null
+  >(null);
+  const [isManageItemDetailModalOpen, setIsManageItemDetailModalOpen] =
+    useState(false);
 
   // 모달 열기 함수
-  const handleOpenModal = (selectedItemInfoId: string) => {
-    setSelectedNewOrderId(selectedItemInfoId);
+  const handleOpenModal = (selectedManageItemInfoId: string) => {
+    setSelectedNewOrderId(selectedManageItemInfoId);
   };
 
   return (
@@ -44,17 +47,24 @@ export default function MayoProcessing() {
             </div>
           </div>
           {Array.from({ length: 100 }, (_, index) => (
-            <ManageMenu
-              key={index}
-              endOrderId={index + ""}
-              onClick={handleOpenModal}
-            />
+            <div onClick={() => setIsManageItemDetailModalOpen(true)}>
+              <ManageMenu
+                key={index}
+                endOrderId={index + ""}
+                onClick={handleOpenModal}
+              />
+            </div>
           ))}
         </div>
       </div>
-      {selectedItemInfoId !== null && (
-        <IteminfoDetailModal selectedItemInfoId={selectedItemInfoId} />
-      )}
+      {isManageItemDetailModalOpen
+        ? selectedManageItemInfoId !== null && (
+            <ManageIteminfoDetailModal
+              selectedManageItemInfoId={selectedManageItemInfoId}
+              setIsManageItemDetailModalOpen={setIsManageItemDetailModalOpen}
+            />
+          )
+        : null}
     </main>
   );
 }

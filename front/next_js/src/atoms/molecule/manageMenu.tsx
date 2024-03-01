@@ -4,11 +4,12 @@ import { useEffect, useState } from "react";
 import ProcessingOrder from "./processingOrder";
 import ProcessingOrderDetailModal from "../atom/ProcessingOrderDetailModal";
 import { usePathname } from "next/navigation";
-import IteminfoDetailModal from "../atom/iteminfoDetailModal";
+import IteminfoDetailModal from "../atom/magageIteminfoDetailModal";
 
 interface endOrderProps {
   key: number;
-  endOrderId: string | undefined;
+  endOrderId: string;
+  onClick: (newOrderId: string) => void;
 }
 
 export default function ManageMenu(props: endOrderProps) {
@@ -24,7 +25,10 @@ export default function ManageMenu(props: endOrderProps) {
   }
 
   return (
-    <div className="text-[#595D66] text-4xl m-[4rem] cursor-pointer">
+    <div
+      className="text-[#595D66] text-4xl m-[4rem] cursor-pointer"
+      onClick={() => props.onClick(props.endOrderId)}
+    >
       <div className="flex flex-col justify-center items-center h-[24rem] w-[24rem]  font-bold rounded-[4rem] border border-black">
         <div className="flex justify-center items-center w-[14rem] h-[8rem] rounded-[2rem] border border-black mb-[1rem]">
           사진
