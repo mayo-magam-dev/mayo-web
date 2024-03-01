@@ -3,7 +3,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 interface EndOrderDetailModalProps {
-  newOrderId: string;
+  newOrderId: string | null;
 }
 
 export default function EndOrderDetailModal(props: EndOrderDetailModalProps) {
