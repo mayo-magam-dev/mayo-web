@@ -21,9 +21,9 @@ export default function MayoMypage() {
   }
 
   const cssCommen =
-    "flex justify-center items-center h-[13rem] w-[70rem] bg-[#25272B] m-[10rem]";
+    "flex justify-center items-center h-[13rem] w-[70rem] bg-[#25272B] m-[10rem] cursor-pointer";
   return (
-    <main className="rounded-[2rem] w-[95%] h-[100rem] m-[5rem]">
+    <main className="rounded-[2rem] w-[95%] h-[100rem] m-[5rem] ">
       <header>
         <MayoHeader />
       </header>

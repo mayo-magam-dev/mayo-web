@@ -9,7 +9,7 @@ interface endOrderProps {
 export default function EndOrder(props: endOrderProps) {
   return (
     <div
-      className="flex flex-col text-[#CFCFCF] justify-center text-4xl h-[14rem] pl-[2rem] bg-[#333439]"
+      className="flex flex-col text-[#CFCFCF] justify-center text-4xl h-[14rem] pl-[2rem] bg-[#333439] cursor-pointer"
       onClick={() => props.onClick(props.endOrderId)}
     >
       <div className="flex items-center mb-[1rem]">

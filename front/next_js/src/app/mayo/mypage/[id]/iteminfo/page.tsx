@@ -1,5 +1,6 @@
 "use client";
 import NewOrderDetailModal from "@/atoms/atom/newOrderDetailModal";
+import ManageMenu from "@/atoms/molecule/manageMenu";
 // http://localhost:3000/mayo/processing/Asb0QBuQ9gmEyyWlSVhY
 import MayoHeader from "@/atoms/molecule/mayoHeader";
 import MayoProcessingMain from "@/atoms/molecule/mayoProcessingMain";
@@ -16,15 +17,24 @@ export default function MayoProcessing() {
     // pathName이 undefined인 경우에 대한 처리
     id = undefined;
   }
-  const cssCommen =
-    "flex justify-center items-center h-[13rem] w-[70rem] bg-[#25272B] m-[10rem]";
   return (
-    <main className="rounded-[2rem] w-[95%] h-[100rem] m-[5rem]">
+    <main className="rounded-[2rem] w-[95%] h-[100rem] m-[5rem] ">
       <header>
         <MayoHeader />
       </header>
       <div className="flex ">
         <NavigationLeft id={id} />
+
+        <div className="flex h-[90rem] w-[200rem] border border-black overflow-y-auto flex-wrap m-[10rem]">
+          <div className="text-[#595D66] text-4xl m-[4rem]">
+            <div className="flex flex-col justify-center items-center h-[24rem] w-[24rem]  font-bold rounded-[4rem] border border-black">
+              추가
+            </div>
+          </div>
+          {Array.from({ length: 100 }, (_, index) => (
+            <ManageMenu key={index} />
+          ))}
+        </div>
       </div>
     </main>
   );
