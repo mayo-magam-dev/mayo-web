@@ -1,8 +1,8 @@
-package com.example.mayoweb.Items;
+package com.example.mayoweb.items;
 
-import com.example.mayoweb.Reservation.ReservationService;
-import com.example.mayoweb.Reservation.ReservationsDto;
-import com.example.mayoweb.Reservation.ReservationEntity;
+import com.example.mayoweb.carts.CartsAdapter;
+import com.example.mayoweb.reservation.ReservationsDto;
+import com.example.mayoweb.reservation.ReservationEntity;
 import com.google.cloud.firestore.DocumentReference;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,13 +16,13 @@ import java.util.concurrent.ExecutionException;
 public class ItemsService {
 
     private final ItemsAdapter itemsAdapter;
-    private final ReservationService reservationService;
+    private final CartsAdapter cartsAdapter;
 
     public ItemsDto getItemByDocRef(DocumentReference doc) throws ExecutionException, InterruptedException {
         return toDto(itemsAdapter.getItemByDocRef(doc));
     }
 
-    public List<String> getFirstItemNamesFromReservations(List<ReservationsDto> reservations) {
+    public List<String> getFirstItemNamesFromReservations(List<ReservationsDto> reservations) throws ExecutionException, InterruptedException {
 
         ArrayList<ReservationEntity> reservationList = new ArrayList<>();
 
@@ -30,7 +30,9 @@ public class ItemsService {
             reservationList.add(reservationsDto.toEntity());
         }
 
-        return itemsAdapter.getFirstItemNamesFromReservations(reservationList);
+        List<DocumentReference> carts = cartsAdapter.getFirstCartsByReservations(reservationList);
+
+        return itemsAdapter.getFirstItemNamesFromCarts(carts);
     }
 
     public List<ItemsDto> getItemsByStoreRef(String storeRef) throws ExecutionException, InterruptedException {
@@ -58,8 +60,8 @@ public class ItemsService {
         itemsAdapter.updateItemsStateOutOfStock(storesRef);
     }
 
-    public void updateItemOnSale(List<String> checkbox ,List<String> itemidList, List<Integer> quantityList) {
-        itemsAdapter.updateItemOnSale(checkbox,itemidList,quantityList);
+    public void updateItemOnSale(List<String> itemidList, List<Integer> quantityList) {
+        itemsAdapter.updateItemOnSale(itemidList, quantityList);
     }
 
     private ItemsDto toDto(ItemsEntity entity) {

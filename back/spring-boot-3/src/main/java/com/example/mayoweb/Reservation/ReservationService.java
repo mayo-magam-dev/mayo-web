@@ -1,8 +1,5 @@
-package com.example.mayoweb.Reservation;
+package com.example.mayoweb.reservation;
 
-import com.example.mayoweb.Reservation.ReservationsAdapter;
-import com.example.mayoweb.Reservation.ReservationsDto;
-import com.example.mayoweb.Reservation.ReservationEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

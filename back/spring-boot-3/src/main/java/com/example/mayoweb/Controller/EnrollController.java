@@ -1,56 +1,59 @@
-package com.example.mayoweb.Controller;
+package com.example.mayoweb.controller;
 
-import com.example.mayoweb.Items.ItemsDto;
-import com.example.mayoweb.Items.ItemsService;
-import com.example.mayoweb.Store.StoresDto;
-import com.example.mayoweb.Store.StoresService;
+import com.example.mayoweb.items.ItemsDto;
+import com.example.mayoweb.items.ItemsService;
+import com.example.mayoweb.store.StoresDto;
+import com.example.mayoweb.store.StoresService;
+import com.example.mayoweb.response.EnrollResponse;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+@RequiredArgsConstructor
+@RestController
 @Slf4j
-@Controller
+@RequestMapping("/mayo/enroll")
 public class EnrollController {
 
-    @Autowired
-    StoresService storesService;
+    private final StoresService storesService;
 
-    @Autowired
-    ItemsService itemsService;
+    private final ItemsService itemsService;
 
     @GetMapping("/mayo/enroll/{storeid}")
-    public String enroll(@PathVariable String storeid, Model model) throws ExecutionException, InterruptedException {
+    public ResponseEntity<EnrollResponse> enroll(@PathVariable String storeid) throws ExecutionException, InterruptedException {
 
         StoresDto storesDto = storesService.getStoreById(storeid);
-        List<ItemsDto> itemsDtoList = itemsService.getItemsByStoreRef(storeid);
+        List<ItemsDto> itemsList = itemsService.getItemsByStoreRef(storeid);
 
-        model.addAttribute("itemlist", itemsDtoList);
-        model.addAttribute("storeid", storeid);
-        model.addAttribute("store", storesDto);
+        EnrollResponse response = new EnrollResponse(
+                itemsList,
+                storeid,
+                storesDto
+        );
 
-        return "enroll";
+        return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/mayo/enroll/{storeid}/open")
-    public String open(@PathVariable String storeid, @RequestParam("checkbox") List<String> checkbox ,@RequestParam("itemid") List<String> itemIdList,
+    @PostMapping("/{storeid}/open")
+    public ResponseEntity<String> open(@PathVariable String storeid,@RequestParam("itemid") List<String> itemIdList,
                        @RequestParam("quantityList") List<Integer> quantityList) throws ExecutionException, InterruptedException {
 
-        itemsService.updateItemOnSale(checkbox ,itemIdList, quantityList);
+        itemsService.updateItemOnSale(itemIdList, quantityList);
         storesService.openStore(storeid);
 
-        return "redirect:/mayo/processing/" + storeid;
+        return ResponseEntity.ok("Open Store");
     }
 
-    @GetMapping("/mayo/enroll/{storeid}/close")
-    public String close(@PathVariable String storeid) throws ExecutionException, InterruptedException {
+
+    @GetMapping("/{storeid}/close")
+    public ResponseEntity<String> close(@PathVariable String storeid) throws ExecutionException, InterruptedException {
         itemsService.updateItemsStateOutOfStock(storeid);
         storesService.closeStore(storeid);
 
-        return "redirect:/mayo/processing/" + storeid;
+        return ResponseEntity.ok("Close Store");
     }
 }

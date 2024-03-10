@@ -1,6 +1,6 @@
-package com.example.mayoweb.Items;
+package com.example.mayoweb.items;
 
-import com.example.mayoweb.Store.StoresEntity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.cloud.Timestamp;
 import com.google.cloud.firestore.DocumentReference;
 import lombok.*;
@@ -43,8 +43,10 @@ public class ItemsDto {
 
     private String additional_information;
 
+    @JsonIgnore
     private DocumentReference cartRef;
 
+    @JsonIgnore
     private DocumentReference store_ref;
 
     public ItemsEntity toEntity() {

@@ -1,8 +1,8 @@
-package com.example.mayoweb.Reservation;
+package com.example.mayoweb.reservation;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.cloud.Timestamp;
 import com.google.cloud.firestore.DocumentReference;
-import com.google.type.DateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -34,12 +34,16 @@ public class ReservationsDto {
 
     private Double total_price;
 
+    @JsonIgnore
     private DocumentReference store_ref;
 
+    @JsonIgnore
     private DocumentReference user_ref;
 
+    @JsonIgnore
     private List<DocumentReference> itemList_ref;
 
+    @JsonIgnore
     private List<DocumentReference> cart_ref;
 
     public ReservationEntity toEntity() {

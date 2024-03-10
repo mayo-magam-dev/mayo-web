@@ -9,7 +9,7 @@ import java.util.Date;
 import java.util.List;
 
 @NoArgsConstructor
-@Data
+@Getter
 @ToString
 public class UsersEntity {
     @DocumentId

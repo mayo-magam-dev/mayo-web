@@ -1,4 +1,4 @@
-package com.example.mayoweb.Store;
+package com.example.mayoweb.store;
 
 import com.google.cloud.firestore.annotation.DocumentId;
 import com.google.firebase.database.PropertyName;
