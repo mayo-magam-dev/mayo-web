@@ -1,5 +1,4 @@
-package com.example.mayoweb.Board;
-import com.example.mayoweb.Store.StoresEntity;
+package com.example.mayoweb.board;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.*;
 import com.google.firebase.cloud.FirestoreClient;
@@ -15,14 +14,13 @@ import java.util.concurrent.ExecutionException;
 @Slf4j
 public class BoardAdapter {
 
-
-    //Board 객체 중 category가 0(약관 및 정책)을 가져오는 쿼리
+    //Board 객체 중 category가 3(약관 및 정책)을 가져오는 쿼리
     //가게 도큐먼트 id를 받아 해당 가게의 모든 예약들을 가져옵니다.
-    public List<BoardEntity> getBoard0() throws ExecutionException, InterruptedException {
+    public List<BoardEntity> getTermsBoard() throws ExecutionException, InterruptedException {
         List<BoardEntity> boards = new ArrayList<>();
         Firestore firestore = FirestoreClient.getFirestore();
         CollectionReference boardRef = firestore.collection("board");
-        Query query = boardRef.whereEqualTo("category", 0);
+        Query query = boardRef.whereEqualTo("category", Category.TERMSDETAIL.ordinal());
         ApiFuture<QuerySnapshot> querySnapshotApiFuture = query.get();
         QuerySnapshot querySnapshot = querySnapshotApiFuture.get();
         for (QueryDocumentSnapshot boardDocument : querySnapshot.getDocuments()) {
@@ -34,11 +32,11 @@ public class BoardAdapter {
 
 
     //Board 객체 중 category가 1(공지사항)을 가져오는 쿼리
-    public List<BoardEntity> getBoard1() throws ExecutionException, InterruptedException {
+    public List<BoardEntity> getNoticeBoard() throws ExecutionException, InterruptedException {
         List<BoardEntity> boards = new ArrayList<>();
         Firestore firestore = FirestoreClient.getFirestore();
         CollectionReference boardRef = firestore.collection("board");
-        Query query = boardRef.whereEqualTo("category", 1);
+        Query query = boardRef.whereEqualTo("category", Category.NOTICE.ordinal());
         ApiFuture<QuerySnapshot> querySnapshotApiFuture = query.get();
         QuerySnapshot querySnapshot = querySnapshotApiFuture.get();
         for (QueryDocumentSnapshot boardDocument : querySnapshot.getDocuments()) {
@@ -55,5 +53,9 @@ public class BoardAdapter {
         ApiFuture<DocumentSnapshot> future = documentReference.get();
         DocumentSnapshot document = future.get();
         return Optional.ofNullable(document.toObject(BoardEntity.class));
+    }
+
+    enum Category {
+        TERMS, NOTICE, EVENT, TERMSDETAIL
     }
 }

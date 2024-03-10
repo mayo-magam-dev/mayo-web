@@ -1,5 +1,5 @@
 package com.example.mayoweb.User;
-import com.example.mayoweb.Store.StoresEntity;
+import com.example.mayoweb.store.StoresEntity;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.*;
 import com.google.firebase.cloud.FirestoreClient;
@@ -27,70 +27,6 @@ public class UsersAdapter {
             users.add(usersEntity);
         }
         return users;
-    }
-
-
-    public List<UsersEntity> findAllUsers() {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        List<UsersEntity> userList = new ArrayList<UsersEntity>();
-        Firestore db = FirestoreClient.getFirestore();
-        CollectionReference users = db.collection("users");
-        ApiFuture<QuerySnapshot> querySnapshot = users.get();
-        try {
-            for (DocumentSnapshot doc : querySnapshot.get().getDocuments()) {
-                String uid = doc.getData().get("uid").toString();
-                userList.add(getUserById(uid));
-            }
-        } catch (ExecutionException e) {
-            throw new RuntimeException(e);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-        return userList;
-    }
-
-    //uid로 유저 객체 받아오는 쿼리
-    public UsersEntity getUserById(String userId) {
-        Firestore db = FirestoreClient.getFirestore();
-        UsersEntity usersEntity = null;
-
-        try {
-            DocumentReference docRef = db.collection("users").document(userId);
-            ApiFuture<DocumentSnapshot> future = docRef.get();
-            DocumentSnapshot document = future.get();
-
-            if (document.exists()) {
-                usersEntity = new UsersEntity();
-                usersEntity.setUserid(document.getString("userid"));
-                usersEntity.setEmail(document.getString("email"));
-                usersEntity.setUid(document.getString("uid"));
-                usersEntity.setPhoto_url(document.getString("photo_url"));
-                usersEntity.setDisplay_name(document.getString("display_name"));
-                usersEntity.setPhone_number(document.getString("phone_number"));
-                usersEntity.setCreated_time(document.getDate("created_time"));
-                usersEntity.setIs_manager(document.getBoolean("is_manager"));
-                usersEntity.setGender(document.getString("gender"));
-                usersEntity.setName(document.getString("name"));
-                usersEntity.setBirthday(document.getDate("birthday"));
-
-                DocumentReference storeRef = (DocumentReference) document.get("store_ref");
-                if (storeRef != null) {
-                    ApiFuture<DocumentSnapshot> store_ref = storeRef.get();
-                    DocumentSnapshot storeDocument = store_ref.get();
-                    if (storeDocument.exists()) {
-                        StoresEntity storeEntity = storeDocument.toObject(StoresEntity.class);
-                        usersEntity.setStore_ref(storeDocument.getReference());
-                        System.out.println(storeEntity.getId());
-                    }
-                }
-            } else {
-                System.out.println("No such document!");
-            }
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-        }
-
-        return usersEntity;
     }
 
     //userid를 받아서 store document의 id를 받아오는 쿼리

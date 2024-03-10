@@ -1,220 +1,161 @@
-package com.example.mayoweb.Controller;
+package com.example.mayoweb.controller;
 
-import com.example.mayoweb.Board.BoardDto;
-import com.example.mayoweb.Board.BoardService;
-import com.example.mayoweb.Items.ItemsDto;
-import com.example.mayoweb.Items.ItemsEntity;
-import com.example.mayoweb.Items.ItemsService;
-import com.example.mayoweb.Store.StoresDto;
-import com.example.mayoweb.Store.StoresService;
+import com.example.mayoweb.board.BoardDto;
+import com.example.mayoweb.board.BoardService;
+import com.example.mayoweb.items.ItemsDto;
+import com.example.mayoweb.items.ItemsService;
+import com.example.mayoweb.store.StoresDto;
+import com.example.mayoweb.store.StoresService;
+import com.example.mayoweb.response.*;
 import com.google.cloud.firestore.DocumentReference;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-@Controller
 @RequiredArgsConstructor
 @Slf4j
+@RestController
+@RequestMapping("/mayo/mypage")
 public class MyPageController {
 
     private final StoresService storesService;
     private final BoardService boardService;
     private final ItemsService itemsService;
 
-    //마이페이지
+    //마이페이지, 가게 정보, 고객 센터, 알림 설정, 상품정보에서 +버튼 눌렀을 때,
     @GetMapping("mayo/mypage/{storeid}")
-    public String MyPage(@PathVariable String storeid, Model model) throws ExecutionException, InterruptedException {
+    public ResponseEntity<BasicResponse> MyPage(@PathVariable String storeid) throws ExecutionException, InterruptedException {
 
         StoresDto storesDto = storesService.getStoreById(storeid);
 
-        model.addAttribute("store", storesDto);
+        BasicResponse response = new BasicResponse(storeid, storesDto);
 
-        return "mypage";
-    }
-
-    //가게 정보
-    @GetMapping("/mayo/mypage/{storeid}/storeinfo")
-    public String StoreInfo(@PathVariable String storeid, Model model) throws ExecutionException, InterruptedException {
-
-        StoresDto storesDto = storesService.getStoreById(storeid);
-
-        model.addAttribute("store", storesDto);
-        model.addAttribute("storeid", storeid);
-
-        return "storeinfo";
+        return ResponseEntity.ok(response);
     }
 
     //store 수정 후 버튼 누를 시 store 업데이트
-    @PostMapping("/mayo/mypage/{storeid}/storeinfo/update")
-    public String StoreUpdate(@PathVariable String storeid , StoresDto dto, Model model) throws Exception {
+    @PostMapping("/{storeid}/storeinfo/update")
+    public ResponseEntity<String> StoreUpdate(@PathVariable String storeid , StoresDto dto) throws Exception {
 
         StoresDto storesDto = storesService.getStoreById(storeid);
-
-        model.addAttribute("store", storesDto);
 
         storesService.updateStore(dto);
 
-        return "redirect:/mayo/mypage/" + storeid + "/storeinfo";
-    }
-
-    //고객센터
-    @GetMapping("/mayo/mypage/{storeid}/service")
-    public String CustomerService(@PathVariable String storeid, Model model) throws ExecutionException, InterruptedException {
-
-        StoresDto storesDto = storesService.getStoreById(storeid);
-
-        model.addAttribute("store", storesDto);
-        model.addAttribute("storeid", storeid);
-
-        return "customerservice";
+        return ResponseEntity.ok("Store Update");
     }
 
     //공지사항
-    @GetMapping("/mayo/mypage/{storeid}/notice")
-    public String notice(@PathVariable String storeid, Model model) throws ExecutionException, InterruptedException {
+    @GetMapping("/{storeid}/notice")
+    public ResponseEntity<NoticeResponse> notice(@PathVariable String storeid) throws ExecutionException, InterruptedException {
 
         StoresDto storesDto = storesService.getStoreById(storeid);
-        List<BoardDto> boards = boardService.getBoard1();
+        List<BoardDto> boards = boardService.getNoticeBoard();
 
-        model.addAttribute("board" , boards);
-        model.addAttribute("store", storesDto);
-        model.addAttribute("storeid", storeid);
+        NoticeResponse response = new NoticeResponse(boards, storeid, storesDto);
 
-        return "notice";
+        return ResponseEntity.ok(response);
     }
 
     //약관 및 정책
-    @GetMapping("/mayo/mypage/{storeid}/terms")
-    public String terms(@PathVariable String storeid, Model model) throws ExecutionException, InterruptedException {
+    @GetMapping("/{storeid}/terms")
+    public ResponseEntity<NoticeResponse> terms(@PathVariable String storeid) throws ExecutionException, InterruptedException {
 
         StoresDto storesDto = storesService.getStoreById(storeid);
-        List<BoardDto> boards = boardService.getBoard0();
+        List<BoardDto> boards = boardService.getTermsBoard();
 
-        model.addAttribute("board" , boards);
-        model.addAttribute("store", storesDto);
-        model.addAttribute("storeid", storeid);
+        NoticeResponse response = new NoticeResponse(boards, storeid, storesDto);
 
-        return "terms";
+        return ResponseEntity.ok(response);
     }
 
     //약관 및 정책 상세정보
-    @GetMapping("/mayo/mypage/{storeid}/terms/{boardid}")
-    public String termsDetail(@PathVariable String storeid, @PathVariable String boardid, Model model) throws ExecutionException, InterruptedException {
+    @GetMapping("/{storeid}/terms/{boardid}")
+    public ResponseEntity<NoticeDetailResponse> termsDetail(@PathVariable String storeid, @PathVariable String boardid) throws ExecutionException, InterruptedException {
 
         StoresDto storesDto = storesService.getStoreById(storeid);
-        List<BoardDto> boards = boardService.getBoard0();
-        BoardDto boarddto = boardService.getBoardById(boardid);
+        List<BoardDto> boards = boardService.getTermsBoard();
+        BoardDto boardDto = boardService.getBoardById(boardid);
 
-        model.addAttribute("boarddto", boarddto);
-        model.addAttribute("board" , boards);
-        model.addAttribute("store", storesDto);
-        model.addAttribute("storeid", storeid);
+        NoticeDetailResponse response = new NoticeDetailResponse(boards, boardDto, storeid, storesDto);
 
-        return "termsdetail";
+        return ResponseEntity.ok(response);
     }
 
-    //알림 설정
-    @GetMapping("/mayo/mypage/{storeid}/alarm")
-    public String alarm(@PathVariable String storeid, Model model) throws ExecutionException, InterruptedException {
-
-        StoresDto storesDto = storesService.getStoreById(storeid);
-
-        model.addAttribute("store", storesDto);
-        model.addAttribute("storeid", storeid);
-
-        return "alarm";
-    }
 
     //공지사항 상세정보
-    @GetMapping("/mayo/mypage/{storeid}/notice/{boardid}")
-    public String noticeDetail(@PathVariable String storeid, @PathVariable String boardid, Model model) throws ExecutionException, InterruptedException {
+    @GetMapping("/{storeid}/notice/{boardid}")
+    public ResponseEntity<NoticeDetailResponse> noticeDetail(@PathVariable String storeid, @PathVariable String boardid) throws ExecutionException, InterruptedException {
 
         StoresDto storesDto = storesService.getStoreById(storeid);
-        List<BoardDto> boards = boardService.getBoard0();
-        BoardDto boarddto = boardService.getBoardById(boardid);
+        List<BoardDto> boards = boardService.getNoticeBoard();
+        BoardDto boardDto = boardService.getBoardById(boardid);
 
-        model.addAttribute("boarddto", boarddto);
-        model.addAttribute("board" , boards);
-        model.addAttribute("store", storesDto);
-        model.addAttribute("storeid", storeid);
+        NoticeDetailResponse response = new NoticeDetailResponse(boards, boardDto, storeid, storesDto);
 
-        return "noticedetail";
+        return ResponseEntity.ok(response);
     }
 
     //상품 정보
-    @GetMapping("/mayo/mypage/{storeid}/iteminfo")
-    public String noticeDetail(@PathVariable String storeid, Model model) throws ExecutionException, InterruptedException {
+    @GetMapping("/{storeid}/iteminfo")
+    public ResponseEntity<EnrollResponse> noticeDetail(@PathVariable String storeid) throws ExecutionException, InterruptedException {
 
         StoresDto storesDto = storesService.getStoreById(storeid);
         List<ItemsDto> items = itemsService.getItemsByStoreRef(storeid);
 
-        model.addAttribute("items", items);
-        model.addAttribute("store", storesDto);
-        model.addAttribute("storeid", storeid);
+        EnrollResponse response = new EnrollResponse(
+                items,
+                storeid,
+                storesDto
+        );
 
-        return "iteminfo";
-    }
-
-    //상품 정보에서 +버튼을 눌렀을 시
-    @GetMapping("/mayo/mypage/{storeid}/iteminfo/create")
-    public String create(@PathVariable String storeid, Model model) throws ExecutionException, InterruptedException {
-        StoresDto storesDto = storesService.getStoreById(storeid);
-
-        model.addAttribute("store", storesDto);
-        model.addAttribute("storeid", storeid);
-
-        return "createitem";
+        return ResponseEntity.ok(response);
     }
 
     //상품 상세정보에서 상품추가
-    @PostMapping("/mayo/mypage/{storeid}/iteminfo/createitem")
-    public String createItem(@PathVariable String storeid, ItemsDto item, Model model) throws ExecutionException, InterruptedException {
+    @PostMapping("/{storeid}/iteminfo/createitem")
+    public ResponseEntity<BasicResponse> createItem(@PathVariable String storeid, ItemsDto item) throws ExecutionException, InterruptedException {
         StoresDto storesDto = storesService.getStoreById(storeid);
         DocumentReference storeRef = (DocumentReference) storesService.getDocsRef(storeid);
         item.setStore_ref(storeRef);
 
         ItemsDto saved = itemsService.save(item, storeid);
 
-        model.addAttribute("store", storesDto);
-        model.addAttribute("storeid", storeid);
+        BasicResponse response = new BasicResponse(storeid, storesDto);
 
-        return "closewindow";
+        return ResponseEntity.ok(response);
     }
 
     //상품 정보에서 아이템 눌렀을 때
-    @GetMapping("/mayo/mypage/{storeid}/iteminfo/{itemid}")
-    public String create(@PathVariable String storeid, @PathVariable String itemid, Model model) throws Exception {
+    @GetMapping("/{storeid}/iteminfo/{itemid}")
+    public ResponseEntity<ItemInfoResponse> create(@PathVariable String storeid, @PathVariable String itemid) throws Exception {
         StoresDto storesDto = storesService.getStoreById(storeid);
         ItemsDto itemsDto = itemsService.getItemById(itemid);
 
-        model.addAttribute("item", itemsDto);
-        model.addAttribute("store", storesDto);
-        model.addAttribute("storeid", storeid);
+        ItemInfoResponse response = new ItemInfoResponse(itemsDto, storeid, storesDto);
 
-        return "updateitem";
+        return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/mayo/mypage/{storeid}/iteminfo/{itemid}/updateitem")
-    public String ItemUpdate(@PathVariable String storeid, @PathVariable String itemid ,ItemsDto dto, Model model) throws Exception {
+    //아이템 업데이트 시
+    @PostMapping("/{storeid}/iteminfo/{itemid}/updateitem")
+    public ResponseEntity<String> ItemUpdate(@PathVariable String storeid, @PathVariable String itemid ,ItemsDto dto) throws Exception {
 
         ItemsDto itemsDto = itemsService.getItemById(itemid);
-
-        model.addAttribute("itemsDto", itemsDto);
+        StoresDto storesDto = storesService.getStoreById(storeid);
 
         itemsService.updateItem(dto);
 
-        return "closewindow";
+        return ResponseEntity.ok("item update");
+
     }
 
-    //상품 상셋정보에서 아이템 삭제시
-    @GetMapping("/mayo/mypage/{storeid}/iteminfo/{itemid}/deleteitem")
-    public String ItemDelete(@PathVariable String storeid, @PathVariable String itemid) throws Exception {
+    //상품 상세정보에서 아이템 삭제시
+    @GetMapping("/{storeid}/iteminfo/{itemid}/deleteitem")
+    public ResponseEntity<String> ItemDelete(@PathVariable String storeid, @PathVariable String itemid) throws Exception {
 
         ItemsDto itemsDto = itemsService.getItemById(itemid);
 
@@ -222,7 +163,7 @@ public class MyPageController {
             itemsService.deleteItem(itemsDto);
         }
 
-        return "closewindow";
+        return ResponseEntity.ok("item delete");
     }
 
 }

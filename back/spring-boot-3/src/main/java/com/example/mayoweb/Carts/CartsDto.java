@@ -1,8 +1,8 @@
-package com.example.mayoweb.Carts;
+package com.example.mayoweb.carts;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.google.cloud.Timestamp;
 import com.google.cloud.firestore.DocumentReference;
-import com.google.cloud.firestore.annotation.DocumentId;
-import com.google.cloud.firestore.annotation.PropertyName;
 import com.google.type.Date;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,15 +19,18 @@ public class CartsDto {
 
     private Boolean cartActive;
 
-    private Date created_at;
+    private Timestamp created_at;
 
-    private Date pickup_time;
+    private Timestamp pickup_time;
 
     private Double subtotal;
 
+    @JsonIgnore
     private DocumentReference userRef;
 
+    @JsonIgnore
     private DocumentReference item;
 
+    @JsonIgnore
     private DocumentReference store_ref;
 }

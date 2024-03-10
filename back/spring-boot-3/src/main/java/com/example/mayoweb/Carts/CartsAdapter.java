@@ -1,5 +1,6 @@
-package com.example.mayoweb.Carts;
+package com.example.mayoweb.carts;
 
+import com.example.mayoweb.reservation.ReservationEntity;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.DocumentSnapshot;
@@ -23,25 +24,40 @@ public class CartsAdapter {
             try {
                 DocumentSnapshot document = future.get();
                 if (document.exists()) {
-                    String cartId = document.getString("cartId");
-                    int itemCount = document.getLong("itemCount").intValue();
-                    Double subtotal = document.getDouble("subtotal");
-                    DocumentReference item = (DocumentReference) document.get("item");
 
-                    CartsEntity cart = new CartsEntity();
-                    cart.setCartId(cartId);
-                    cart.setItemCount(itemCount);
-                    cart.setSubtotal(subtotal);
-                    cart.setItem(item);
+                    CartsEntity cart = CartsEntity.builder()
+                            .cartId(document.getString("cartId"))
+                            .ItemCount(document.get("itemCount", Integer.class))
+                            .cartActive(document.getBoolean("cartActive"))
+                            .created_at(document.getTimestamp("created_at"))
+                            .pickup_time(document.getTimestamp("pickup_time"))
+                            .subtotal(document.getDouble("subtotal"))
+                            .item((DocumentReference) document.get("item"))
+                            .userRef((DocumentReference) document.get("userRef"))
+                            .store_ref((DocumentReference) document.get("store_ref")).build();
 
                     cartsEntity.add(cart);
+
                 } else {
-                    System.out.println("문서가 존재하지 않습니다.");
                 }
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             }
         }
         return cartsEntity;
+    }
+
+    //reservation객체의 리스트를 받아 첫번째 cart객체를 가져옵니다.
+    public List<DocumentReference> getFirstCartsByReservations(List<ReservationEntity> reservations) {
+        List<DocumentReference> carts = new ArrayList<>();
+
+        for (ReservationEntity reservation : reservations) {
+            List<DocumentReference> cartRefs = reservation.getCart_ref();
+            if (!cartRefs.isEmpty()) {
+                DocumentReference firstCartRef = cartRefs.get(0);
+                carts.add(firstCartRef);
+            }
+        }
+        return carts;
     }
 }

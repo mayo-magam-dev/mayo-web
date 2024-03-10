@@ -1,4 +1,4 @@
-package com.example.mayoweb.Config;
+package com.example.mayoweb.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;

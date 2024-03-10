@@ -1,4 +1,4 @@
-package com.example.mayoweb.Carts;
+package com.example.mayoweb.carts;
 
 import com.google.cloud.Timestamp;
 import com.google.cloud.firestore.DocumentReference;
@@ -8,7 +8,8 @@ import com.google.type.Date;
 import lombok.*;
 
 @NoArgsConstructor
-@Data
+@Getter
+@Builder
 @ToString
 @AllArgsConstructor
 public class CartsEntity {
@@ -23,10 +24,10 @@ public class CartsEntity {
     public Boolean cartActive;
 
     @PropertyName("created_at")
-    public Date created_at;
+    public Timestamp created_at;
 
     @PropertyName("pickup_time")
-    public Date pickup_time;
+    public Timestamp pickup_time;
 
     @PropertyName("subtotal")
     public Double subtotal;
