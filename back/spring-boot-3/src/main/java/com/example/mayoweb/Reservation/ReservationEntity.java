@@ -1,18 +1,15 @@
-package com.example.mayoweb.Reservation;
+package com.example.mayoweb.reservation;
 import com.google.cloud.Timestamp;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.annotation.DocumentId;
 import com.google.cloud.firestore.annotation.PropertyName;
-import com.google.firebase.database.annotations.Nullable;
-import com.google.type.Date;
-import com.google.type.DateTime;
 import lombok.*;
 import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
-@Setter
+@Builder
 @ToString
 public class ReservationEntity {
 

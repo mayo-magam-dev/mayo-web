@@ -1,4 +1,4 @@
-package com.example.mayoweb.Reservation;
+package com.example.mayoweb.reservation;
 
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.*;
@@ -6,9 +6,7 @@ import com.google.firebase.cloud.FirestoreClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 @Repository
@@ -40,14 +38,50 @@ public class ReservationsAdapter {
         Query query = reservationsRef.whereEqualTo("store_ref", storeDocumentId);
         ApiFuture<QuerySnapshot> querySnapshotApiFuture = query.get();
         QuerySnapshot querySnapshot = querySnapshotApiFuture.get();
+
+        Comparator<ReservationEntity> createdAtComparator = Comparator
+                .comparing(entity -> entity.getCreated_at().toSqlTimestamp(), Comparator.reverseOrder());
+
         for (QueryDocumentSnapshot reservationDocument : querySnapshot.getDocuments()) {
             ReservationEntity reservationEntity = reservationDocument.toObject(ReservationEntity.class);
-            if(reservationEntity.getReservation_state() == 0) {
+            if(reservationEntity.getReservation_state() == State.NEW.ordinal()) {
                 newreservations.add(reservationEntity);
             }
         }
+        newreservations.sort(createdAtComparator);
+
         return newreservations;
     }
+
+    //비동기식으로 가게 도큐먼트 id를 받아 해당 가게의 신규 예약들을 가져옵니다.
+//    public List<ReservationEntity> getNewByStoreRef(String storesRef, Callback<List<ReservationEntity>> callback) throws ExecutionException, InterruptedException {
+//        List<ReservationEntity> newreservations = new ArrayList<>();
+//        Firestore firestore = FirestoreClient.getFirestore();
+//        DocumentReference storeDocumentId = firestore.collection("stores").document(storesRef);
+//        CollectionReference reservationsRef = firestore.collection("reservation");
+//        Comparator<ReservationEntity> createdAtComparator = Comparator
+//                .comparing(entity -> entity.getCreated_at().toSqlTimestamp(), Comparator.reverseOrder());
+//        reservationsRef.whereEqualTo("store_ref", storeDocumentId).addSnapshotListener( new EventListener<QuerySnapshot>() {
+//            @Override
+//            public void onEvent(@Nullable QuerySnapshot snapshots, @Nullable FirestoreException e) {
+//                if(e != null) {
+//                    log.info("Listen failed : " + e);
+//                    return;
+//                }
+//                for(DocumentSnapshot doc : snapshots) {
+//                    ReservationEntity reservationEntity = doc.toObject(ReservationEntity.class);
+//                    if(reservationEntity.getReservation_state() == State.NEW.ordinal()) {
+//                        newreservations.add(reservationEntity);
+//                        log.info("newreservation : " + newreservations.toString());
+//                    }
+//                }
+//                newreservations.sort(createdAtComparator);
+//                callback.onSuccess(newreservations);
+//            }
+//        });
+//        return newreservations;
+//    }
+
 
     //가게 document id를 받아 해당 가게의 진행중인 예약들을 가져옵니다.
     public List<ReservationEntity> getProcessingByStoreRef(String storesRef) throws ExecutionException, InterruptedException {
@@ -55,13 +89,19 @@ public class ReservationsAdapter {
         Firestore firestore = FirestoreClient.getFirestore();
         DocumentReference storeDocumentId = firestore.collection("stores").document(storesRef);
         CollectionReference reservationsRef = firestore.collection("reservation");
-        Query query = reservationsRef.whereEqualTo("store_ref", storeDocumentId).whereEqualTo("reservation_state",1);
+        Query query = reservationsRef.whereEqualTo("store_ref", storeDocumentId).whereEqualTo("reservation_state",State.PROCEEDING.ordinal());
         ApiFuture<QuerySnapshot> querySnapshotApiFuture = query.get();
         QuerySnapshot querySnapshot = querySnapshotApiFuture.get();
+
+        Comparator<ReservationEntity> createdAtComparator = Comparator
+                .comparing(entity -> entity.getCreated_at().toSqlTimestamp(), Comparator.reverseOrder());
+
         for (QueryDocumentSnapshot reservationDocument : querySnapshot.getDocuments()) {
             ReservationEntity reservationEntity = reservationDocument.toObject(ReservationEntity.class);
-                reservations.add(reservationEntity);
+            reservations.add(reservationEntity);
         }
+        reservations.sort(createdAtComparator);
+
         return reservations;
     }
 
@@ -74,19 +114,24 @@ public class ReservationsAdapter {
         Query query = reservationsRef.whereEqualTo("store_ref", storeDocumentId);
         ApiFuture<QuerySnapshot> querySnapshotApiFuture = query.get();
         QuerySnapshot querySnapshot = querySnapshotApiFuture.get();
+
+        Comparator<ReservationEntity> createdAtComparator = Comparator
+                .comparing(entity -> entity.getCreated_at().toSqlTimestamp(), Comparator.reverseOrder());
+
         for (QueryDocumentSnapshot reservationDocument : querySnapshot.getDocuments()) {
             ReservationEntity reservationEntity = reservationDocument.toObject(ReservationEntity.class);
-            if(reservationEntity.getReservation_state() == 2) {
+            if(reservationEntity.getReservation_state() == State.END.ordinal() || reservationEntity.getReservation_state() == State.FAIL.ordinal()) {
                 reservations.add(reservationEntity);
             }
         }
+        reservations.sort(createdAtComparator);
+
         return reservations;
     }
 
     //예약 도큐먼트 Id를 입력받아 reservation 객체를 가져옵니다.
     public Optional<ReservationEntity> findByReservationId(String reservationId) {
         Firestore db = FirestoreClient.getFirestore();
-        ReservationEntity reservationEntity = null;
 
         try {
             DocumentReference docRef = db.collection("reservation").document(reservationId);
@@ -94,33 +139,6 @@ public class ReservationsAdapter {
             DocumentSnapshot document = future.get();
 
             if (document.exists()) {
-                reservationEntity = new ReservationEntity();
-                reservationEntity.setId(document.getString("id"));
-                reservationEntity.setReservation_id(document.getString("reservation_id"));
-                reservationEntity.setReservation_is_plastics(document.getBoolean("reservation_is_plastics"));
-                reservationEntity.setReservation_state((document.get("reservation_state", Integer.class)));
-                reservationEntity.setReservation_request(document.getString("reservation_request"));
-                reservationEntity.setCreated_at(document.getTimestamp("created_at"));
-                reservationEntity.setPickup_time(document.getTimestamp("pickup_time"));
-                reservationEntity.setTotal_price(document.getDouble("total_price"));
-
-                DocumentReference storeRef = (DocumentReference) document.get("store_ref");
-                if (storeRef != null) {
-                    ApiFuture<DocumentSnapshot> store_ref = storeRef.get();
-                    DocumentSnapshot storeDocument = store_ref.get();
-                    if (storeDocument.exists()) {
-                        reservationEntity.setStore_ref(storeDocument.getReference());
-                    }
-                }
-
-                DocumentReference userRef = (DocumentReference) document.get("user_ref");
-                if (userRef != null) {
-                    ApiFuture<DocumentSnapshot> user_ref = userRef.get();
-                    DocumentSnapshot userDocument = user_ref.get();
-                    if (userDocument.exists()) {
-                        reservationEntity.setUser_ref(userDocument.getReference());
-                    }
-                }
 
                 List<DocumentReference> cartRefs = (List<DocumentReference>) document.get("cart_ref");
                 List<DocumentReference> cart_ref = new ArrayList<>();
@@ -136,22 +154,37 @@ public class ReservationsAdapter {
                             }
                         }
                     }
-                    reservationEntity.setCart_ref(cart_ref);
                 }
                 catch (ExecutionException e) {
                     throw new RuntimeException(e);
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
-            } else {
-                System.out.println("No such document!");
+
+                ReservationEntity reservationEntity = ReservationEntity.builder()
+                        .id(document.getString("id"))
+                        .reservation_id(document.getString("reservation_id"))
+                        .reservation_is_plastics(document.getBoolean("reservation_is_plastics"))
+                        .reservation_state((document.get("reservation_state", Integer.class)))
+                        .reservation_request(document.getString("reservation_request"))
+                        .created_at(document.getTimestamp("created_at"))
+                        .pickup_time(document.getTimestamp("pickup_time"))
+                        .total_price(document.getDouble("total_price"))
+                        .store_ref((DocumentReference) document.get("store_ref"))
+                        .user_ref((DocumentReference) document.get("user_ref"))
+                        .cart_ref(cart_ref)
+                        .build();
+
+                return Optional.ofNullable(reservationEntity);
+            }
+            else {
             }
         } catch (ExecutionException e) {
             throw new RuntimeException(e);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        return Optional.ofNullable(reservationEntity);
+        return Optional.empty();
     }
 
     //예약 도큐먼트 Id를 입력받아 진행중 상태로 바꿉니다.
@@ -161,7 +194,7 @@ public class ReservationsAdapter {
         ApiFuture<DocumentSnapshot> future = documentReference.get();
         DocumentSnapshot document = future.get();
         if (document.exists()) {
-            documentReference.update("reservation_state", 1);
+            documentReference.update("reservation_state", State.PROCEEDING.ordinal());
         }
     }
 
@@ -172,7 +205,7 @@ public class ReservationsAdapter {
         ApiFuture<DocumentSnapshot> future = documentReference.get();
         DocumentSnapshot document = future.get();
         if (document.exists()) {
-            documentReference.update("reservation_state", 2);
+            documentReference.update("reservation_state", State.END.ordinal());
         }
     }
 
@@ -183,20 +216,12 @@ public class ReservationsAdapter {
         ApiFuture<DocumentSnapshot> future = documentReference.get();
         DocumentSnapshot document = future.get();
         if (document.exists()) {
-            documentReference.update("reservation_state", 3);
+            documentReference.update("reservation_state", State.FAIL.ordinal());
         }
     }
 
-    //예약 도큐먼트 Id를 입력받아 예약 객체를 받아옵니다.
-    public ReservationEntity getReservationById(String reservationRef) throws ExecutionException, InterruptedException {
-        Firestore firestore = FirestoreClient.getFirestore();
-        DocumentReference documentReference = firestore.collection("reservation").document(reservationRef);
-        ApiFuture<DocumentSnapshot> future = documentReference.get();
-        DocumentSnapshot document = future.get();
-        ReservationEntity reservation = null;
-        if(document.exists()) {
-            reservation = document.toObject(ReservationEntity.class);
-        }
-        return reservation;
+    enum State {
+        NEW, PROCEEDING, END, FAIL
     }
+
 }

@@ -1,8 +1,5 @@
-package com.example.mayoweb.Board;
+package com.example.mayoweb.board;
 
-import com.example.mayoweb.Store.StoresDto;
-import com.example.mayoweb.Store.StoresEntity;
-import com.google.cloud.Timestamp;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -13,14 +10,14 @@ import java.util.concurrent.ExecutionException;
 @RequiredArgsConstructor
 public class BoardService {
 
-    private final BoardAdapter boardAdapter;
+    private final com.example.mayoweb.board.BoardAdapter boardAdapter;
 
-    public List<BoardDto> getBoard0() throws ExecutionException, InterruptedException {
-        return boardAdapter.getBoard0().stream().map(this::toDto).toList();
+    public List<BoardDto> getTermsBoard() throws ExecutionException, InterruptedException {
+        return boardAdapter.getTermsBoard().stream().map(this::toDto).toList();
     }
 
-    public List<BoardDto> getBoard1() throws ExecutionException, InterruptedException {
-        return boardAdapter.getBoard1().stream().map(this::toDto).toList();
+    public List<BoardDto> getNoticeBoard() throws ExecutionException, InterruptedException {
+        return boardAdapter.getNoticeBoard().stream().map(this::toDto).toList();
     }
 
     public BoardDto getBoardById(String boardId) throws ExecutionException, InterruptedException {

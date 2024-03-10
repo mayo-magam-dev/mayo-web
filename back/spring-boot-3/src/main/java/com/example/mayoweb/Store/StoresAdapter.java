@@ -1,4 +1,4 @@
-package com.example.mayoweb.Store;
+package com.example.mayoweb.store;
 
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.*;
@@ -6,8 +6,6 @@ import com.google.firebase.cloud.FirestoreClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
