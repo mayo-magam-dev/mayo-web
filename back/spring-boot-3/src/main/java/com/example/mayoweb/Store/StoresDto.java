@@ -1,4 +1,4 @@
-package com.example.mayoweb.Store;
+package com.example.mayoweb.store;
 
 import lombok.*;
 

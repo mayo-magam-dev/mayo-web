@@ -1,4 +1,4 @@
-package com.example.mayoweb.Items;
+package com.example.mayoweb.items;
 
 import com.google.cloud.Timestamp;
 import com.google.cloud.firestore.DocumentReference;
@@ -9,7 +9,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
-@Setter
+@Builder
 @ToString
 public class ItemsEntity {
 

@@ -1,4 +1,4 @@
-package com.example.mayoweb.Board;
+package com.example.mayoweb.board;
 import com.google.cloud.Timestamp;
 import com.google.cloud.firestore.annotation.DocumentId;
 import com.google.cloud.firestore.annotation.PropertyName;
@@ -7,7 +7,7 @@ import lombok.*;
 
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
+@Getter
 public class BoardEntity {
 
     @DocumentId

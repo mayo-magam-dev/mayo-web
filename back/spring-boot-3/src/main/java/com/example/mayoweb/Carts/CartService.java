@@ -1,8 +1,5 @@
-package com.example.mayoweb.Carts;
+package com.example.mayoweb.carts;
 
-import com.example.mayoweb.Carts.CartsAdapter;
-import com.example.mayoweb.Carts.CartsDto;
-import com.example.mayoweb.Carts.CartsEntity;
 import com.google.cloud.firestore.DocumentReference;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

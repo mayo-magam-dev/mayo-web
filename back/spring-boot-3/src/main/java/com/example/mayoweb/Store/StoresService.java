@@ -1,8 +1,5 @@
-package com.example.mayoweb.Store;
+package com.example.mayoweb.store;
 
-import com.example.mayoweb.Store.StoresAdapter;
-import com.example.mayoweb.Store.StoresDto;
-import com.example.mayoweb.Store.StoresEntity;
 import com.google.cloud.firestore.DocumentReference;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

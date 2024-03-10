@@ -1,7 +1,9 @@
-package com.example.mayoweb.Items;
+package com.example.mayoweb.items;
 
-import com.example.mayoweb.Reservation.ReservationEntity;
+import com.example.mayoweb.reservation.ReservationEntity;
+import com.example.mayoweb.items.ItemsEntity;
 import com.google.api.core.ApiFuture;
+import com.google.cloud.Timestamp;
 import com.google.cloud.firestore.*;
 import com.google.firebase.cloud.FirestoreClient;
 import lombok.extern.slf4j.Slf4j;
@@ -43,16 +45,12 @@ public class ItemsAdapter {
     }
 
     //checkbox 여부와 itemid리스트와 개수를 입력받아 해당 아이템의 개수를 바꾸고 item_on_sale값을 true로 바꿉니다.
-    public void updateItemOnSale(List<String> checkbox ,List<String> itemidList, List<Integer> quantityList) {
+    public void updateItemOnSale(List<String> itemidList, List<Integer> quantityList) {
         Firestore firestore = FirestoreClient.getFirestore();
         CollectionReference itemRef = firestore.collection("items");
 
-        System.out.println(checkbox.size());
-        System.out.println("check : " + checkbox.get(0) + "item : " + itemidList.get(0) + "quantity : " + quantityList.get(0));
-
-        for(int i=0; i<checkbox.size(); i++) {
-            if("on".equals(checkbox.get(i))) {
-                log.info(checkbox.get(i) + itemidList.get(i) + quantityList.get(i));
+        for(int i=0; i<itemidList.size(); i++) {
+            if(quantityList.get(i) > 0) {
                 DocumentReference item = itemRef.document(itemidList.get(i));
                 item.update("item_on_sale", true, "item_quantity", quantityList.get(i));
             }
@@ -64,104 +62,97 @@ public class ItemsAdapter {
         ApiFuture<DocumentSnapshot> itemSnapshotFuture = doc.get();
         DocumentSnapshot itemSnapshot = itemSnapshotFuture.get();
         if (itemSnapshot.exists()) {
-            ItemsEntity itemsEntity = new ItemsEntity();
-
-            String itemName = itemSnapshot.getString("item_name");
-
-            itemsEntity.setItem_name(itemName);
+            ItemsEntity itemsEntity = ItemsEntity.builder()
+                    .itemId(itemSnapshot.getId())
+                    .item_name(itemSnapshot.getString("item_name"))
+                    .item_description(itemSnapshot.getString("item_description"))
+                    .original_price(itemSnapshot.get("original_price", Integer.class))
+                    .sale_percent(itemSnapshot.getDouble("sale_percent"))
+                    .item_created(itemSnapshot.getTimestamp("item_created"))
+                    .item_modified(itemSnapshot.getTimestamp("time_modified"))
+                    .item_quantity(itemSnapshot.get("item_quantity", Integer.class))
+                    .item_on_sale(itemSnapshot.getBoolean("item_on_sale"))
+                    .item_image(itemSnapshot.getString("item_image"))
+                    .store_name(itemSnapshot.getString("store_name"))
+                    .store_address(itemSnapshot.getString("store-address"))
+                    .user_item_quantity(itemSnapshot.get("user_item_quantity", Integer.class))
+                    .sale_price(itemSnapshot.getDouble("sale_price"))
+                    .cooking_time(itemSnapshot.get("cooking_time",Integer.class))
+                    .additional_information(itemSnapshot.getString("additional_information"))
+                    .cartRef((DocumentReference) itemSnapshot.get("cartRef"))
+                    .store_ref((DocumentReference) itemSnapshot.get("store_ref"))
+                    .build();
 
             return itemsEntity;
         } else {
-            System.out.println("User document does not exist!");
         }
         return null;
     }
 
-    //reservationEntity List에서 각 reservation 객체의 첫 item이름을 가져옵니다.
-    public List<String> getFirstItemNamesFromReservations(List<ReservationEntity> reservations) {
+    //cart 객체의 리스트를 입력받아 첫 item이름을 가져옵니다.
+
+    public List<String> getFirstItemNamesFromCarts(List<DocumentReference> carts) throws ExecutionException, InterruptedException {
         List<String> firstItemNames = new ArrayList<>();
 
-        for (ReservationEntity reservation : reservations) {
-            List<DocumentReference> cartRefs = reservation.getCart_ref();
-            if (!cartRefs.isEmpty()) {
-                DocumentReference firstCartRef = cartRefs.get(0);
-                try {
-                    DocumentSnapshot cartSnapshot = firstCartRef.get().get();
-                    if (cartSnapshot.exists()) {
-                        DocumentReference itemRef = (DocumentReference) cartSnapshot.get("item");
-                        if (itemRef != null) {
-                            DocumentSnapshot itemSnapshot = itemRef.get().get();
-                            if (itemSnapshot.exists()) {
-                                String itemName = itemSnapshot.getString("item_name");
-                                firstItemNames.add(itemName);
-                            }
-                        }
+        for (DocumentReference cart : carts) {
+            DocumentSnapshot cartSnapshot = cart.get().get();
+
+            if(cartSnapshot.exists()) {
+                DocumentReference itemRef = (DocumentReference) cartSnapshot.get("item");
+                if(itemRef != null) {
+                    DocumentSnapshot itemSnapshot = itemRef.get().get();
+                    if (itemSnapshot.exists()) {
+                        String itemName = itemSnapshot.getString("item_name");
+                        firstItemNames.add(itemName);
                     }
-                } catch (InterruptedException | ExecutionException e) {
-                    e.printStackTrace();
                 }
             }
         }
-
         return firstItemNames;
     }
 
     //itemid로 item객체를 가져옵니다.
     public Optional<ItemsEntity> getItemById(String itemId) {
         Firestore db = FirestoreClient.getFirestore();
-        ItemsEntity itemsEntity = null;
 
         try {
             DocumentReference docRef = db.collection("items").document(itemId);
             ApiFuture<DocumentSnapshot> future = docRef.get();
-            DocumentSnapshot document = future.get();
+            DocumentSnapshot itemSnapshot = future.get();
 
-            if (document.exists()) {
+            if (itemSnapshot.exists()) {
 
-                itemsEntity = new ItemsEntity();
-                itemsEntity.setItemId(itemId);
-                itemsEntity.setItem_name(document.getString("item_name"));
-                itemsEntity.setItem_description(document.getString("item_description"));
-                itemsEntity.setOriginal_price((document.get("original_price", Integer.class)));
-                itemsEntity.setSale_percent(document.getDouble("sale_percent"));
-//                itemsEntity.setItem_created(Timestamp.of(document.getDate("created_at")));
-//                itemsEntity.setItem_modified(Timestamp.of(document.getDate("pickup_time")));
-                itemsEntity.setItem_quantity((document.get("item_quantity", Integer.class)));
-                itemsEntity.setItem_on_sale(document.getBoolean("item_on_sale"));
-                itemsEntity.setItem_image(document.getString("item_image"));
-                itemsEntity.setStore_name(document.getString("store_name"));
-                itemsEntity.setStore_address(document.getString("store_address"));
-                itemsEntity.setUser_item_quantity((document.get("user_item_quantity", Integer.class)));
-                itemsEntity.setSale_price(document.getDouble("sale_price"));
-                itemsEntity.setCooking_time((document.get("cooking_time", Integer.class)));
-                itemsEntity.setAdditional_information(document.getString("additional_information"));
+                ItemsEntity itemsEntity = ItemsEntity.builder()
+                        .itemId(itemSnapshot.getId())
+                        .item_name(itemSnapshot.getString("item_name"))
+                        .item_description(itemSnapshot.getString("item_description"))
+                        .original_price(itemSnapshot.get("original_price", Integer.class))
+                        .sale_percent(itemSnapshot.getDouble("sale_percent"))
+                        .item_created(itemSnapshot.getTimestamp("item_created"))
+                        .item_modified(itemSnapshot.getTimestamp("time_modified"))
+                        .item_quantity(itemSnapshot.get("item_quantity", Integer.class))
+                        .item_on_sale(itemSnapshot.getBoolean("item_on_sale"))
+                        .item_image(itemSnapshot.getString("item_image"))
+                        .store_name(itemSnapshot.getString("store_name"))
+                        .store_address(itemSnapshot.getString("store-address"))
+                        .user_item_quantity(itemSnapshot.get("user_item_quantity", Integer.class))
+                        .sale_price(itemSnapshot.getDouble("sale_price"))
+                        .cooking_time(itemSnapshot.get("cooking_time",Integer.class))
+                        .additional_information(itemSnapshot.getString("additional_information"))
+                        .cartRef((DocumentReference) itemSnapshot.get("cartRef"))
+                        .store_ref((DocumentReference) itemSnapshot.get("store_ref"))
+                        .build();
 
-
-                DocumentReference storeRef = (DocumentReference) document.get("store_ref");
-                if (storeRef != null) {
-                    ApiFuture<DocumentSnapshot> store_ref = storeRef.get();
-                    DocumentSnapshot storeDocument = store_ref.get();
-                    if (storeDocument.exists()) {
-                        itemsEntity.setStore_ref(storeDocument.getReference());
-                    }
-                }
-
-                DocumentReference cartRef = (DocumentReference) document.get("cartRef");
-                if (cartRef != null) {
-                    ApiFuture<DocumentSnapshot> cart_ref = cartRef.get();
-                    DocumentSnapshot cartDocument = cart_ref.get();
-                    if (cartDocument.exists()) {
-                        itemsEntity.setCartRef(cartDocument.getReference());
-                    }
-                }
+                return Optional.ofNullable(itemsEntity);
             }
-
-        } catch (ExecutionException e) {
-            throw new RuntimeException(e);
-        } catch (InterruptedException e) {
+        }
+        catch (ExecutionException e) {
             throw new RuntimeException(e);
         }
-        return Optional.ofNullable(itemsEntity);
+        catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        return Optional.empty();
     }
 
     //item객체를 받아 firebase에서 새로운 아이템을 만듭니다.
@@ -172,7 +163,27 @@ public class ItemsAdapter {
         DocumentReference docRef = db.collection("stores").document(storeRef);
 
         if(docRef != null) {
-            item.setStore_ref(docRef);
+
+            ItemsEntity itemsEntity = ItemsEntity.builder()
+                    .itemId(item.getItemId())
+                    .item_name(item.getItem_name())
+                    .item_description(item.getItem_description())
+                    .original_price(item.getOriginal_price())
+                    .sale_percent(item.getSale_percent())
+                    .item_created(item.getItem_created())
+                    .item_modified(item.getItem_modified())
+                    .item_quantity(item.getItem_quantity())
+                    .item_on_sale(item.getItem_on_sale())
+                    .item_image(item.getItem_image())
+                    .store_name(item.getStore_name())
+                    .store_address(item.getStore_address())
+                    .user_item_quantity(item.getUser_item_quantity())
+                    .sale_price(item.getSale_price())
+                    .cooking_time(item.getCooking_time())
+                    .additional_information(item.getAdditional_information())
+                    .cartRef(item.getCartRef())
+                    .store_ref((DocumentReference) docRef)
+                    .build();
         }
 
         itemCollection.add(item);
@@ -191,6 +202,7 @@ public class ItemsAdapter {
         }
     }
 
+    //아이템 객체 삭제
     public void deleteItem(ItemsEntity itemsEntity) throws ExecutionException, InterruptedException {
         Firestore db = FirestoreClient.getFirestore();
         ApiFuture<WriteResult> writeResult = db.collection("items").document(itemsEntity.getItemId()).delete();

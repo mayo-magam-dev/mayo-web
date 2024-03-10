@@ -1,195 +1,132 @@
-package com.example.mayoweb.Controller;
+package com.example.mayoweb.controller;
 
-import com.example.mayoweb.Carts.CartService;
-import com.example.mayoweb.Carts.CartsDto;
-import com.example.mayoweb.Items.ItemsDto;
-import com.example.mayoweb.Items.ItemsService;
-import com.example.mayoweb.Reservation.ReservationService;
-import com.example.mayoweb.Reservation.ReservationsDto;
-import com.example.mayoweb.Store.StoresDto;
-import com.example.mayoweb.Store.StoresService;
+import com.example.mayoweb.carts.CartService;
+import com.example.mayoweb.carts.CartsDto;
+import com.example.mayoweb.items.ItemsDto;
+import com.example.mayoweb.items.ItemsService;
+import com.example.mayoweb.reservation.ReservationService;
+import com.example.mayoweb.reservation.ReservationsDto;
+import com.example.mayoweb.store.StoresDto;
+import com.example.mayoweb.store.StoresService;
 import com.example.mayoweb.User.UsersDto;
 import com.example.mayoweb.User.UsersService;
+import com.example.mayoweb.response.ProcessingDetailResponse;
+import com.example.mayoweb.response.ProcessingResponse;
 import com.google.cloud.firestore.DocumentReference;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-@Controller
+@RequiredArgsConstructor
+@RestController
 @Slf4j
+@RequestMapping("/mayo/processing")
 public class ProcessingController {
 
-    @Autowired
-    ReservationService reservationService;
 
-    @Autowired
-    ItemsService itemsService;
+    private final ReservationService reservationService;
 
-    @Autowired
-    UsersService usersService;
+    private final ItemsService itemsService;
 
-    @Autowired
-    CartService cartService;
+    private final UsersService usersService;
 
-    @Autowired
-    StoresService storesService;
+    private final CartService cartService;
+
+    private final StoresService storesService;
 
 
-    //처리중 기본화면
-    @GetMapping("mayo/processing/{storeid}")
-    public String home(@PathVariable String storeid, Model model) throws ExecutionException, InterruptedException {
-
-        List<ReservationsDto> NewReservationList = reservationService.getNewByStoreRef(storeid);
-
-        List<ReservationsDto> ProcessingReservationList = reservationService.getProcessingByStoreRef(storeid);
-
-        List<String> newItem = itemsService.getFirstItemNamesFromReservations(NewReservationList);
-
-        List<String> processingItem = itemsService.getFirstItemNamesFromReservations(ProcessingReservationList);
-
+    @GetMapping("/{storeid}")
+    public ResponseEntity<ProcessingResponse> home(@PathVariable String storeid) throws ExecutionException, InterruptedException {
+        List<ReservationsDto> newReservationList = reservationService.getNewByStoreRef(storeid);
+        List<ReservationsDto> processingReservationList = reservationService.getProcessingByStoreRef(storeid);
+        List<String> newItem = itemsService.getFirstItemNamesFromReservations(newReservationList);
+        List<String> processingItem = itemsService.getFirstItemNamesFromReservations(processingReservationList);
         StoresDto storesDto = storesService.getStoreById(storeid);
 
-        model.addAttribute("storeid", storeid);
-        model.addAttribute("newSize", NewReservationList.size());
-        model.addAttribute("processingSize", ProcessingReservationList.size());
-        model.addAttribute("newItem", newItem);
-        model.addAttribute("processingItem", processingItem);
-        model.addAttribute("newReservation", NewReservationList);
-        model.addAttribute("processing", ProcessingReservationList);
-        model.addAttribute("store", storesDto);
-
-        return "processing";
+        ProcessingResponse response = new ProcessingResponse(
+                storeid,
+                newReservationList.size(),
+                processingReservationList.size(),
+                newItem,
+                processingItem,
+                newReservationList,
+                processingReservationList,
+                storesDto
+        );
+        return ResponseEntity.ok(response);
     }
 
-    //처리 중(신규 id 눌렀을 시)
-    @GetMapping("mayo/processingnew/{storeid}/{reservationid}")
-    public String newprocessing(@PathVariable String storeid, @PathVariable String reservationid, Model model) throws Exception {
-
-        //reservation 엔티티 가져옴
-        ReservationsDto reservationEntity = reservationService.getReservationById(reservationid);
-
-        List<ReservationsDto> NewReservationList = reservationService.getNewByStoreRef(storeid);
-
-        List<ReservationsDto> ProcessingReservationList = reservationService.getProcessingByStoreRef(storeid);
-
-        List<String> newItem = itemsService.getFirstItemNamesFromReservations(NewReservationList);
-
-        List<String> processingItem = itemsService.getFirstItemNamesFromReservations(ProcessingReservationList);
-
-        DocumentReference userRef = reservationEntity.getUser_ref();
-
-        UsersDto usersEntity = usersService.getUserByDocRef(userRef);
-
-        List<DocumentReference> cartRef = reservationEntity.getCart_ref();
-
-        List<CartsDto> cartsEntity = cartService.getCartsByDocRef(cartRef);
-
+    //처리 중(주문 눌렀을 시)
+    @GetMapping("/{storeid}/{reservationid}")
+    public ResponseEntity<ProcessingDetailResponse> newprocessing(@PathVariable String storeid, @PathVariable String reservationid) throws Exception {
+        ReservationsDto reservation = reservationService.getReservationById(reservationid); //파라미터로 받아온 예약id값으로 reservation dto를 가져옵니다.->created_at, pickup_time, total_price, reservation_request, reservation_is_plastic
+        List<ReservationsDto> newReservationList = reservationService.getNewByStoreRef(storeid); //신규 예약 리스트 -> created_at, pickup_time
+        List<ReservationsDto> processingReservationList = reservationService.getProcessingByStoreRef(storeid); //진행 예약 리스트
+        List<String> newItem = itemsService.getFirstItemNamesFromReservations(newReservationList); //신규 예약 아이템 이름 리스트
+        List<String> processingItem = itemsService.getFirstItemNamesFromReservations(processingReservationList); //진행 예약 아이템 이름 리스트
+        DocumentReference userRef = reservation.getUser_ref();
+        UsersDto user = usersService.getUserByDocRef(userRef);//유저 정보 (display_name)
+        List<DocumentReference> cartRef = reservation.getCart_ref();
+        List<CartsDto> carts = cartService.getCartsByDocRef(cartRef); //카트 정보 -> itemCount, subtotal
         StoresDto storesDto = storesService.getStoreById(storeid);
 
         int itemcount = 0;
-
-        List<ItemsDto> itemsDto = new ArrayList<>();
-        for (CartsDto cart : cartsEntity) {
+        List<ItemsDto> items = new ArrayList<>(); //-> item_name(눌렀을 때 상세 정보 나오는 아이템 리스트)
+        for (CartsDto cart : carts) {
             DocumentReference itemRef = cart.getItem();
             ItemsDto item = itemsService.getItemByDocRef(itemRef);
-            itemsDto.add(item);
+            items.add(item);
             itemcount += 1;
         }
 
-        model.addAttribute("storeid", storeid);
-        model.addAttribute("reservation", reservationEntity);
-        model.addAttribute("user", usersEntity);
-        model.addAttribute("carts", cartsEntity);
-        model.addAttribute("items", itemsDto);
-        model.addAttribute("itemcount", itemcount);
-        model.addAttribute("newReservation", NewReservationList);
-        model.addAttribute("processing", ProcessingReservationList);
-        model.addAttribute("newSize", NewReservationList.size());
-        model.addAttribute("processingSize", ProcessingReservationList.size());
-        model.addAttribute("newItem", newItem);
-        model.addAttribute("processingItem", processingItem);
-        model.addAttribute("reservationid", reservationid);
-        model.addAttribute("store", storesDto);
-        //모델에 데이터 등록하기
-        //뷰 페이지 반환하기
-        return "processingnew";
-    }
+        ProcessingDetailResponse response = new ProcessingDetailResponse(
+                storeid,
+                newReservationList.size(),
+                processingReservationList.size(),
+                newItem,
+                processingItem,
+                newReservationList,
+                processingReservationList,
+                storesDto,
+                reservation,
+                itemcount,
+                user,
+                items,
+                carts
+                );
 
-    //처리중(진행 중 눌렀을 시)
-    @GetMapping("mayo/processing/{storeid}/{reservationid}")
-    public String proceeding(@PathVariable String storeid, @PathVariable String reservationid, Model model) throws Exception {
-
-        ReservationsDto reservationEntity = reservationService.getReservationById(reservationid);
-
-        List<ReservationsDto> NewReservationList = reservationService.getNewByStoreRef(storeid);
-
-        List<ReservationsDto> ProcessingReservationList = reservationService.getProcessingByStoreRef(storeid);
-
-        List<String> newItem = itemsService.getFirstItemNamesFromReservations(NewReservationList);
-
-        List<String> processingItem = itemsService.getFirstItemNamesFromReservations(ProcessingReservationList);
-
-        DocumentReference userRef = reservationEntity.getUser_ref();
-
-        UsersDto usersEntity = usersService.getUserByDocRef(userRef);
-
-        List<DocumentReference> cartRef = reservationEntity.getCart_ref();
-
-        List<CartsDto> cartsEntity = cartService.getCartsByDocRef(cartRef);
-
-        StoresDto storesDto = storesService.getStoreById(storeid);
-
-        int itemcount = 0;
-
-        List<ItemsDto> itemsDto = new ArrayList<>();
-        for (CartsDto cart : cartsEntity) {
-            DocumentReference itemRef = cart.getItem();
-            ItemsDto item = itemsService.getItemByDocRef(itemRef);
-            itemsDto.add(item);
-            itemcount += 1;
-        }
-
-        model.addAttribute("storeid", storeid);
-        model.addAttribute("reservation", reservationEntity);
-        model.addAttribute("user", usersEntity);
-        model.addAttribute("carts", cartsEntity);
-        model.addAttribute("items", itemsDto);
-        model.addAttribute("itemcount", itemcount);
-        model.addAttribute("newReservation", NewReservationList);
-        model.addAttribute("processing", ProcessingReservationList);
-        model.addAttribute("newSize", NewReservationList.size());
-        model.addAttribute("processingSize", ProcessingReservationList.size());
-        model.addAttribute("newItem", newItem);
-        model.addAttribute("processingItem", processingItem);
-        model.addAttribute("reservationid", reservationid);
-        model.addAttribute("store", storesDto);
-        //모델에 데이터 등록하기
-        //뷰 페이지 반환하기
-        return "proceeding";
+        return ResponseEntity.ok(response);
     }
 
     //신규 주문에서 수락 눌렀을 시
-    @GetMapping("mayo/accept/{storeid}/{reservationid}")
-    public String accept(@PathVariable String storeid, @PathVariable String reservationid, Model model) throws ExecutionException, InterruptedException {
+    @PostMapping("accept/{storeid}/{reservationid}")
+    public ResponseEntity<String> accept(@RequestParam String storeid, @RequestParam String reservationid) throws ExecutionException, InterruptedException {
 
         reservationService.ReservationAccept(reservationid);
 
-        return "redirect:/mayo/processing/" + storeid;
+        return ResponseEntity.ok("Reservation accepted for store " + storeid);
     }
 
     //신규 주문에서 거절 눌렀을 시
-    @GetMapping("mayo/reject/{storeid}/{reservationid}")
-    public String reject(@PathVariable String storeid, @PathVariable String reservationid, Model model) throws ExecutionException, InterruptedException {
+    @PostMapping("reject/{storeid}/{reservationid}")
+    public ResponseEntity<String> reject(@RequestParam String storeid, @RequestParam String reservationid) throws ExecutionException, InterruptedException {
 
         reservationService.ReservationFail(reservationid);
 
-        return "redirect:/mayo/processing/" + storeid;
+        return ResponseEntity.ok("Reservation rejected for store " + storeid);
+    }
+
+    //완료 페이지에서 주문 완료 눌렀을 시
+    @PostMapping("done/{storeid}/{reservationid}")
+    public ResponseEntity<String> done(@RequestParam String storeid, @RequestParam String reservationid) throws ExecutionException, InterruptedException {
+
+        reservationService.ReservationDone(reservationid);
+
+        return ResponseEntity.ok("Reservation end for store " + storeid);
     }
 }
