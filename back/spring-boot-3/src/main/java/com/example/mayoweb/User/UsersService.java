@@ -1,9 +1,13 @@
 package com.example.mayoweb.User;
 
-import com.google.cloud.firestore.DocumentReference;
+import com.google.api.core.ApiFuture;
+import com.google.cloud.firestore.*;
+import com.google.firebase.cloud.FirestoreClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 @Service
@@ -17,6 +21,10 @@ public class UsersService {
             return toDto(usersAdapter.getUserByDocRef(doc));
         }
         return null;
+    }
+
+    public List<String> getTokensByUserRef(String userRef) throws ExecutionException, InterruptedException {
+        return usersAdapter.getFCMTokenByUserRef(userRef);
     }
 
     private UsersDto toDto(UsersEntity entity) {

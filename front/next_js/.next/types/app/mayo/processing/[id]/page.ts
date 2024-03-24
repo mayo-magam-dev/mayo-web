@@ -1,4 +1,4 @@
-// File: /Users/seungchan/program_project/mayo-web/front/next_js/src/app/mayo/processing/[id]/page.tsx
+// File: /Users/kimjunseo/Documents/mayo__web/front/next_js/src/app/mayo/processing/[id]/page.tsx
 import * as entry from '../../../../../../src/app/mayo/processing/[id]/page.js'
 import type { ResolvingMetadata } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

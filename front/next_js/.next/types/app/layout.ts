@@ -1,4 +1,4 @@
-// File: /Users/seungchan/program_project/mayo-web/front/next_js/src/app/layout.tsx
+// File: /Users/kimjunseo/Documents/mayo__web/front/next_js/src/app/layout.tsx
 import * as entry from '../../../src/app/layout.js'
 import type { ResolvingMetadata } from 'next/dist/lib/metadata/types/metadata-interface.js'
 
