@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -14,6 +15,12 @@ import java.util.concurrent.ExecutionException;
 @Repository
 @Slf4j
 public class UsersAdapter {
+
+    private static final String COLLECTION_NAME_USER = "users";
+    private static final String COLLECTION_NAME_FCM_TOKENS = "fcm_tokens";
+    private static final String COLLECTION_NAME_STORES = "stores";
+    private static final String FIELD_NOTICE_STORES = "noticeStores";
+    private static final String FIELD_FCM_TOKEN = "fcm_token";
     private static final String COLLECTION_NAME = "users";
 
     //모든 유저 객체를 가져옵니다.
@@ -84,6 +91,34 @@ public class UsersAdapter {
             System.out.println("User document does not exist!");
         }
         return null;
+    }
+
+    //UserRef로 token을 가져오는 쿼리
+    public List<String> getFCMTokenByUserRef(String user_ref) {
+    Firestore firestore = FirestoreClient.getFirestore();
+    List<String> fcmTokens = new ArrayList<>();
+    DocumentReference userRef = firestore.document(user_ref);
+
+        try {
+            DocumentSnapshot userDocument = userRef.get().get();
+
+            if (userDocument.exists()) {
+                DocumentReference fcmTokensCollectionRef = userRef.collection(COLLECTION_NAME_FCM_TOKENS).document();
+
+                DocumentSnapshot fcmTokenDocument = fcmTokensCollectionRef.get().get();
+
+                if (fcmTokenDocument.exists()) {
+                    String fcmToken = fcmTokenDocument.getString(FIELD_FCM_TOKEN);
+                    fcmTokens.add(fcmToken);
+                }
+            } else {
+                log.info("사용자 token 없음");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return fcmTokens;
     }
 }
 
