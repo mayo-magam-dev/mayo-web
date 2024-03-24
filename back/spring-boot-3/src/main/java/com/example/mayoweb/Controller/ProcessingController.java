@@ -2,6 +2,7 @@ package com.example.mayoweb.controller;
 
 import com.example.mayoweb.carts.CartService;
 import com.example.mayoweb.carts.CartsDto;
+import com.example.mayoweb.fcm.ReservationSchedule;
 import com.example.mayoweb.items.ItemsDto;
 import com.example.mayoweb.items.ItemsService;
 import com.example.mayoweb.reservation.ReservationService;
@@ -38,6 +39,8 @@ public class ProcessingController {
     private final CartService cartService;
 
     private final StoresService storesService;
+
+    private final ReservationSchedule reservationSchedule;
 
 
     @GetMapping("/{storeid}")

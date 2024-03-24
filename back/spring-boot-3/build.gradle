@@ -12,6 +12,9 @@ java {
 }
 
 configurations {
+	all {
+		exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
+	}
 	compileOnly {
 		extendsFrom annotationProcessor
 	}
@@ -32,7 +35,13 @@ dependencies {
 	testImplementation 'org.springframework.security:spring-security-test'
 	implementation 'io.perfmark:perfmark-api:0.25.0'
 	implementation 'org.springframework.boot:spring-boot-starter-websocket'
+	implementation 'io.springfox:springfox-swagger2:2.9.2' // springfox-swagger2 라이브러리 추가
+	implementation 'io.springfox:springfox-swagger-ui:2.9.2' // springfox-swagger-ui
+	implementation 'org.springdoc:springdoc-openapi-ui:1.5.10'
 	testImplementation 'junit:junit:4.12'
+	implementation(platform("com.squareup.okhttp3:okhttp-bom:4.12.0"))
+	implementation("com.squareup.okhttp3:okhttp")
+	implementation("com.squareup.okhttp3:logging-interceptor")
 
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
