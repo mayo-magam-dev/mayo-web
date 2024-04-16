@@ -14,6 +14,7 @@ java {
 configurations {
 	all {
 		exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
+		exclude group: 'commons-logging', module: 'commons-logging'
 	}
 	compileOnly {
 		extendsFrom annotationProcessor
@@ -38,7 +39,10 @@ dependencies {
 	implementation 'io.springfox:springfox-swagger2:2.9.2' // springfox-swagger2 라이브러리 추가
 	implementation 'io.springfox:springfox-swagger-ui:2.9.2' // springfox-swagger-ui
 	implementation 'org.springdoc:springdoc-openapi-ui:1.5.10'
+	//implementation 'commons-logging:commons-logging:1.2'
 	testImplementation 'junit:junit:4.12'
+	implementation 'org.slf4j:slf4j-api:1.7.32'
+	implementation 'ch.qos.logback:logback-classic:1.1.5'
 	implementation(platform("com.squareup.okhttp3:okhttp-bom:4.12.0"))
 	implementation("com.squareup.okhttp3:okhttp")
 	implementation("com.squareup.okhttp3:logging-interceptor")
