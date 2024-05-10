@@ -4,7 +4,7 @@ import com.example.mayoweb.carts.CartsDto;
 import com.example.mayoweb.items.ItemsDto;
 import com.example.mayoweb.reservation.ReservationsDto;
 import com.example.mayoweb.store.StoresDto;
-import com.example.mayoweb.User.UsersDto;
+import com.example.mayoweb.user.UsersDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
