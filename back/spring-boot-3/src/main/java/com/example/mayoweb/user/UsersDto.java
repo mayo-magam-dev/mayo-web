@@ -1,4 +1,4 @@
-package com.example.mayoweb.User;
+package com.example.mayoweb.user;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.cloud.firestore.DocumentReference;
