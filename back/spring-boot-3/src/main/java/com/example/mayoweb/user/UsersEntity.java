@@ -1,4 +1,4 @@
-package com.example.mayoweb.User;
+package com.example.mayoweb.user;
 
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.annotation.DocumentId;
