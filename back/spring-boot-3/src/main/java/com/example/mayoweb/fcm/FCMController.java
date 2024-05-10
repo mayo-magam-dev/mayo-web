@@ -1,6 +1,6 @@
 package com.example.mayoweb.fcm;
 
-import com.example.mayoweb.User.UsersService;
+import com.example.mayoweb.user.UsersService;
 import com.example.mayoweb.reservation.ReservationService;
 import com.example.mayoweb.reservation.ReservationsDto;
 import io.swagger.v3.oas.annotations.Operation;
