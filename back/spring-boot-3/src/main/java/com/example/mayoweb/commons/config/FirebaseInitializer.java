@@ -1,5 +1,7 @@
 package com.example.mayoweb.commons.config;
 
+import com.example.mayoweb.commons.exception.ApplicationException;
+import com.example.mayoweb.commons.exception.payload.ErrorStatus;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
@@ -12,6 +14,7 @@ import org.springframework.util.FileCopyUtils;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.time.LocalDateTime;
 
 @Configuration
 public class FirebaseInitializer {
@@ -33,7 +36,7 @@ public class FirebaseInitializer {
                     .build();
             FirebaseApp.initializeApp(options);
         } catch (Exception e) {
-
+            throw new ApplicationException(ErrorStatus.toErrorStatus("firebase 연결 중 오류 발생", 400, LocalDateTime.now()));
         }
     }
 }
