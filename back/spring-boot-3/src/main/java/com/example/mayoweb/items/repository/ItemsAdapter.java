@@ -7,7 +7,6 @@ import com.example.mayoweb.items.domain.response.ReadFirstItemResponse;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.*;
 import com.google.firebase.cloud.FirestoreClient;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -15,7 +14,6 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 @Repository
-@Slf4j
 public class ItemsAdapter {
 
     public List<ItemsEntity> getItemsByStoreId(String storeId) {
@@ -112,7 +110,7 @@ public class ItemsAdapter {
                     if (itemSnapshot.exists()) {
                         ReadFirstItemResponse response = ReadFirstItemResponse.builder()
                                         .itemName(itemSnapshot.getString("item_name"))
-                                        .itemQuantity(carts.size())
+                                        .itemQuantity(cartSnapshot.get("itemCount", Integer.class))
                                         .build();
 
                         firstItemResponse.add(response);
