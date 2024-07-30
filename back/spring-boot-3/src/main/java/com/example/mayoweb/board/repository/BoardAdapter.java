@@ -15,7 +15,6 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 @Repository
-@Slf4j
 public class BoardAdapter {
 
     //Board 객체 중 category가 3(약관 및 정책)을 가져오는 쿼리

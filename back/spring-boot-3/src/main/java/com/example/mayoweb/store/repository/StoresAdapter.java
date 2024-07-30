@@ -16,7 +16,6 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 @Repository
-@Slf4j
 public class StoresAdapter {
 
     private static final String COLLECTION_NAME = "stores";

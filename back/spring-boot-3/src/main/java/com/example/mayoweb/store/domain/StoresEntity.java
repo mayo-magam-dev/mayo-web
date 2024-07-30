@@ -8,7 +8,6 @@ import java.util.List;
 
 
 @NoArgsConstructor
-@AllArgsConstructor
 @Getter
 @ToString
 public class StoresEntity {
@@ -57,4 +56,23 @@ public class StoresEntity {
 
     @PropertyName("open_day_of_week")
     public List<Integer> openDayOfWeek;
+
+    @Builder
+    public StoresEntity(String id, String storeName, Boolean openState, String address, String storeImage, String openTime, String closeTime, String saleStart, String saleEnd, String storeDescription, String storeNumber, String storeMapUrl, String originInfo, String additionalComment, List<Integer> openDayOfWeek) {
+        this.id = id;
+        this.storeName = storeName;
+        this.openState = openState;
+        this.address = address;
+        this.storeImage = storeImage;
+        this.openTime = openTime;
+        this.closeTime = closeTime;
+        this.saleStart = saleStart;
+        this.saleEnd = saleEnd;
+        this.storeDescription = storeDescription;
+        this.storeNumber = storeNumber;
+        this.storeMapUrl = storeMapUrl;
+        this.originInfo = originInfo;
+        this.additionalComment = additionalComment;
+        this.openDayOfWeek = openDayOfWeek;
+    }
 }
