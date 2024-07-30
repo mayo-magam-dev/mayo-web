@@ -114,6 +114,11 @@ public class ItemsAdapter {
                                         .build();
 
                         firstItemResponse.add(response);
+                    } else {
+                        firstItemResponse.add(ReadFirstItemResponse.builder()
+                                .itemName(" ")
+                                .itemQuantity(0)
+                                .build());
                     }
                 }
             }

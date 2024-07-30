@@ -47,20 +47,7 @@ public class CartsAdapter {
             try {
                 DocumentSnapshot document = future.get();
                 if (document.exists()) {
-
-                    CartsEntity cart = CartsEntity.builder()
-                            .cartId(document.getString("cartId"))
-                            .itemCount(document.get("itemCount", Integer.class))
-                            .cartActive(document.getBoolean("cartActive"))
-                            .createdAt(document.getTimestamp("created_at"))
-                            .pickupTime(document.getTimestamp("pickup_time"))
-                            .subtotal(document.getDouble("subtotal"))
-                            .item((DocumentReference) document.get("item"))
-                            .userRef((DocumentReference) document.get("userRef"))
-                            .storeRef((DocumentReference) document.get("store_ref")).build();
-
-                    cartsEntity.add(cart);
-
+                    cartsEntity.add(fromDocument(document));
                 }
             } catch (InterruptedException | ExecutionException e) {
                 throw new ApplicationException(ErrorStatus.toErrorStatus("cart를 찾는 도중 오류가 발생하였습니다.", 400, LocalDateTime.now()));
@@ -84,7 +71,7 @@ public class CartsAdapter {
 
     private CartsEntity fromDocument(DocumentSnapshot document) {
         return CartsEntity.builder()
-                .cartId(document.getString("cartId"))
+                .cartId(document.getId())
                 .itemCount(document.get("itemCount", Integer.class))
                 .cartActive(document.getBoolean("cartActive"))
                 .createdAt(document.getTimestamp("created_at"))
