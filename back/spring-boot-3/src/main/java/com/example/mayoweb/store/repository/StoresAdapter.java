@@ -66,7 +66,7 @@ public class StoresAdapter {
             throw new ApplicationException(ErrorStatus.toErrorStatus("해당 가게를 찾는데 오류가 발생하였습니다", 400, LocalDateTime.now()));
         }
 
-        return Optional.ofNullable(document.toObject(StoresEntity.class));
+        return Optional.ofNullable(fromDocument(document));
     }
 
     //document id값을 받아 가게를 닫습니다.
@@ -137,4 +137,22 @@ public class StoresAdapter {
         throw new ApplicationException(ErrorStatus.toErrorStatus("스토어가 존재하지 않습니다.", 404, LocalDateTime.now()));
     }
 
+    private StoresEntity fromDocument(DocumentSnapshot document) {
+        return StoresEntity.builder()
+                .id(document.getId())
+                .storeName(document.getString("store_name"))
+                .openState(document.getBoolean("open_state"))
+                .address(document.getString("address"))
+                .storeImage(document.getString("store_image"))
+                .openTime(document.getString("open_time"))
+                .closeTime(document.getString("close_time"))
+                .saleStart(document.getString("sale_start"))
+                .saleEnd(document.getString("sale_end"))
+                .storeDescription(document.getString("store_description"))
+                .storeNumber(document.getString("store_number"))
+                .storeMapUrl(document.getString("store_map_url"))
+                .originInfo(document.getString("origin_info"))
+                .additionalComment(document.getString("additional_comment"))
+                .build();
+    }
 }
