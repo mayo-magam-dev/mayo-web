@@ -117,7 +117,7 @@ public class ReservationRestController {
     @GetMapping("/reservation-detail")
     public ResponseEntity<ReadReservationDetailResponse> getItemByReservationId(@RequestParam String reservationId) {
         ReadReservationResponse reservation = reservationService.getReservationById(reservationId);
-        List<ReadCartsResponse> carts = cartService.getCartsByReservation(reservation.reservationId());
+        List<ReadCartsResponse> carts = cartService.getCartsByReservation(reservationId);
         List<String> itemName = new ArrayList<>();
         List<Integer> itemCount = new ArrayList<>();
         List<Double> subTotal = new ArrayList<>();

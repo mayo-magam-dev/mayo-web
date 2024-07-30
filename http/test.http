@@ -1,0 +1,15 @@
+###
+GET http://localhost:8080/reservation-detail?reservationId=0JtuAOlLZr1jWy7deH9i
+Content-Type: application/json
+
+###
+GET http://localhost:8080/stores?storeId=11fj3imWYEP7KP4Kfjco
+Content-Type: application/json
+
+###
+GET http://localhost:8080/board-term
+Content-Type: application/json
+
+###
+GET http://localhost:8080/item?itemId=0BnvLyYGkyeDzjHF3PnZ
+Content-Type: application/json
