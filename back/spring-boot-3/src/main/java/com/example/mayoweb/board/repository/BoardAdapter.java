@@ -17,7 +17,6 @@ import java.util.concurrent.ExecutionException;
 @Repository
 public class BoardAdapter {
 
-    //Board 객체 중 category가 3(약관 및 정책)을 가져오는 쿼리
     public List<BoardEntity> getTermsBoard() {
 
         List<BoardEntity> boards = new ArrayList<>();
@@ -42,7 +41,6 @@ public class BoardAdapter {
     }
 
 
-    //Board 객체 중 category가 1(공지사항)을 가져오는 쿼리
     public List<BoardEntity> getNoticeBoard() {
 
         List<BoardEntity> boards = new ArrayList<>();
@@ -66,7 +64,6 @@ public class BoardAdapter {
         return boards;
     }
 
-    //board객체의 document id를 받아 board 객체를 얻습니다.
     public Optional<BoardEntity> getBoardById(String boardId) {
 
         Firestore db = FirestoreClient.getFirestore();
