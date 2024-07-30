@@ -18,11 +18,11 @@ public record ReadCartsResponse(
 ) {
     public static ReadCartsResponse fromEntity(CartsEntity entity) {
         return ReadCartsResponse.builder()
-                .cartId(entity.cartId)
-                .itemCount(entity.itemCount)
-                .createdAt(entity.createdAt)
-                .pickupTime(entity.pickupTime)
-                .subtotal(entity.subtotal)
+                .cartId(entity.getCartId())
+                .itemCount(entity.getItemCount())
+                .createdAt(entity.getCreatedAt())
+                .pickupTime(entity.getPickupTime())
+                .subtotal(entity.getSubtotal())
                 .build();
     }
 }

@@ -46,7 +46,10 @@ public class ReservationService {
     }
 
     public ReadReservationResponse getReservationById(String reservationId) {
-        return ReadReservationResponse.fromEntity(reservationsAdapter.findByReservationId(reservationId).orElseThrow( () -> new ApplicationException(ErrorStatus.toErrorStatus("해당하는 예약이 없습니다.", 404, LocalDateTime.now()))));
+        return ReadReservationResponse.fromEntity(reservationsAdapter.findByReservationId(reservationId)
+                .orElseThrow( () -> new ApplicationException(
+                        ErrorStatus.toErrorStatus("해당하는 예약이 없습니다.", 404, LocalDateTime.now())
+                )));
     }
 
 }
