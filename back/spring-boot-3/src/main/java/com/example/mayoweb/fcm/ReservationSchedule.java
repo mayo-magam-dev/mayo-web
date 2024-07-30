@@ -1,6 +1,6 @@
 package com.example.mayoweb.fcm;
 
-import com.example.mayoweb.reservation.ReservationsDto;
+import com.example.mayoweb.reservation.domain.dto.ReservationsDto;
 import com.google.cloud.Timestamp;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
