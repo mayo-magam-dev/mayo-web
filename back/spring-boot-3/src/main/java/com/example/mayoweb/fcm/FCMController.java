@@ -1,8 +1,8 @@
 package com.example.mayoweb.fcm;
 
-import com.example.mayoweb.user.UsersService;
-import com.example.mayoweb.reservation.ReservationService;
-import com.example.mayoweb.reservation.ReservationsDto;
+import com.example.mayoweb.user.service.UsersService;
+import com.example.mayoweb.reservation.service.ReservationService;
+import com.example.mayoweb.reservation.domain.dto.ReservationsDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
