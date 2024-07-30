@@ -1,8 +1,8 @@
 package com.example.mayoweb.reservation.domain.dto.response;
 
+import com.google.cloud.Timestamp;
 import lombok.Builder;
 
-import java.sql.Timestamp;
 import java.util.List;
 
 @Builder

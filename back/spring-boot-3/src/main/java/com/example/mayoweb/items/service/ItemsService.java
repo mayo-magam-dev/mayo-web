@@ -53,7 +53,8 @@ public class ItemsService {
         List<ReservationEntity> reservationList = new ArrayList<>();
 
         for(ReadReservationResponse reservation : readReservationResponseList) {
-            reservationList.add(reservationsAdapter.findByReservationId(reservation.reservationId()).orElse(null));
+            ReservationEntity reservationEntity = reservationsAdapter.findByReservationId(reservation.id()).orElse(null);
+            reservationList.add(reservationEntity);
         }
 
         List<DocumentReference> carts = cartsAdapter.getFirstCartsByReservations(reservationList);

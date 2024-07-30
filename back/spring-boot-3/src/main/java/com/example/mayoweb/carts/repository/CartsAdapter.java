@@ -9,7 +9,6 @@ import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.Firestore;
 import com.google.firebase.cloud.FirestoreClient;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -19,7 +18,6 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 @Repository
-@Slf4j
 public class CartsAdapter {
 
     public Optional<CartsEntity> findCartById(String cartId) {

@@ -14,7 +14,6 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 
 @Configuration
-@Slf4j
 public class FirebaseInitializer {
 
     private static final String DATABASE_URL = "https://mayo-app.firebaseio.com";
@@ -34,7 +33,7 @@ public class FirebaseInitializer {
                     .build();
             FirebaseApp.initializeApp(options);
         } catch (Exception e) {
-            log.error(e.getMessage());
+
         }
     }
 }

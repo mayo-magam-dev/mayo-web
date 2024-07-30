@@ -14,7 +14,6 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 @Repository
-@Slf4j
 public class ReservationsAdapter {
 
     //가게 도큐먼트 id를 받아 해당 가게의 모든 예약들을 가져옵니다.
@@ -144,7 +143,7 @@ public class ReservationsAdapter {
         }
 
         Comparator<ReservationEntity> createdAtComparator = Comparator
-                .comparing(entity -> entity.getCreatedAt().toSqlTimestamp(), Comparator.reverseOrder());
+                .comparing(ReservationEntity::getCreatedAt, Comparator.reverseOrder());
 
         for (QueryDocumentSnapshot reservationDocument : querySnapshot.getDocuments()) {
             ReservationEntity reservationEntity = reservationDocument.toObject(ReservationEntity.class);
