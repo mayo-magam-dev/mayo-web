@@ -1,10 +1,10 @@
 package com.example.mayoweb.reservation.domain;
+import com.google.cloud.Timestamp;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.annotation.DocumentId;
 import com.google.cloud.firestore.annotation.PropertyName;
 import lombok.*;
 
-import java.sql.Timestamp;
 import java.util.List;
 
 @NoArgsConstructor
