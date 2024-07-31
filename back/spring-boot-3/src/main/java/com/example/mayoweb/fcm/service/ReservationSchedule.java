@@ -1,7 +1,6 @@
 package com.example.mayoweb.fcm.service;
 
 import com.example.mayoweb.fcm.dto.WebPushNotificationsDto;
-import com.example.mayoweb.reservation.domain.dto.response.ReadReservationResponse;
 import com.google.cloud.Timestamp;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
