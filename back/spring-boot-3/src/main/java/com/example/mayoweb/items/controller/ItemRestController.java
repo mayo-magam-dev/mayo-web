@@ -29,7 +29,7 @@ public class ItemRestController {
     }
 
     @PostMapping("/item")
-    public ResponseEntity<Void> createItem(@RequestBody CreateItemRequest request, String storeId) {
+    public ResponseEntity<Void> createItem(@RequestBody CreateItemRequest request, @RequestParam String storeId) {
 
         itemsService.save(request, storeId);
 
