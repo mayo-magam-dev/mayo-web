@@ -36,7 +36,7 @@ public class FCMController {
             throws Exception {
         ReadReservationResponse dto = reservationService.getReservationById(reservationRef);
         List<String> tokens = userService.getTokensByUserRef(dto.userRef());
-        return ResponseEntity.status(HttpStatus.OK).body(reservationSchedule.sendAcceptMessage(tokens));
+        return ResponseEntity.ok(reservationSchedule.sendAcceptMessage(tokens));
     }
 
     @Operation(summary = "거절 fcm 메시지", description = "예약 ref를 받아 해당 가게 주문 상태를 변경했을 시 푸시 알림을 전송합니다.")
@@ -45,6 +45,6 @@ public class FCMController {
             throws Exception {
         ReadReservationResponse dto = reservationService.getReservationById(reservationRef);
         List<String> tokens = userService.getTokensByUserRef(dto.userRef());
-        return ResponseEntity.status(HttpStatus.OK).body(reservationSchedule.sendRejectMessage(tokens));
+        return ResponseEntity.ok(reservationSchedule.sendRejectMessage(tokens));
     }
 }
