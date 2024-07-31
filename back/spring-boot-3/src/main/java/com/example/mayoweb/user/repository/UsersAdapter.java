@@ -54,7 +54,7 @@ public class UsersAdapter {
                 }
             }
         } catch (Exception e) {
-            new ApplicationException(ErrorStatus.toErrorStatus("fcm 토큰을 가져오는데 에러가 발생하였습니다.", 404, LocalDateTime.now()));
+            throw new ApplicationException(ErrorStatus.toErrorStatus("fcm 토큰을 가져오는데 에러가 발생하였습니다.", 404, LocalDateTime.now()));
         }
 
         return fcmTokens;
