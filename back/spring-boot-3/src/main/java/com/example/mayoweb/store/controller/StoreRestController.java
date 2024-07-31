@@ -31,7 +31,9 @@ public class StoreRestController {
     @PutMapping("/store/open")
     public ResponseEntity<Void> openStore(@RequestParam(required = false) List<String> itemIdList, @RequestParam(required = false) List<Integer> quantityList, @RequestParam String storeId) {
 
-        itemsService.openTask(itemIdList, quantityList);
+        if(itemIdList != null && quantityList != null) {
+            itemsService.openTask(itemIdList, quantityList);
+        }
         storesService.openStore(storeId);
 
         return ResponseEntity.ok().build();
