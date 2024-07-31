@@ -24,7 +24,9 @@ public record ReadReservationResponse(
 
          Timestamp pickupTime,
 
-         Double totalPrice
+         Double totalPrice,
+
+         String userRef
 ) {
     public static ReadReservationResponse fromEntity(ReservationEntity entity) {
         return ReadReservationResponse.builder()
@@ -37,6 +39,7 @@ public record ReadReservationResponse(
                 .quantityList(entity.quantityList)
                 .pickupTime(entity.pickupTime)
                 .totalPrice(entity.totalPrice)
+                .userRef(entity.getUserRef().getId())
                 .build();
     }
 }
