@@ -26,19 +26,20 @@ repositories {
 }
 
 dependencies {
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.4'
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
+	implementation group: 'com.squareup.okhttp3', name: 'okhttp', version: '4.2.2'
 	implementation 'com.google.firebase:firebase-admin:9.2.0'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
 	implementation 'io.perfmark:perfmark-api:0.25.0'
 	implementation 'org.springframework.boot:spring-boot-starter-websocket'
-	implementation 'io.springfox:springfox-swagger2:2.9.2' // springfox-swagger2 라이브러리 추가
-	implementation 'io.springfox:springfox-swagger-ui:2.9.2' // springfox-swagger-ui
-	implementation 'org.springdoc:springdoc-openapi-ui:1.5.10'
 	testImplementation 'junit:junit:4.12'
 	implementation 'org.slf4j:slf4j-api:1.7.32'
 	implementation(platform("com.squareup.okhttp3:okhttp-bom:4.12.0"))
