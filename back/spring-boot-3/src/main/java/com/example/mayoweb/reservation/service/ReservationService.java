@@ -2,7 +2,6 @@ package com.example.mayoweb.reservation.service;
 
 import com.example.mayoweb.commons.exception.ApplicationException;
 import com.example.mayoweb.commons.exception.payload.ErrorStatus;
-import com.example.mayoweb.reservation.domain.ReservationEntity;
 import com.example.mayoweb.reservation.domain.dto.response.ReadReservationResponse;
 import com.example.mayoweb.reservation.repository.ReservationsAdapter;
 import lombok.RequiredArgsConstructor;
@@ -50,8 +49,20 @@ public class ReservationService {
         }
     }
 
+    public CompletableFuture<List<ReadReservationResponse>> getProceedingReservationsByStoreId(String storeId) {
+        return reservationsAdapter.getProceedingByStoreIdAsync(storeId).thenApply(reservationEntities ->
+                reservationEntities.stream().map(ReadReservationResponse::fromEntity).collect(Collectors.toList())
+        );
+    }
+
     public List<ReadReservationResponse> getEndByStoreId(String storeId) {
         return reservationsAdapter.getEndByStoreRef(storeId).stream().map(ReadReservationResponse::fromEntity).toList();
+    }
+
+    public CompletableFuture<List<ReadReservationResponse>> getEndReservationsByStoreId(String storeId) {
+        return reservationsAdapter.getEndByStoreIdAsync(storeId).thenApply(reservationEntities ->
+                reservationEntities.stream().map(ReadReservationResponse::fromEntity).collect(Collectors.toList())
+        );
     }
 
     public ReadReservationResponse getReservationById(String reservationId) {
