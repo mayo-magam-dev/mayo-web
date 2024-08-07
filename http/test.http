@@ -1,0 +1,27 @@
+###
+GET http://localhost:8080/reservation-detail?reservationId=0JtuAOlLZr1jWy7deH9i
+Content-Type: application/json
+
+###
+GET http://localhost:8080/stores?storeId=11fj3imWYEP7KP4Kfjco
+Content-Type: application/json
+
+###
+GET http://localhost:8080/board?boardId=0YhQlOD7AdwgATAsYrJW
+Content-Type: application/json
+
+###
+GET http://localhost:8080/item-store?storeId=0schMVN8hmowr9foiFjo
+Content-Type: application/json
+
+###
+PUT http://localhost:8080/reservation-fail?reservationId=oF2ldd4FMp7Z4z8MFmkx
+Content-Type: application/json
+
+###
+DELETE http://localhost:8080/item?itemId=gggdIiT52VdqidGUbcJ1
+Content-Type: application/json
+
+###
+PUT http://localhost:8080/store/open?storeId=VQtTGTCc13EWulU5sZmI
+Content-Type: application/json
