@@ -194,7 +194,7 @@ public class ReservationsAdapter {
                 QuerySnapshot querySnapshot = querySnapshotApiFuture.get();
                 for (QueryDocumentSnapshot reservationDocument : querySnapshot.getDocuments()) {
                     ReservationEntity reservationEntity = reservationDocument.toObject(ReservationEntity.class);
-                    if (reservationEntity.getReservationState() == State.END.ordinal()) {
+                    if (reservationEntity.getReservationState() == State.END.ordinal() || reservationEntity.getReservationState() == State.FAIL.ordinal()) {
                         endReservations.add(reservationEntity);
                     }
                 }
