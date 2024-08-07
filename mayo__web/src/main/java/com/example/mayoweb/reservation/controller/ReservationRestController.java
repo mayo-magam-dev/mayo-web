@@ -131,7 +131,7 @@ public class ReservationRestController {
             @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
             @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
     })
-    @GetMapping("/reservation-proceeding-async")
+    @GetMapping("/reservation-proceed-async")
     public CompletableFuture<ResponseEntity<List<ReadReservationListResponse>>> getProceedingReservationsByStoreIdAsync(@RequestParam String storeId) {
         return reservationService.getProceedingReservationsByStoreId(storeId)
                 .thenApply(reservationResponseList -> {
@@ -182,7 +182,7 @@ public class ReservationRestController {
             @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
             @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
     })
-    @GetMapping("/reservation-proceeding-async")
+    @GetMapping("/reservation-done-async")
     public CompletableFuture<ResponseEntity<List<ReadReservationListResponse>>> getEndReservationsByStoreIdAsync(@RequestParam String storeId) {
         return reservationService.getEndReservationsByStoreId(storeId)
                 .thenApply(reservationResponseList -> {
