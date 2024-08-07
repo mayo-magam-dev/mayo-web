@@ -9,7 +9,9 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -33,6 +35,12 @@ public class ReservationService {
         return reservationsAdapter.getNewByStoreRef(storeId).stream().map(ReadReservationResponse::fromEntity).toList();
     }
 
+    public CompletableFuture<List<ReadReservationResponse>> getNewReservationsByStoreId(String storeId) {
+        return reservationsAdapter.getNewByStoreIdAsync(storeId).thenApply(reservationEntities ->
+            reservationEntities.stream().map(ReadReservationResponse::fromEntity).collect(Collectors.toList())
+        );
+    }
+
     public List<ReadReservationResponse> getProcessingByStoreId(String storeId){
         try {
             return reservationsAdapter.getProcessingByStoreRef(storeId).stream().map(ReadReservationResponse::fromEntity).toList();
@@ -41,8 +49,20 @@ public class ReservationService {
         }
     }
 
+    public CompletableFuture<List<ReadReservationResponse>> getProceedingReservationsByStoreId(String storeId) {
+        return reservationsAdapter.getProceedingByStoreIdAsync(storeId).thenApply(reservationEntities ->
+                reservationEntities.stream().map(ReadReservationResponse::fromEntity).collect(Collectors.toList())
+        );
+    }
+
     public List<ReadReservationResponse> getEndByStoreId(String storeId) {
         return reservationsAdapter.getEndByStoreRef(storeId).stream().map(ReadReservationResponse::fromEntity).toList();
+    }
+
+    public CompletableFuture<List<ReadReservationResponse>> getEndReservationsByStoreId(String storeId) {
+        return reservationsAdapter.getEndByStoreIdAsync(storeId).thenApply(reservationEntities ->
+                reservationEntities.stream().map(ReadReservationResponse::fromEntity).collect(Collectors.toList())
+        );
     }
 
     public ReadReservationResponse getReservationById(String reservationId) {
