@@ -72,27 +72,29 @@ public class ReservationsAdapter {
         Firestore firestore = FirestoreClient.getFirestore();
         DocumentReference storeDocumentId = firestore.collection("stores").document(storeId);
         CollectionReference reservationsRef = firestore.collection("reservation");
-        Query query = reservationsRef.whereEqualTo("store_ref", storeDocumentId);
-        ApiFuture<QuerySnapshot> querySnapshotApiFuture = query.get();
+        Query query = reservationsRef.whereEqualTo("store_ref", storeDocumentId)
+                .whereEqualTo("reservation_state", State.NEW.ordinal());
 
-        return CompletableFuture.supplyAsync(() -> {
+        CompletableFuture<List<ReservationEntity>> future = new CompletableFuture<>();
+
+        query.addSnapshotListener((querySnapshot, e) -> {
+            if (e != null) {
+                future.completeExceptionally(e);
+                return;
+            }
+
             List<ReservationEntity> newReservations = new ArrayList<>();
-            try {
-                QuerySnapshot querySnapshot = querySnapshotApiFuture.get();
+            if (querySnapshot != null) {
                 for (QueryDocumentSnapshot reservationDocument : querySnapshot.getDocuments()) {
                     ReservationEntity reservationEntity = reservationDocument.toObject(ReservationEntity.class);
-                    if (reservationEntity.getReservationState() == State.NEW.ordinal()) {
-                        newReservations.add(reservationEntity);
-                    }
+                    newReservations.add(reservationEntity);
                 }
-                Comparator<ReservationEntity> createdAtComparator = Comparator
-                        .comparing(entity -> entity.getCreatedAt().toSqlTimestamp(), Comparator.reverseOrder());
-                newReservations.sort(createdAtComparator);
-            } catch (InterruptedException | ExecutionException e) {
-                throw new ApplicationException(ErrorStatus.toErrorStatus("새로운 예약들을 가져오는데 실패하였습니다.", 400, LocalDateTime.now()));
+                newReservations.sort(Comparator.comparing(entity -> entity.getCreatedAt().toSqlTimestamp(), Comparator.reverseOrder()));
             }
-            return newReservations;
+            future.complete(newReservations);
         });
+
+        return future;
     }
 
 
@@ -127,27 +129,29 @@ public class ReservationsAdapter {
         Firestore firestore = FirestoreClient.getFirestore();
         DocumentReference storeDocumentId = firestore.collection("stores").document(storeId);
         CollectionReference reservationsRef = firestore.collection("reservation");
-        Query query = reservationsRef.whereEqualTo("store_ref", storeDocumentId);
-        ApiFuture<QuerySnapshot> querySnapshotApiFuture = query.get();
+        Query query = reservationsRef.whereEqualTo("store_ref", storeDocumentId)
+                .whereEqualTo("reservation_state", State.PROCEEDING.ordinal());
 
-        return CompletableFuture.supplyAsync(() -> {
+        CompletableFuture<List<ReservationEntity>> future = new CompletableFuture<>();
+
+        query.addSnapshotListener((querySnapshot, e) -> {
+            if (e != null) {
+                future.completeExceptionally(e);
+                return;
+            }
+
             List<ReservationEntity> proceedingReservations = new ArrayList<>();
-            try {
-                QuerySnapshot querySnapshot = querySnapshotApiFuture.get();
+            if (querySnapshot != null) {
                 for (QueryDocumentSnapshot reservationDocument : querySnapshot.getDocuments()) {
                     ReservationEntity reservationEntity = reservationDocument.toObject(ReservationEntity.class);
-                    if (reservationEntity.getReservationState() == State.PROCEEDING.ordinal()) {
-                        proceedingReservations.add(reservationEntity);
-                    }
+                    proceedingReservations.add(reservationEntity);
                 }
-                Comparator<ReservationEntity> createdAtComparator = Comparator
-                        .comparing(entity -> entity.getCreatedAt().toSqlTimestamp(), Comparator.reverseOrder());
-                proceedingReservations.sort(createdAtComparator);
-            } catch (InterruptedException | ExecutionException e) {
-                throw new ApplicationException(ErrorStatus.toErrorStatus("새로운 예약들을 가져오는데 실패하였습니다.", 400, LocalDateTime.now()));
+                proceedingReservations.sort(Comparator.comparing(entity -> entity.getCreatedAt().toSqlTimestamp(), Comparator.reverseOrder()));
             }
-            return proceedingReservations;
+            future.complete(proceedingReservations);
         });
+
+        return future;
     }
 
     //가게 document id를 받아 해당 가게의 완료된 예약들을 가져옵니다.
@@ -185,27 +189,29 @@ public class ReservationsAdapter {
         Firestore firestore = FirestoreClient.getFirestore();
         DocumentReference storeDocumentId = firestore.collection("stores").document(storeId);
         CollectionReference reservationsRef = firestore.collection("reservation");
-        Query query = reservationsRef.whereEqualTo("store_ref", storeDocumentId);
-        ApiFuture<QuerySnapshot> querySnapshotApiFuture = query.get();
+        Query query = reservationsRef.whereEqualTo("store_ref", storeDocumentId)
+                .whereEqualTo("reservation_state", State.END.ordinal());
 
-        return CompletableFuture.supplyAsync(() -> {
+        CompletableFuture<List<ReservationEntity>> future = new CompletableFuture<>();
+
+        query.addSnapshotListener((querySnapshot, e) -> {
+            if (e != null) {
+                future.completeExceptionally(e);
+                return;
+            }
+
             List<ReservationEntity> endReservations = new ArrayList<>();
-            try {
-                QuerySnapshot querySnapshot = querySnapshotApiFuture.get();
+            if (querySnapshot != null) {
                 for (QueryDocumentSnapshot reservationDocument : querySnapshot.getDocuments()) {
                     ReservationEntity reservationEntity = reservationDocument.toObject(ReservationEntity.class);
-                    if (reservationEntity.getReservationState() == State.END.ordinal() || reservationEntity.getReservationState() == State.FAIL.ordinal()) {
-                        endReservations.add(reservationEntity);
-                    }
+                    endReservations.add(reservationEntity);
                 }
-                Comparator<ReservationEntity> createdAtComparator = Comparator
-                        .comparing(entity -> entity.getCreatedAt().toSqlTimestamp(), Comparator.reverseOrder());
-                endReservations.sort(createdAtComparator);
-            } catch (InterruptedException | ExecutionException e) {
-                throw new ApplicationException(ErrorStatus.toErrorStatus("새로운 예약들을 가져오는데 실패하였습니다.", 400, LocalDateTime.now()));
+                endReservations.sort(Comparator.comparing(entity -> entity.getCreatedAt().toSqlTimestamp(), Comparator.reverseOrder()));
             }
-            return endReservations;
+            future.complete(endReservations);
         });
+
+        return future;
     }
 
     //예약 도큐먼트 Id를 입력받아 reservation 객체를 가져옵니다.
