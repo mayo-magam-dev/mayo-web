@@ -5,12 +5,13 @@ import com.example.mayoweb.commons.exception.payload.ErrorStatus;
 import com.example.mayoweb.reservation.domain.ReservationEntity;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.*;
+import com.google.cloud.firestore.EventListener;
 import com.google.firebase.cloud.FirestoreClient;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 @Repository
@@ -66,6 +67,33 @@ public class ReservationsAdapter {
         newReservations.sort(createdAtComparator);
 
         return newReservations;
+    }
+
+    public CompletableFuture<List<ReservationEntity>> getNewByStoreIdAsync(String storeId) {
+        Firestore firestore = FirestoreClient.getFirestore();
+        DocumentReference storeDocumentId = firestore.collection("stores").document(storeId);
+        CollectionReference reservationsRef = firestore.collection("reservation");
+        Query query = reservationsRef.whereEqualTo("store_ref", storeDocumentId);
+        ApiFuture<QuerySnapshot> querySnapshotApiFuture = query.get();
+
+        return CompletableFuture.supplyAsync(() -> {
+            List<ReservationEntity> newReservations = new ArrayList<>();
+            try {
+                QuerySnapshot querySnapshot = querySnapshotApiFuture.get();
+                for (QueryDocumentSnapshot reservationDocument : querySnapshot.getDocuments()) {
+                    ReservationEntity reservationEntity = reservationDocument.toObject(ReservationEntity.class);
+                    if (reservationEntity.getReservationState() == State.NEW.ordinal()) {
+                        newReservations.add(reservationEntity);
+                    }
+                }
+                Comparator<ReservationEntity> createdAtComparator = Comparator
+                        .comparing(entity -> entity.getCreatedAt().toSqlTimestamp(), Comparator.reverseOrder());
+                newReservations.sort(createdAtComparator);
+            } catch (InterruptedException | ExecutionException e) {
+                throw new ApplicationException(ErrorStatus.toErrorStatus("새로운 예약들을 가져오는데 실패하였습니다.", 400, LocalDateTime.now()));
+            }
+            return newReservations;
+        });
     }
 
     //비동기식으로 가게 도큐먼트 id를 받아 해당 가게의 신규 예약들을 가져옵니다.

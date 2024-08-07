@@ -2,6 +2,7 @@ package com.example.mayoweb.reservation.service;
 
 import com.example.mayoweb.commons.exception.ApplicationException;
 import com.example.mayoweb.commons.exception.payload.ErrorStatus;
+import com.example.mayoweb.reservation.domain.ReservationEntity;
 import com.example.mayoweb.reservation.domain.dto.response.ReadReservationResponse;
 import com.example.mayoweb.reservation.repository.ReservationsAdapter;
 import lombok.RequiredArgsConstructor;
@@ -9,7 +10,9 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +34,12 @@ public class ReservationService {
 
     public List<ReadReservationResponse> getNewByStoreId(String storeId){
         return reservationsAdapter.getNewByStoreRef(storeId).stream().map(ReadReservationResponse::fromEntity).toList();
+    }
+
+    public CompletableFuture<List<ReadReservationResponse>> getNewReservationsByStoreId(String storeId) {
+        return reservationsAdapter.getNewByStoreIdAsync(storeId).thenApply(reservationEntities ->
+            reservationEntities.stream().map(ReadReservationResponse::fromEntity).collect(Collectors.toList())
+        );
     }
 
     public List<ReadReservationResponse> getProcessingByStoreId(String storeId){

@@ -1,5 +1,5 @@
 ###
-GET http://localhost:8080/reservation-detail?reservationId=0JtuAOlLZr1jWy7deH9i
+GET http://localhost:8080/reservation-new-async?storeId=VQtTGTCc13EWulU5sZmI
 Content-Type: application/json
 
 ###
