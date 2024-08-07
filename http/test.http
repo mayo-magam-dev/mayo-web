@@ -1,5 +1,5 @@
 ###
-GET http://localhost:8080/reservation-new-async?storeId=VQtTGTCc13EWulU5sZmI
+GET http://localhost:8080/reservation-done-async?storeId=VQtTGTCc13EWulU5sZmI
 Content-Type: application/json
 
 ###
@@ -15,7 +15,7 @@ GET http://localhost:8080/item-store?storeId=0schMVN8hmowr9foiFjo
 Content-Type: application/json
 
 ###
-PUT http://localhost:8080/reservation-fail?reservationId=oF2ldd4FMp7Z4z8MFmkx
+PUT http://localhost:8080/reservation-fail?reservationId=452wW3Gk0WucxiB7Adlv
 Content-Type: application/json
 
 ###
