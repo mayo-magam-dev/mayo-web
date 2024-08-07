@@ -74,7 +74,7 @@ public class ReservationRestController {
         return ResponseEntity.ok(responseList);
     }
 
-    @Operation(summary = "storeId 값으로 해당 가게의 신규 예약들을 가져옵니다.", description = "storeId 값으로 해당 가게의 신규 예약들을 가져옵니다.")
+    @Operation(summary = "storeId 값으로 해당 가게의 신규 예약들을 비동기로 가져옵니다.", description = "storeId 값으로 해당 가게의 신규 예약들을 비동기로 가져옵니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "신규 예약 조회 성공", content = @Content(schema = @Schema(implementation = CompletableFuture.class))),
             @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
@@ -125,6 +125,31 @@ public class ReservationRestController {
         return ResponseEntity.ok(responseList);
     }
 
+    @Operation(summary = "storeId 값으로 해당 가게의 진행 예약들을 비동기로 가져옵니다.", description = "storeId 값으로 해당 가게의 진행 예약들을 비동기로 가져옵니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "신규 예약 조회 성공", content = @Content(schema = @Schema(implementation = CompletableFuture.class))),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
+            @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
+    })
+    @GetMapping("/reservation-proceeding-async")
+    public CompletableFuture<ResponseEntity<List<ReadReservationListResponse>>> getProceedingReservationsByStoreIdAsync(@RequestParam String storeId) {
+        return reservationService.getProceedingReservationsByStoreId(storeId)
+                .thenApply(reservationResponseList -> {
+                    List<ReadFirstItemResponse> firstItemResponseList = itemsService.getFirstItemNamesFromReservations(reservationResponseList);
+                    List<ReadReservationListResponse> responseList = new ArrayList<>();
+                    for (int i = 0; i < reservationResponseList.size(); i++) {
+                        ReadReservationListResponse response = ReadReservationListResponse.builder()
+                                .firstItemName(firstItemResponseList.get(i).itemName())
+                                .itemQuantity(firstItemResponseList.get(i).itemQuantity())
+                                .createdAt(reservationResponseList.get(i).createdAt())
+                                .pickupTime(reservationResponseList.get(i).pickupTime())
+                                .build();
+                        responseList.add(response);
+                    }
+                    return ResponseEntity.ok(responseList);
+                });
+    }
+
     @Operation(summary = "storeId 값으로 해당 가게의 완료 예약들을 가져옵니다.", description = "storeId 값으로 해당 가게의 완료 예약들을 가져옵니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "완료 예약 조회 성공", content = @Content(schema = @Schema(implementation = List.class))),
@@ -149,6 +174,31 @@ public class ReservationRestController {
         }
 
         return ResponseEntity.ok(responseList);
+    }
+
+    @Operation(summary = "storeId 값으로 해당 가게의 완료 예약들을 비동기로 가져옵니다.", description = "storeId 값으로 해당 가게의 완료 예약들을 비동기로 가져옵니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "신규 예약 조회 성공", content = @Content(schema = @Schema(implementation = CompletableFuture.class))),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
+            @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
+    })
+    @GetMapping("/reservation-proceeding-async")
+    public CompletableFuture<ResponseEntity<List<ReadReservationListResponse>>> getEndReservationsByStoreIdAsync(@RequestParam String storeId) {
+        return reservationService.getEndReservationsByStoreId(storeId)
+                .thenApply(reservationResponseList -> {
+                    List<ReadFirstItemResponse> firstItemResponseList = itemsService.getFirstItemNamesFromReservations(reservationResponseList);
+                    List<ReadReservationListResponse> responseList = new ArrayList<>();
+                    for (int i = 0; i < reservationResponseList.size(); i++) {
+                        ReadReservationListResponse response = ReadReservationListResponse.builder()
+                                .firstItemName(firstItemResponseList.get(i).itemName())
+                                .itemQuantity(firstItemResponseList.get(i).itemQuantity())
+                                .createdAt(reservationResponseList.get(i).createdAt())
+                                .pickupTime(reservationResponseList.get(i).pickupTime())
+                                .build();
+                        responseList.add(response);
+                    }
+                    return ResponseEntity.ok(responseList);
+                });
     }
 
     @Operation(summary = "reservationId를 받아 해당 예약의 상태를 수락으로 변경합니다.", description = "reservationId를 받아 해당 예약의 상태를 수락으로 변경합니다.")
