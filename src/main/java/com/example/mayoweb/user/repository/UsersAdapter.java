@@ -1,6 +1,7 @@
 package com.example.mayoweb.user.repository;
 import com.example.mayoweb.commons.exception.ApplicationException;
 import com.example.mayoweb.commons.exception.payload.ErrorStatus;
+import com.example.mayoweb.store.domain.StoresEntity;
 import com.example.mayoweb.user.domain.UsersEntity;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.*;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 @Repository
@@ -33,6 +35,22 @@ public class UsersAdapter {
             return userEntity;
         }
         return null;
+    }
+
+    public Optional<UsersEntity> findByUserId(String userId) {
+
+        Firestore db = FirestoreClient.getFirestore();
+        DocumentReference documentReference = db.collection("users").document(userId);
+        ApiFuture<DocumentSnapshot> future = documentReference.get();
+        DocumentSnapshot document = null;
+
+        try {
+            document = future.get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new ApplicationException(ErrorStatus.toErrorStatus("해당 유저를 찾는데 오류가 발생하였습니다", 400, LocalDateTime.now()));
+        }
+
+        return Optional.ofNullable(fromDocument(document));
     }
 
     public List<String> getFCMTokenByUserRef(String user_ref) {
@@ -58,6 +76,19 @@ public class UsersAdapter {
         }
 
         return fcmTokens;
+    }
+
+    private UsersEntity fromDocument(DocumentSnapshot document) {
+        return UsersEntity.builder()
+                .uid(document.getId())
+                .userid(document.getId())
+                .email(document.getString("email"))
+                .displayName(document.getString("display_name"))
+                .photoUrl(document.getString("photo_url"))
+                .isManager(document.getBoolean("is_manager"))
+                .name(document.getString("name"))
+                .storeRef((DocumentReference) document.get("store_ref"))
+                .build();
     }
 }
 
