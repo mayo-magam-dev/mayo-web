@@ -9,6 +9,8 @@ import com.example.mayoweb.reservation.domain.dto.response.ReadReservationDetail
 import com.example.mayoweb.reservation.domain.dto.response.ReadReservationListResponse;
 import com.example.mayoweb.reservation.domain.dto.response.ReadReservationResponse;
 import com.example.mayoweb.reservation.service.ReservationService;
+import com.example.mayoweb.user.domain.dto.response.ReadUserResponse;
+import com.example.mayoweb.user.service.UsersService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -33,6 +35,7 @@ public class ReservationRestController {
     private final ReservationService reservationService;
     private final ItemsService itemsService;
     private final CartService cartService;
+    private final UsersService usersService;
 
     @Operation(summary = "ID 값으로 reservation 객체를 가져옵니다.", description = "reservation PK 값으로 객체를 가져옵니다.")
     @ApiResponses(value = {
@@ -256,6 +259,7 @@ public class ReservationRestController {
     public ResponseEntity<ReadReservationDetailResponse> getItemByReservationId(@RequestParam String reservationId) {
         ReadReservationResponse reservation = reservationService.getReservationById(reservationId);
         List<ReadCartsResponse> carts = cartService.getCartsByReservation(reservationId);
+        ReadUserResponse user = usersService.getUserById(reservation.userRef());
         List<String> itemName = new ArrayList<>();
         List<Integer> itemCount = new ArrayList<>();
         List<Double> subTotal = new ArrayList<>();
@@ -268,17 +272,18 @@ public class ReservationRestController {
         }
 
         return ResponseEntity.ok(ReadReservationDetailResponse.builder()
-                .itemName(itemName)
-                .itemCount(itemCount)
-                .subTotal(subTotal)
-                .totalQuantity(carts.size())
-                .reservationId(reservation.reservationId())
-                .request(reservation.reservationRequest())
-                .createdAt(reservation.createdAt())
-                .pickupTime(reservation.pickupTime())
-                .totalPrice(reservation.totalPrice())
-                .reservationIsPlastic(reservation.reservationIsPlastics())
-                .build());
+                    .itemName(itemName)
+                    .itemCount(itemCount)
+                    .subTotal(subTotal)
+                    .totalQuantity(carts.size())
+                    .reservationId(reservation.reservationId())
+                    .request(reservation.reservationRequest())
+                    .createdAt(reservation.createdAt())
+                    .pickupTime(reservation.pickupTime())
+                    .totalPrice(reservation.totalPrice())
+                    .reservationIsPlastic(reservation.reservationIsPlastics())
+                    .userNickName(user.displayName())
+                    .build());
     }
 
 }

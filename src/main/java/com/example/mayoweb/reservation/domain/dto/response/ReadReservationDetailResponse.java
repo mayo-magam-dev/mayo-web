@@ -26,7 +26,9 @@ public record ReadReservationDetailResponse(
 
         Double totalPrice,
 
-        Boolean reservationIsPlastic
+        Boolean reservationIsPlastic,
+
+        String userNickName
 
 ) {
 }
