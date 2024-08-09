@@ -33,6 +33,7 @@ public class StoreRestController {
     })
     @GetMapping("/stores")
     public ResponseEntity<ReadStoreResponse> getStoreById(@RequestParam String storeId) {
+        System.out.println("/stores 요청 받음");
         return ResponseEntity.ok(storesService.getStoreById(storeId));
     }
 
