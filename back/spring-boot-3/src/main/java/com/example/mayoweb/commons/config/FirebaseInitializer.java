@@ -3,10 +3,14 @@ package com.example.mayoweb.commons.config;
 import com.example.mayoweb.commons.exception.ApplicationException;
 import com.example.mayoweb.commons.exception.payload.ErrorStatus;
 import com.google.auth.oauth2.GoogleCredentials;
+import com.google.cloud.firestore.Firestore;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
+import com.google.firebase.cloud.FirestoreClient;
 import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.FileCopyUtils;
@@ -21,11 +25,15 @@ public class FirebaseInitializer {
 
     private static final String DATABASE_URL = "https://mayo-app.firebaseio.com";
 
+    @Bean
+    public Firestore firestore() {
+        return FirestoreClient.getFirestore();
+    }
+
     @PostConstruct
     public void init() {
         try {
-            InputStream inputStream = new ClassPathResource(
-                    "/mayo-app-280d4.json").getInputStream();
+            InputStream inputStream = new ClassPathResource("/mayo-app-280d4.json").getInputStream();
             File file = File.createTempFile("key", ".json");
             FileCopyUtils.copy(inputStream.readAllBytes(), file);
             FileInputStream firebaseAccount = new FileInputStream(file);
