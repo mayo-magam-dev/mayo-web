@@ -46,7 +46,7 @@ public class UsersEntity {
     public Boolean agreeMarketing;
 
     @PropertyName("currentLocation")
-    public @Nullable String currentLocation;
+    public String currentLocation;
 
     @PropertyName("gender")
     public String gender;
@@ -58,11 +58,33 @@ public class UsersEntity {
     public Date birthday;
 
     @PropertyName("store_ref")
-    public @Nullable DocumentReference storeRef;
+    public DocumentReference storeRef;
 
     @PropertyName("favorite_stores")
     public List<DocumentReference> favoriteStores;
 
     @PropertyName("noticeStores")
     public List<DocumentReference> noticeStores;
+
+    @Builder
+    public UsersEntity(String userid, String uid, String email, String displayName, String photoUrl, Date createdTime, String phoneNumber, Boolean isManager, Boolean agreeTerms1, Boolean agreeTerms2, Boolean agreeMarketing, String currentLocation, String gender, String name, Date birthday, DocumentReference storeRef, List<DocumentReference> favoriteStores, List<DocumentReference> noticeStores) {
+        this.userid = userid;
+        this.uid = uid;
+        this.email = email;
+        this.displayName = displayName;
+        this.photoUrl = photoUrl;
+        this.createdTime = createdTime;
+        this.phoneNumber = phoneNumber;
+        this.isManager = isManager;
+        this.agreeTerms1 = agreeTerms1;
+        this.agreeTerms2 = agreeTerms2;
+        this.agreeMarketing = agreeMarketing;
+        this.currentLocation = currentLocation;
+        this.gender = gender;
+        this.name = name;
+        this.birthday = birthday;
+        this.storeRef = storeRef;
+        this.favoriteStores = favoriteStores;
+        this.noticeStores = noticeStores;
+    }
 }
