@@ -2,6 +2,7 @@ package com.example.mayoweb.reservation.controller;
 
 import com.example.mayoweb.carts.domain.dto.response.ReadCartsResponse;
 import com.example.mayoweb.carts.service.CartService;
+import com.example.mayoweb.fcm.service.FCMService;
 import com.example.mayoweb.items.domain.response.ReadFirstItemResponse;
 import com.example.mayoweb.items.domain.response.ReadItemResponse;
 import com.example.mayoweb.items.service.ItemsService;
@@ -22,9 +23,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 @Tag(name = "예약 API", description = "예약 관리 API")
 @RestController
@@ -36,6 +39,8 @@ public class ReservationRestController {
     private final ItemsService itemsService;
     private final CartService cartService;
     private final UsersService usersService;
+    private final UsersService userService;
+    private final FCMService fcmService;
 
     @Operation(summary = "ID 값으로 reservation 객체를 가져옵니다.", description = "reservation PK 값으로 객체를 가져옵니다.")
     @ApiResponses(value = {
@@ -218,6 +223,17 @@ public class ReservationRestController {
 
         reservationService.reservationAccept(reservationId);
 
+        ReadReservationResponse dto = reservationService.getReservationById(reservationId);
+        try {
+            List<String> tokens = userService.getTokensByUserRef(dto.userRef());
+            fcmService.sendAcceptMessage(tokens);
+
+        } catch (ExecutionException | InterruptedException e) {
+            log.info("user 토큰을 찾지 못했습니다.");
+        } catch (IOException e) {
+            log.info("수락 fcm 메세지 전송에 실패하였습니다.");
+        }
+
         return ResponseEntity.noContent().build();
     }
 
@@ -231,6 +247,17 @@ public class ReservationRestController {
     public ResponseEntity<Void> updateFail(@RequestParam String reservationId) {
 
         reservationService.reservationFail(reservationId);
+
+        ReadReservationResponse dto = reservationService.getReservationById(reservationId);
+        try {
+            List<String> tokens = userService.getTokensByUserRef(dto.userRef());
+            fcmService.sendRejectMessage(tokens);
+
+        } catch (ExecutionException | InterruptedException e) {
+            log.info("user 토큰을 찾지 못했습니다.");
+        } catch (IOException e) {
+            log.info("거절 fcm 메세지 전송에 실패하였습니다.");
+        }
 
         return ResponseEntity.noContent().build();
     }
