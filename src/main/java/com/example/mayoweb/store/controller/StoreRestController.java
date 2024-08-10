@@ -1,10 +1,12 @@
 package com.example.mayoweb.store.controller;
 
+import com.example.mayoweb.fcm.service.FCMService;
 import com.example.mayoweb.items.service.ItemsService;
 import com.example.mayoweb.store.domain.dto.response.ReadStoreResponse;
 import com.example.mayoweb.store.domain.dto.request.UpdateStoreRequest;
 import com.example.mayoweb.store.domain.dto.response.UpdateStoreResponse;
 import com.example.mayoweb.store.service.StoresService;
+import com.example.mayoweb.user.service.UsersService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -15,7 +17,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 @Tag(name = "가게 API", description = "가게 관리 API")
 @RestController
@@ -24,6 +28,8 @@ public class StoreRestController {
 
     private final StoresService storesService;
     private final ItemsService itemsService;
+    private final FCMService fcmService;
+    private final UsersService userService;
 
     @Operation(summary = "ID 값으로 store 객체를 가져옵니다.", description = "store PK 값으로 객체를 가져옵니다.")
     @ApiResponses(value = {
@@ -33,7 +39,6 @@ public class StoreRestController {
     })
     @GetMapping("/stores")
     public ResponseEntity<ReadStoreResponse> getStoreById(@RequestParam String storeId) {
-        System.out.println("/stores 요청 받음");
         return ResponseEntity.ok(storesService.getStoreById(storeId));
     }
 
@@ -55,12 +60,15 @@ public class StoreRestController {
             @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
     })
     @PutMapping("/store/open")
-    public ResponseEntity<Void> openStore(@RequestParam(required = false) List<String> itemIdList, @RequestParam(required = false) List<Integer> quantityList, @RequestParam String storeId) {
+    public ResponseEntity<Void> openStore(@RequestParam(required = false) List<String> itemIdList, @RequestParam(required = false) List<Integer> quantityList, @RequestParam String storeId) throws ExecutionException, InterruptedException, IOException {
 
         if(itemIdList != null && quantityList != null) {
             itemsService.openTask(itemIdList, quantityList);
         }
+
         storesService.openStore(storeId);
+        List<String> tokens = userService.getTokensByStoresRef(storeId);
+        fcmService.sendOpenMessage(tokens, storeId);
 
         return ResponseEntity.ok().build();
     }
