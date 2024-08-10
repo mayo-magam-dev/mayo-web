@@ -78,6 +78,32 @@ public class UsersAdapter {
         return fcmTokens;
     }
 
+    public List<String> getFCMTokenByStoresRef(String storesRef) {
+        Firestore firestore = FirestoreClient.getFirestore();
+        List<String> fcmTokens = new ArrayList<>();
+        CollectionReference usersCollection = firestore.collection("users");
+        DocumentReference storesDocumentId = firestore.collection("stores").document(storesRef);
+        Query query = usersCollection.whereArrayContains("noticeStores", storesDocumentId);
+
+        try {
+            ApiFuture<QuerySnapshot> querySnapshotApiFuture = query.get();
+            for (QueryDocumentSnapshot userDocument : querySnapshotApiFuture.get().getDocuments()) {
+                CollectionReference fcmTokensCollection = userDocument.getReference()
+                        .collection(COLLECTION_NAME_FCM_TOKENS);
+                ApiFuture<QuerySnapshot> fcmTokenSnapshot = fcmTokensCollection.get();
+
+                if (!fcmTokenSnapshot.get().isEmpty()) {
+                    QueryDocumentSnapshot fcmTokenDocument = fcmTokenSnapshot.get().getDocuments().get(0);
+                    String fcmToken = fcmTokenDocument.getString(FIELD_FCM_TOKEN);
+                    fcmTokens.add(fcmToken);
+                }
+            }
+        } catch (ExecutionException | InterruptedException e) {
+            log.error("getFCMTokenByStoresRef error: " + LocalDateTime.now() + ", " + e.getMessage());
+        }
+        return fcmTokens;
+    }
+
     private UsersEntity fromDocument(DocumentSnapshot document) {
         return UsersEntity.builder()
                 .uid(document.getId())
