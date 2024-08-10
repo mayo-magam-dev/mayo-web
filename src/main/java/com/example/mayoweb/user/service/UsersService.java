@@ -36,4 +36,8 @@ public class UsersService {
     public List<String> getTokensByUserRef(String userRef) throws ExecutionException, InterruptedException {
         return usersAdapter.getFCMTokenByUserRef(userRef);
     }
+
+    public List<String> getTokensByStoresRef(String storesRef) throws ExecutionException, InterruptedException {
+        return usersAdapter.getFCMTokenByStoresRef(storesRef);
+    }
 }
