@@ -15,7 +15,7 @@ GET http://localhost:8080/item-store?storeId=0schMVN8hmowr9foiFjo
 Content-Type: application/json
 
 ###
-PUT http://localhost:8080/reservation-fail?reservationId=452wW3Gk0WucxiB7Adlv
+PUT http://localhost:8080/reservation-accept?reservationId=jcYW6WPa24zOAzsVXnzM
 Content-Type: application/json
 
 ###
