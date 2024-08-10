@@ -22,7 +22,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(authorizeRequests -> authorizeRequests.anyRequest().permitAll())
+                .authorizeHttpRequests(authorizeRequests -> authorizeRequests.anyRequest().hasRole("MANAGER"))
                 .addFilterBefore(new FirebaseAuthFilter(firestore), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
