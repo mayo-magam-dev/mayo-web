@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
@@ -56,21 +57,23 @@ public class UsersAdapter {
     public List<String> getFCMTokenByUserRef(String user_ref) {
     Firestore firestore = FirestoreClient.getFirestore();
     List<String> fcmTokens = new ArrayList<>();
-    DocumentReference userRef = firestore.document(user_ref);
+    DocumentReference userRef = firestore.collection("users").document(user_ref);
 
         try {
             DocumentSnapshot userDocument = userRef.get().get();
 
-            if (userDocument.exists()) {
-                DocumentReference fcmTokensCollectionRef = userRef.collection(COLLECTION_NAME_FCM_TOKENS).document();
+        if (userDocument.exists()) {
+            CollectionReference fcmTokensCollectionRef = userRef.collection(COLLECTION_NAME_FCM_TOKENS);
+            ApiFuture<QuerySnapshot> future = fcmTokensCollectionRef.get();
+            List<QueryDocumentSnapshot> documents = future.get().getDocuments();
 
-                DocumentSnapshot fcmTokenDocument = fcmTokensCollectionRef.get().get();
-
-                if (fcmTokenDocument.exists()) {
-                    String fcmToken = fcmTokenDocument.getString(FIELD_FCM_TOKEN);
+            for (QueryDocumentSnapshot document : documents) {
+                String fcmToken = document.getString(FIELD_FCM_TOKEN);
+                if (fcmToken != null) {
                     fcmTokens.add(fcmToken);
                 }
             }
+        }
         } catch (Exception e) {
             throw new ApplicationException(ErrorStatus.toErrorStatus("fcm 토큰을 가져오는데 에러가 발생하였습니다.", 404, LocalDateTime.now()));
         }
