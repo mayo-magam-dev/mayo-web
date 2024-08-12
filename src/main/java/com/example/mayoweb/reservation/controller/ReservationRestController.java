@@ -10,8 +10,10 @@ import com.example.mayoweb.reservation.domain.dto.response.ReadReservationDetail
 import com.example.mayoweb.reservation.domain.dto.response.ReadReservationListResponse;
 import com.example.mayoweb.reservation.domain.dto.response.ReadReservationResponse;
 import com.example.mayoweb.reservation.service.ReservationService;
+import com.example.mayoweb.sse.SseService;
 import com.example.mayoweb.user.domain.dto.response.ReadUserResponse;
 import com.example.mayoweb.user.service.UsersService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -22,25 +24,30 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
 
 @Tag(name = "예약 API", description = "예약 관리 API")
 @RestController
 @RequiredArgsConstructor
 @Slf4j
+@CrossOrigin(origins = "*")
 public class ReservationRestController {
 
     private final ReservationService reservationService;
+    private final SseService sseService;
     private final ItemsService itemsService;
     private final CartService cartService;
     private final UsersService usersService;
     private final UsersService userService;
     private final FCMService fcmService;
+    private final List<SseEmitter> emitters = new CopyOnWriteArrayList<>();
 
     @Operation(summary = "ID 값으로 reservation 객체를 가져옵니다.", description = "reservation PK 값으로 객체를 가져옵니다.")
     @ApiResponses(value = {
@@ -68,6 +75,7 @@ public class ReservationRestController {
 
         for(int i=0; i<reservationResponseList.size(); i++) {
             ReadReservationListResponse response = ReadReservationListResponse.builder()
+                    .reservationId(reservationResponseList.get(i).reservationId())
                     .firstItemName(firstItemResponse.get(i).itemName())
                     .itemQuantity(firstItemResponse.get(i).itemQuantity())
                     .createdAt(reservationResponseList.get(i).createdAt())
@@ -96,6 +104,7 @@ public class ReservationRestController {
                     List<ReadReservationListResponse> responseList = new ArrayList<>();
                     for (int i = 0; i < reservationResponseList.size(); i++) {
                         ReadReservationListResponse response = ReadReservationListResponse.builder()
+                                .reservationId(reservationResponseList.get(i).reservationId())
                                 .firstItemName(firstItemResponseList.get(i).itemName())
                                 .itemQuantity(firstItemResponseList.get(i).itemQuantity())
                                 .createdAt(reservationResponseList.get(i).createdAt())
@@ -124,6 +133,7 @@ public class ReservationRestController {
 
         for(int i=0; i<reservationResponseList.size(); i++) {
             ReadReservationListResponse response = ReadReservationListResponse.builder()
+                    .reservationId(reservationResponseList.get(i).reservationId())
                     .firstItemName(firstItemResponse.get(i).itemName())
                     .itemQuantity(firstItemResponse.get(i).itemQuantity())
                     .createdAt(reservationResponseList.get(i).createdAt())
@@ -150,6 +160,7 @@ public class ReservationRestController {
                     List<ReadReservationListResponse> responseList = new ArrayList<>();
                     for (int i = 0; i < reservationResponseList.size(); i++) {
                         ReadReservationListResponse response = ReadReservationListResponse.builder()
+                                .reservationId(reservationResponseList.get(i).reservationId())
                                 .firstItemName(firstItemResponseList.get(i).itemName())
                                 .itemQuantity(firstItemResponseList.get(i).itemQuantity())
                                 .createdAt(reservationResponseList.get(i).createdAt())
@@ -175,6 +186,7 @@ public class ReservationRestController {
 
         for(int i=0; i<reservationResponseList.size(); i++) {
             ReadReservationListResponse response = ReadReservationListResponse.builder()
+                    .reservationId(reservationResponseList.get(i).reservationId())
                     .firstItemName(firstItemResponse.get(i).itemName())
                     .itemQuantity(firstItemResponse.get(i).itemQuantity())
                     .createdAt(reservationResponseList.get(i).createdAt())
@@ -201,6 +213,7 @@ public class ReservationRestController {
                     List<ReadReservationListResponse> responseList = new ArrayList<>();
                     for (int i = 0; i < reservationResponseList.size(); i++) {
                         ReadReservationListResponse response = ReadReservationListResponse.builder()
+                                .reservationId(reservationResponseList.get(i).reservationId())
                                 .firstItemName(firstItemResponseList.get(i).itemName())
                                 .itemQuantity(firstItemResponseList.get(i).itemQuantity())
                                 .createdAt(reservationResponseList.get(i).createdAt())
@@ -311,6 +324,105 @@ public class ReservationRestController {
                     .reservationIsPlastic(reservation.reservationIsPlastics())
                     .userNickName(user.displayName())
                     .build());
+    }
+
+    @Operation(summary = "storeId 값으로 해당 가게의 신규 예약들을 SSE를 통해 가져옵니다.", description = "storeId 값으로 해당 가게의 신규 예약들을 SSE를 통해 가져옵니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "신규 예약 조회 성공", content = @Content(schema = @Schema(implementation = SseEmitter.class))),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
+            @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
+    })
+    @GetMapping("/sse/reservations-new")
+    public SseEmitter streamNewReservations(@RequestParam String storeId) {
+
+        SseEmitter emitter = new SseEmitter(0L);
+        sseService.addEmitter(emitter);
+
+        CompletableFuture<List<ReadReservationListResponse>> future = reservationService.getNewReservationsByStoreIdSse(storeId)
+                .thenApply(reservationResponseList -> {
+                    List<ReadFirstItemResponse> firstItemResponseList = itemsService.getFirstItemNamesFromReservations(reservationResponseList);
+                    List<ReadReservationListResponse> responseList = new ArrayList<>();
+                    for (int i = 0; i < reservationResponseList.size(); i++) {
+                        ReadReservationListResponse response = ReadReservationListResponse.builder()
+                                .reservationId(reservationResponseList.get(i).reservationId())
+                                .firstItemName(firstItemResponseList.get(i).itemName())
+                                .itemQuantity(firstItemResponseList.get(i).itemQuantity())
+                                .createdAt(reservationResponseList.get(i).createdAt())
+                                .pickupTime(reservationResponseList.get(i).pickupTime())
+                                .build();
+                        responseList.add(response);
+                    }
+
+                    return responseList;
+                });
+
+        return emitter;
+    }
+
+    @Operation(summary = "storeId 값으로 해당 가게의 진행 예약들을 SSE를 통해 가져옵니다.", description = "storeId 값으로 해당 가게의 진행 예약들을 SSE를 통해 가져옵니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "신규 예약 조회 성공", content = @Content(schema = @Schema(implementation = SseEmitter.class))),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
+            @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
+    })
+    @GetMapping("/sse/reservations-proceed")
+    public SseEmitter streamProceedReservations(@RequestParam String storeId) {
+
+        SseEmitter emitter = new SseEmitter(0L);
+        sseService.addEmitter(emitter);
+
+        CompletableFuture<List<ReadReservationListResponse>> future = reservationService.getProceedingReservationsByStoreIdSse(storeId)
+                .thenApply(reservationResponseList -> {
+                    List<ReadFirstItemResponse> firstItemResponseList = itemsService.getFirstItemNamesFromReservations(reservationResponseList);
+                    List<ReadReservationListResponse> responseList = new ArrayList<>();
+                    for (int i = 0; i < reservationResponseList.size(); i++) {
+                        ReadReservationListResponse response = ReadReservationListResponse.builder()
+                                .reservationId(reservationResponseList.get(i).reservationId())
+                                .firstItemName(firstItemResponseList.get(i).itemName())
+                                .itemQuantity(firstItemResponseList.get(i).itemQuantity())
+                                .createdAt(reservationResponseList.get(i).createdAt())
+                                .pickupTime(reservationResponseList.get(i).pickupTime())
+                                .build();
+                        responseList.add(response);
+                    }
+
+                    return responseList;
+                });
+
+        return emitter;
+    }
+
+    @Operation(summary = "storeId 값으로 해당 가게의 완료 예약들을 SSE를 통해 가져옵니다.", description = "storeId 값으로 해당 가게의 완료 예약들을 SSE를 통해 가져옵니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "신규 예약 조회 성공", content = @Content(schema = @Schema(implementation = SseEmitter.class))),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
+            @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
+    })
+    @GetMapping("/sse/reservations-end")
+    public SseEmitter streamEndReservations(@RequestParam String storeId) {
+
+        SseEmitter emitter = new SseEmitter(0L);
+        sseService.addEmitter(emitter);
+
+        CompletableFuture<List<ReadReservationListResponse>> future = reservationService.getEndReservationsByStoreIdSse(storeId)
+                .thenApply(reservationResponseList -> {
+                    List<ReadFirstItemResponse> firstItemResponseList = itemsService.getFirstItemNamesFromReservations(reservationResponseList);
+                    List<ReadReservationListResponse> responseList = new ArrayList<>();
+                    for (int i = 0; i < reservationResponseList.size(); i++) {
+                        ReadReservationListResponse response = ReadReservationListResponse.builder()
+                                .reservationId(reservationResponseList.get(i).reservationId())
+                                .firstItemName(firstItemResponseList.get(i).itemName())
+                                .itemQuantity(firstItemResponseList.get(i).itemQuantity())
+                                .createdAt(reservationResponseList.get(i).createdAt())
+                                .pickupTime(reservationResponseList.get(i).pickupTime())
+                                .build();
+                        responseList.add(response);
+                    }
+
+                    return responseList;
+                });
+
+        return emitter;
     }
 
 }

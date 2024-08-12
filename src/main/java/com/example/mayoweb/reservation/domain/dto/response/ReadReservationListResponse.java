@@ -5,6 +5,7 @@ import lombok.Builder;
 
 @Builder
 public record ReadReservationListResponse(
+        String reservationId,
         String firstItemName,
         Integer itemQuantity,
         Timestamp createdAt,

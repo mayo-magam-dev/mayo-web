@@ -4,6 +4,7 @@ import com.example.mayoweb.commons.exception.ApplicationException;
 import com.example.mayoweb.commons.exception.payload.ErrorStatus;
 import com.example.mayoweb.reservation.domain.dto.response.ReadReservationResponse;
 import com.example.mayoweb.reservation.repository.ReservationsAdapter;
+import com.example.mayoweb.sse.SseService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +19,7 @@ import java.util.stream.Collectors;
 public class ReservationService {
 
     private final ReservationsAdapter reservationsAdapter;
+    private final SseService sseService;
 
     public void reservationAccept(String id){
         reservationsAdapter.reservationProceeding(id);
@@ -37,7 +39,13 @@ public class ReservationService {
 
     public CompletableFuture<List<ReadReservationResponse>> getNewReservationsByStoreId(String storeId) {
         return reservationsAdapter.getNewByStoreIdAsync(storeId).thenApply(reservationEntities ->
-            reservationEntities.stream().map(ReadReservationResponse::fromEntity).collect(Collectors.toList())
+            reservationEntities.stream().map(ReadReservationResponse::fromEntity).toList()
+        );
+    }
+
+    public CompletableFuture<List<ReadReservationResponse>> getNewReservationsByStoreIdSse(String storeId) {
+        return reservationsAdapter.getNewByStoreIdSse(storeId).thenApply(reservationEntities ->
+                reservationEntities.stream().map(ReadReservationResponse::fromEntity).toList()
         );
     }
 
@@ -55,6 +63,12 @@ public class ReservationService {
         );
     }
 
+    public CompletableFuture<List<ReadReservationResponse>> getProceedingReservationsByStoreIdSse(String storeId) {
+        return reservationsAdapter.getProceedingByStoreIdSse(storeId).thenApply(reservationEntities ->
+                reservationEntities.stream().map(ReadReservationResponse::fromEntity).toList()
+        );
+    }
+
     public List<ReadReservationResponse> getEndByStoreId(String storeId) {
         return reservationsAdapter.getEndByStoreRef(storeId).stream().map(ReadReservationResponse::fromEntity).toList();
     }
@@ -62,6 +76,12 @@ public class ReservationService {
     public CompletableFuture<List<ReadReservationResponse>> getEndReservationsByStoreId(String storeId) {
         return reservationsAdapter.getEndByStoreIdAsync(storeId).thenApply(reservationEntities ->
                 reservationEntities.stream().map(ReadReservationResponse::fromEntity).collect(Collectors.toList())
+        );
+    }
+
+    public CompletableFuture<List<ReadReservationResponse>> getEndReservationsByStoreIdSse(String storeId) {
+        return reservationsAdapter.getEndByStoreIdSse(storeId).thenApply(reservationEntities ->
+                reservationEntities.stream().map(ReadReservationResponse::fromEntity).toList()
         );
     }
 
