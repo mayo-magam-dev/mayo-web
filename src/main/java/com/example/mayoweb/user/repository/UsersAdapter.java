@@ -1,7 +1,6 @@
 package com.example.mayoweb.user.repository;
 import com.example.mayoweb.commons.exception.ApplicationException;
 import com.example.mayoweb.commons.exception.payload.ErrorStatus;
-import com.example.mayoweb.store.domain.StoresEntity;
 import com.example.mayoweb.user.domain.UsersEntity;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.*;
@@ -12,7 +11,7 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
+
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
@@ -54,10 +53,10 @@ public class UsersAdapter {
         return Optional.ofNullable(fromDocument(document));
     }
 
-    public List<String> getFCMTokenByUserRef(String user_ref) {
+    public List<String> getFCMTokenByUserRef(String userId) {
     Firestore firestore = FirestoreClient.getFirestore();
     List<String> fcmTokens = new ArrayList<>();
-    DocumentReference userRef = firestore.collection("users").document(user_ref);
+    DocumentReference userRef = firestore.collection("users").document(userId);
 
         try {
             DocumentSnapshot userDocument = userRef.get().get();
