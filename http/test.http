@@ -3,6 +3,14 @@ GET http://localhost:8080/reservation-new-async?storeId=VQtTGTCc13EWulU5sZmI
 Content-Type: application/json
 
 ###
+GET http://localhost:8080/sse/reservations-new?storeId=VQtTGTCc13EWulU5sZmI
+Content-Type: application/json
+
+###
+GET http://localhost:8080/reservation-detail?reservationId=xJVwOL6DryFWuIWW
+Content-Type: application/json
+
+###
 GET http://localhost:8080/stores?storeId=11fj3imWYEP7KP4Kfjco
 Content-Type: application/json
 
