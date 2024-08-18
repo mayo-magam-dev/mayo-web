@@ -60,7 +60,7 @@ public record ReadUserResponse (
                     .gender(entity.gender)
                     .name(entity.name)
                     .birthday(entity.birthday)
-                    .storeRef(entity.storeRef.getId())
+                    .storeRef(entity.storeRef != null ? entity.storeRef.getId() : null)
                     .build();
       }
 }
