@@ -2,7 +2,6 @@ package com.example.mayoweb.reservation.service;
 
 import com.example.mayoweb.commons.exception.ApplicationException;
 import com.example.mayoweb.commons.exception.payload.ErrorStatus;
-import com.example.mayoweb.reservation.domain.ReservationEntity;
 import com.example.mayoweb.reservation.domain.dto.response.ReadReservationResponse;
 import com.example.mayoweb.reservation.repository.ReservationsAdapter;
 import com.example.mayoweb.sse.SseService;
