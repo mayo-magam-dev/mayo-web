@@ -69,8 +69,7 @@ public class FCMService {
         return result;
     }
 
-    private String makeMessage(String targetToken, String title, String body, String image)
-            throws JsonProcessingException {
+    private String makeMessage(String targetToken, String title, String body, String image) throws JsonProcessingException {
         FCMMessageDto fcmMessageDto = FCMMessageDto.builder()
                 .message(
                         FCMMessageDto.Message.builder()
