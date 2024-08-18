@@ -2,10 +2,12 @@ package com.example.mayoweb.reservation.service;
 
 import com.example.mayoweb.commons.exception.ApplicationException;
 import com.example.mayoweb.commons.exception.payload.ErrorStatus;
+import com.example.mayoweb.reservation.domain.ReservationEntity;
 import com.example.mayoweb.reservation.domain.dto.response.ReadReservationResponse;
 import com.example.mayoweb.reservation.repository.ReservationsAdapter;
 import com.example.mayoweb.sse.SseService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -83,6 +85,27 @@ public class ReservationService {
         return reservationsAdapter.getEndByStoreIdSse(storeId).thenApply(reservationEntities ->
                 reservationEntities.stream().map(ReadReservationResponse::fromEntity).toList()
         );
+    }
+
+    public CompletableFuture<Page<ReadReservationResponse>> getEndReservationsByStoreIdSse(String storeId, int page, int size) {
+        return reservationsAdapter.getEndByStoreIdSse(storeId, page, size).thenApply(reservationEntities -> {
+            Pageable pageable = PageRequest.of(page, size);
+
+            List<ReadReservationResponse> readReservationResponses = reservationEntities.stream()
+                    .map(ReadReservationResponse::fromEntity)
+                    .toList();
+
+            int start = (int) pageable.getOffset();
+            int end = Math.min(start + pageable.getPageSize(), readReservationResponses.size());
+            List<ReadReservationResponse> paginatedList = readReservationResponses.subList(start, end);
+
+            return new PageImpl<>(paginatedList, pageable, readReservationResponses.size());
+        });
+    }
+
+    public Slice<ReadReservationResponse> getReservationsByStoreIdSlice(String storeId, int page, int size) throws ExecutionException, InterruptedException {
+        Pageable pageable = PageRequest.of(page, size);
+        return reservationsAdapter.findEndReservationsByStoreId(storeId, pageable).get().map(ReadReservationResponse::fromEntity);
     }
 
     public ReadReservationResponse getReservationById(String reservationId) {
