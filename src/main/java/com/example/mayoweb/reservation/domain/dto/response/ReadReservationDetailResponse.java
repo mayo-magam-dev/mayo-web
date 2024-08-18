@@ -28,7 +28,11 @@ public record ReadReservationDetailResponse(
 
         Boolean reservationIsPlastic,
 
-        String userNickName
+        String userNickName,
+
+        Integer reservationState,
+
+        Integer menuTypeCount
 
 ) {
 }
