@@ -9,6 +9,7 @@ public record ReadReservationListResponse(
         String firstItemName,
         Integer itemQuantity,
         Timestamp createdAt,
-        Timestamp pickupTime
+        Timestamp pickupTime,
+        Integer reservationState
 ) {
 }

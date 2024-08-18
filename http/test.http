@@ -1,5 +1,5 @@
 ###
-GET http://localhost:8080/reservation-new-async?storeId=VQtTGTCc13EWulU5sZmI
+GET http://localhost:8080/reservation-done-async?storeId=VQtTGTCc13EWulU5sZmI
 Content-Type: application/json
 
 ###
@@ -11,11 +11,11 @@ GET http://localhost:8080/sse/reservations-end-page?storeId=VQtTGTCc13EWulU5sZmI
 Content-Type: application/json
 
 ###
-GET http://localhost:8080/sse/reservations-end-cursor?storeId=VQtTGTCc13EWulU5sZmI&size=8&page=0
+GET http://localhost:8080/reservations-end-slice?storeId=VQtTGTCc13EWulU5sZmI&size=8&page=0
 Content-Type: application/json
 
 ###
-GET http://localhost:8080/reservation-detail?reservationId=xJVwOL6DryFWuIWW
+GET http://localhost:8080/reservation-detail?reservationId=M2qb5WwDAi3GCZu6TCen
 Content-Type: application/json
 
 ###
@@ -31,7 +31,7 @@ GET http://localhost:8080/item-store?storeId=0schMVN8hmowr9foiFjo
 Content-Type: application/json
 
 ###
-PUT http://localhost:8080/reservation-accept?reservationId=jcYW6WPa24zOAzsVXnzM
+PUT http://localhost:8080/reservation-accept?reservationId=IHXhbHhAxLsIsrr0njIq
 Content-Type: application/json
 
 ###
