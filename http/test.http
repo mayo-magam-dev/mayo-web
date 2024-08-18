@@ -7,6 +7,14 @@ GET http://localhost:8080/sse/reservations-new?storeId=VQtTGTCc13EWulU5sZmI
 Content-Type: application/json
 
 ###
+GET http://localhost:8080/sse/reservations-end-page?storeId=VQtTGTCc13EWulU5sZmI&page=0&size=8
+Content-Type: application/json
+
+###
+GET http://localhost:8080/sse/reservations-end-cursor?storeId=VQtTGTCc13EWulU5sZmI&size=8&page=0
+Content-Type: application/json
+
+###
 GET http://localhost:8080/reservation-detail?reservationId=xJVwOL6DryFWuIWW
 Content-Type: application/json
 
