@@ -265,7 +265,7 @@ public class ReservationsAdapter {
         DocumentReference storeDocumentId = firestore.collection("stores").document(storeId);
         CollectionReference reservationsRef = firestore.collection("reservation");
         Query query = reservationsRef.whereEqualTo("store_ref", storeDocumentId)
-                .whereEqualTo("reservation_state", State.END.ordinal());
+                .whereIn("reservation_state", Arrays.asList(State.END.ordinal(), State.FAIL.ordinal()));
 
         CompletableFuture<List<ReservationEntity>> future = new CompletableFuture<>();
 
@@ -294,7 +294,7 @@ public class ReservationsAdapter {
         DocumentReference storeDocumentId = firestore.collection("stores").document(storeId);
         CollectionReference reservationsRef = firestore.collection("reservation");
         Query query = reservationsRef.whereEqualTo("store_ref", storeDocumentId)
-                .whereEqualTo("reservation_state", State.END.ordinal());
+                .whereIn("reservation_state", Arrays.asList(State.END.ordinal(), State.FAIL.ordinal()));
 
         CompletableFuture<List<ReservationEntity>> future = new CompletableFuture<>();
 
@@ -328,7 +328,7 @@ public class ReservationsAdapter {
         DocumentReference storeDocumentId = firestore.collection("stores").document(storeId);
         CollectionReference reservationsRef = firestore.collection("reservation");
         Query query = reservationsRef.whereEqualTo("store_ref", storeDocumentId)
-                .whereEqualTo("reservation_state", State.END.ordinal());
+                .whereIn("reservation_state", Arrays.asList(State.END.ordinal(), State.FAIL.ordinal()));
 
         CompletableFuture<Page<ReservationEntity>> future = new CompletableFuture<>();
 
@@ -379,7 +379,7 @@ public class ReservationsAdapter {
         CollectionReference reservationsRef = firestore.collection("reservation");
 
         Query query = reservationsRef.whereEqualTo("store_ref", storeDocumentId)
-                .whereEqualTo("reservation_state", State.END.ordinal());
+                .whereIn("reservation_state", Arrays.asList(State.END.ordinal(), State.FAIL.ordinal()));
 
         Comparator<ReservationEntity> createdAtComparator = Comparator
                 .comparing(entity -> entity.getCreatedAt().toSqlTimestamp(), Comparator.reverseOrder());
