@@ -32,7 +32,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
 
 @Tag(name = "예약 API", description = "예약 관리 API")
@@ -81,6 +80,7 @@ public class ReservationRestController {
                     .itemQuantity(firstItemResponse.get(i).itemQuantity())
                     .createdAt(reservationResponseList.get(i).createdAt())
                     .pickupTime(reservationResponseList.get(i).pickupTime())
+                    .reservationState(reservationResponseList.get(i).reservationState())
                     .build();
 
             responseList.add(response);
@@ -105,11 +105,12 @@ public class ReservationRestController {
                     List<ReadReservationListResponse> responseList = new ArrayList<>();
                     for (int i = 0; i < reservationResponseList.size(); i++) {
                         ReadReservationListResponse response = ReadReservationListResponse.builder()
-                                .reservationId(reservationResponseList.get(i).reservationId())
+                                .reservationId(reservationResponseList.get(i).id())
                                 .firstItemName(firstItemResponseList.get(i).itemName())
                                 .itemQuantity(firstItemResponseList.get(i).itemQuantity())
                                 .createdAt(reservationResponseList.get(i).createdAt())
                                 .pickupTime(reservationResponseList.get(i).pickupTime())
+                                .reservationState(reservationResponseList.get(i).reservationState())
                                 .build();
                         responseList.add(response);
                     }
@@ -134,11 +135,12 @@ public class ReservationRestController {
 
         for(int i=0; i<reservationResponseList.size(); i++) {
             ReadReservationListResponse response = ReadReservationListResponse.builder()
-                    .reservationId(reservationResponseList.get(i).reservationId())
+                    .reservationId(reservationResponseList.get(i).id())
                     .firstItemName(firstItemResponse.get(i).itemName())
                     .itemQuantity(firstItemResponse.get(i).itemQuantity())
                     .createdAt(reservationResponseList.get(i).createdAt())
                     .pickupTime(reservationResponseList.get(i).pickupTime())
+                    .reservationState(reservationResponseList.get(i).reservationState())
                     .build();
 
             responseList.add(response);
@@ -161,11 +163,12 @@ public class ReservationRestController {
                     List<ReadReservationListResponse> responseList = new ArrayList<>();
                     for (int i = 0; i < reservationResponseList.size(); i++) {
                         ReadReservationListResponse response = ReadReservationListResponse.builder()
-                                .reservationId(reservationResponseList.get(i).reservationId())
+                                .reservationId(reservationResponseList.get(i).id())
                                 .firstItemName(firstItemResponseList.get(i).itemName())
                                 .itemQuantity(firstItemResponseList.get(i).itemQuantity())
                                 .createdAt(reservationResponseList.get(i).createdAt())
                                 .pickupTime(reservationResponseList.get(i).pickupTime())
+                                .reservationState(reservationResponseList.get(i).reservationState())
                                 .build();
                         responseList.add(response);
                     }
@@ -187,11 +190,12 @@ public class ReservationRestController {
 
         for(int i=0; i<reservationResponseList.size(); i++) {
             ReadReservationListResponse response = ReadReservationListResponse.builder()
-                    .reservationId(reservationResponseList.get(i).reservationId())
+                    .reservationId(reservationResponseList.get(i).id())
                     .firstItemName(firstItemResponse.get(i).itemName())
                     .itemQuantity(firstItemResponse.get(i).itemQuantity())
                     .createdAt(reservationResponseList.get(i).createdAt())
                     .pickupTime(reservationResponseList.get(i).pickupTime())
+                    .reservationState(reservationResponseList.get(i).reservationState())
                     .build();
 
             responseList.add(response);
@@ -214,11 +218,12 @@ public class ReservationRestController {
                     List<ReadReservationListResponse> responseList = new ArrayList<>();
                     for (int i = 0; i < reservationResponseList.size(); i++) {
                         ReadReservationListResponse response = ReadReservationListResponse.builder()
-                                .reservationId(reservationResponseList.get(i).reservationId())
+                                .reservationId(reservationResponseList.get(i).id())
                                 .firstItemName(firstItemResponseList.get(i).itemName())
                                 .itemQuantity(firstItemResponseList.get(i).itemQuantity())
                                 .createdAt(reservationResponseList.get(i).createdAt())
                                 .pickupTime(reservationResponseList.get(i).pickupTime())
+                                .reservationState(reservationResponseList.get(i).reservationState())
                                 .build();
                         responseList.add(response);
                     }
@@ -304,26 +309,30 @@ public class ReservationRestController {
         List<String> itemName = new ArrayList<>();
         List<Integer> itemCount = new ArrayList<>();
         List<Double> subTotal = new ArrayList<>();
+        Integer totalQuantity = 0;
 
         for(ReadCartsResponse cart : carts) {
             ReadItemResponse item = itemsService.getItemByCartId(cart.cartId());
             itemName.add(item.itemName());
             itemCount.add(cart.itemCount());
             subTotal.add(cart.subtotal());
+            totalQuantity += cart.itemCount();
         }
 
         return ResponseEntity.ok(ReadReservationDetailResponse.builder()
                     .itemName(itemName)
                     .itemCount(itemCount)
                     .subTotal(subTotal)
-                    .totalQuantity(carts.size())
-                    .reservationId(reservation.reservationId())
+                    .totalQuantity(totalQuantity)
+                    .reservationId(reservationId)
                     .request(reservation.reservationRequest())
                     .createdAt(reservation.createdAt())
                     .pickupTime(reservation.pickupTime())
                     .totalPrice(reservation.totalPrice())
                     .reservationIsPlastic(reservation.reservationIsPlastics())
                     .userNickName(user.displayName())
+                    .reservationState(reservation.reservationState())
+                    .menuTypeCount(carts.size())
                     .build());
     }
 
@@ -345,11 +354,12 @@ public class ReservationRestController {
                     List<ReadReservationListResponse> responseList = new ArrayList<>();
                     for (int i = 0; i < reservationResponseList.size(); i++) {
                         ReadReservationListResponse response = ReadReservationListResponse.builder()
-                                .reservationId(reservationResponseList.get(i).reservationId())
+                                .reservationId(reservationResponseList.get(i).id())
                                 .firstItemName(firstItemResponseList.get(i).itemName())
                                 .itemQuantity(firstItemResponseList.get(i).itemQuantity())
                                 .createdAt(reservationResponseList.get(i).createdAt())
                                 .pickupTime(reservationResponseList.get(i).pickupTime())
+                                .reservationState(reservationResponseList.get(i).reservationState())
                                 .build();
                         responseList.add(response);
                     }
@@ -378,11 +388,12 @@ public class ReservationRestController {
                     List<ReadReservationListResponse> responseList = new ArrayList<>();
                     for (int i = 0; i < reservationResponseList.size(); i++) {
                         ReadReservationListResponse response = ReadReservationListResponse.builder()
-                                .reservationId(reservationResponseList.get(i).reservationId())
+                                .reservationId(reservationResponseList.get(i).id())
                                 .firstItemName(firstItemResponseList.get(i).itemName())
                                 .itemQuantity(firstItemResponseList.get(i).itemQuantity())
                                 .createdAt(reservationResponseList.get(i).createdAt())
                                 .pickupTime(reservationResponseList.get(i).pickupTime())
+                                .reservationState(reservationResponseList.get(i).reservationState())
                                 .build();
                         responseList.add(response);
                     }
@@ -411,11 +422,12 @@ public class ReservationRestController {
                     List<ReadReservationListResponse> responseList = new ArrayList<>();
                     for (int i = 0; i < reservationResponseList.size(); i++) {
                         ReadReservationListResponse response = ReadReservationListResponse.builder()
-                                .reservationId(reservationResponseList.get(i).reservationId())
+                                .reservationId(reservationResponseList.get(i).id())
                                 .firstItemName(firstItemResponseList.get(i).itemName())
                                 .itemQuantity(firstItemResponseList.get(i).itemQuantity())
                                 .createdAt(reservationResponseList.get(i).createdAt())
                                 .pickupTime(reservationResponseList.get(i).pickupTime())
+                                .reservationState(reservationResponseList.get(i).reservationState())
                                 .build();
                         responseList.add(response);
                     }
@@ -447,11 +459,12 @@ public class ReservationRestController {
 
                     for (int i = 0; i < reservationResponseList.size(); i++) {
                         ReadReservationListResponse response = ReadReservationListResponse.builder()
-                                .reservationId(reservationResponseList.get(i).reservationId())
+                                .reservationId(reservationResponseList.get(i).id())
                                 .firstItemName(firstItemResponseList.get(i).itemName())
                                 .itemQuantity(firstItemResponseList.get(i).itemQuantity())
                                 .createdAt(reservationResponseList.get(i).createdAt())
                                 .pickupTime(reservationResponseList.get(i).pickupTime())
+                                .reservationState(reservationResponseList.get(i).reservationState())
                                 .build();
                         responseList.add(response);
                     }
