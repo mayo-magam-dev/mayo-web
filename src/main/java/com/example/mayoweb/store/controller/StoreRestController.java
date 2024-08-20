@@ -1,6 +1,7 @@
 package com.example.mayoweb.store.controller;
 
 import com.example.mayoweb.fcm.service.FCMService;
+import com.example.mayoweb.items.domain.request.OpenItemRequest;
 import com.example.mayoweb.items.service.ItemsService;
 import com.example.mayoweb.store.domain.dto.response.ReadStoreResponse;
 import com.example.mayoweb.store.domain.dto.request.UpdateStoreRequest;
@@ -61,10 +62,10 @@ public class StoreRestController {
             @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
     })
     @PutMapping("/store/open")
-    public ResponseEntity<Void> openStore(@RequestParam(required = false) List<String> itemIdList, @RequestParam(required = false) List<Integer> quantityList, @RequestParam String storeId) throws ExecutionException, InterruptedException, IOException {
+    public ResponseEntity<Void> openStore(@RequestBody(required = false)OpenItemRequest openItemRequest, @RequestParam String storeId) throws ExecutionException, InterruptedException, IOException {
 
-        if(itemIdList != null && quantityList != null) {
-            itemsService.openTask(itemIdList, quantityList);
+        if(openItemRequest.itemIdList() != null && openItemRequest.quantityList() != null) {
+            itemsService.openTask(openItemRequest.itemIdList(), openItemRequest.quantityList());
         }
 
         storesService.openStore(storeId);
