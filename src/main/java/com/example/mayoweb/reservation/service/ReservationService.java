@@ -5,6 +5,7 @@ import com.example.mayoweb.commons.exception.payload.ErrorStatus;
 import com.example.mayoweb.reservation.domain.dto.response.ReadReservationResponse;
 import com.example.mayoweb.reservation.repository.ReservationsAdapter;
 import com.example.mayoweb.sse.SseService;
+import com.google.cloud.Timestamp;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
@@ -72,6 +73,10 @@ public class ReservationService {
 
     public List<ReadReservationResponse> getEndByStoreId(String storeId) {
         return reservationsAdapter.getEndByStoreRef(storeId).stream().map(ReadReservationResponse::fromEntity).toList();
+    }
+
+    public List<ReadReservationResponse> getEndByStoreIdAndTimestamp(String storeId, Timestamp timestamp) {
+        return reservationsAdapter.getEndByStoreRefAndTimestamp(storeId, timestamp).stream().map(ReadReservationResponse::fromEntity).toList();
     }
 
     public CompletableFuture<List<ReadReservationResponse>> getEndReservationsByStoreId(String storeId) {

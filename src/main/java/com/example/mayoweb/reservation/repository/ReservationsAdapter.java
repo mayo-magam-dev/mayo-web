@@ -6,6 +6,7 @@ import com.example.mayoweb.reservation.domain.ReservationEntity;
 import com.example.mayoweb.reservation.domain.dto.response.ReadReservationResponse;
 import com.example.mayoweb.sse.SseService;
 import com.google.api.core.ApiFuture;
+import com.google.cloud.Timestamp;
 import com.google.cloud.firestore.*;
 import com.google.firebase.cloud.FirestoreClient;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +14,8 @@ import org.springframework.data.domain.*;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -255,6 +258,53 @@ public class ReservationsAdapter {
                 reservations.add(reservationEntity);
             }
         }
+        reservations.sort(createdAtComparator);
+
+        return reservations;
+    }
+
+    public List<ReservationEntity> getEndByStoreRefAndTimestamp(String storesRef, Timestamp timestamp) {
+
+        List<ReservationEntity> reservations = new ArrayList<>();
+
+        LocalDateTime localDateTime = timestamp.toSqlTimestamp().toLocalDateTime();
+        ZoneId kstZoneId = ZoneId.of("Asia/Seoul");
+
+        LocalDateTime startOfDay = localDateTime.toLocalDate().atStartOfDay().atZone(kstZoneId).toLocalDateTime();
+        LocalDateTime endOfDay = localDateTime.toLocalDate().atTime(23, 59, 59, 999999999).atZone(kstZoneId).toLocalDateTime();
+
+        Firestore firestore = FirestoreClient.getFirestore();
+        DocumentReference storeDocumentId = firestore.collection("stores").document(storesRef);
+        CollectionReference reservationsRef = firestore.collection("reservation");
+
+        Query query = reservationsRef.whereEqualTo("store_ref", storeDocumentId);
+
+        ApiFuture<QuerySnapshot> querySnapshotApiFuture = query.get();
+        QuerySnapshot querySnapshot = null;
+
+        try {
+            querySnapshot = querySnapshotApiFuture.get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new ApplicationException(ErrorStatus.toErrorStatus("완료된 예약을 가져오는 도중 에러가 발생하였습니다.", 400, LocalDateTime.now()));
+        }
+
+        Comparator<ReservationEntity> createdAtComparator = Comparator
+                .comparing(ReservationEntity::getCreatedAt, Comparator.reverseOrder());
+
+        for (QueryDocumentSnapshot reservationDocument : querySnapshot.getDocuments()) {
+            ReservationEntity reservationEntity = reservationDocument.toObject(ReservationEntity.class);
+            Timestamp createdAt = reservationEntity.getCreatedAt();
+
+            LocalDateTime createdAtLocalDateTime = createdAt.toSqlTimestamp().toLocalDateTime();
+
+            if ((createdAtLocalDateTime.compareTo(startOfDay) >= 0) &&
+                    (createdAtLocalDateTime.compareTo(endOfDay) <= 0) &&
+                    (reservationEntity.getReservationState() == State.END.ordinal() ||
+                            reservationEntity.getReservationState() == State.FAIL.ordinal())) {
+                reservations.add(reservationEntity);
+            }
+        }
+
         reservations.sort(createdAtComparator);
 
         return reservations;
