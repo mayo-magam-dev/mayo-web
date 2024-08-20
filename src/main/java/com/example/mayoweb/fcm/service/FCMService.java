@@ -164,8 +164,9 @@ public class FCMService {
         for (String token : tokens) {
             results.add(sendMessageTo(token, store.storeName(), "마감할인 오픈!", store.storeImage()));
         }
+
         boolean status = !results.contains(false);
-        WebPushNotificationsDto msUserPushNotificationsDto = WebPushNotificationsDto.builder()
+        WebPushNotificationsDto webUserPushNotificationsDto = WebPushNotificationsDto.builder()
                 .notificationText("마감할인 오픈!")
                 .notificationTitle(store.storeName())
                 .notificationImageUrl(store.storeImage())
@@ -174,7 +175,8 @@ public class FCMService {
                 .timestamp(Timestamp.now())
                 .status(status)
                 .build();
-        if (!addWebPushNotifications(msUserPushNotificationsDto)) {
+
+        if (!addWebPushNotifications(webUserPushNotificationsDto)) {
             log.info("push notification false = " + Timestamp.now());
         }
         return status;

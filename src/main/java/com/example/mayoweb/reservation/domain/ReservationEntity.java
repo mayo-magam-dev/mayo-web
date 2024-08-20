@@ -1,4 +1,5 @@
 package com.example.mayoweb.reservation.domain;
+
 import com.google.cloud.Timestamp;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.annotation.DocumentId;
