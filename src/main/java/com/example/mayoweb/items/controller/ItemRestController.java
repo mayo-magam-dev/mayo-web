@@ -22,6 +22,7 @@ import java.util.List;
 @Tag(name = "아이템 API", description = "아이템 관리 API")
 @RestController
 @RequiredArgsConstructor
+@CrossOrigin(origins = "*")
 public class ItemRestController {
 
     private final ItemsService itemsService;
