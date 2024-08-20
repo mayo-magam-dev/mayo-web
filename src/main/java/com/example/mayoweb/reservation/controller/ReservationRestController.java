@@ -13,6 +13,7 @@ import com.example.mayoweb.reservation.service.ReservationService;
 import com.example.mayoweb.sse.SseService;
 import com.example.mayoweb.user.domain.dto.response.ReadUserResponse;
 import com.example.mayoweb.user.service.UsersService;
+import com.google.cloud.Timestamp;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -128,7 +129,7 @@ public class ReservationRestController {
             @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
     })
     @GetMapping("/reservation-proceed")
-    public ResponseEntity<List<ReadReservationListResponse>> getProceedingReservationsByStoreId(String storeId) {
+    public ResponseEntity<List<ReadReservationListResponse>> getProceedingReservationsByStoreId(@RequestParam String storeId) {
         List<ReadReservationResponse> reservationResponseList = reservationService.getProcessingByStoreId(storeId);
         List<ReadFirstItemResponse> firstItemResponse = itemsService.getFirstItemNamesFromReservations(reservationResponseList);
         List<ReadReservationListResponse> responseList = new ArrayList<>();
@@ -183,10 +184,43 @@ public class ReservationRestController {
             @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
     })
     @GetMapping("/reservation-done")
-    public ResponseEntity<List<ReadReservationListResponse>> getDoneReservationsByStoreId(String storeId) {
+    public ResponseEntity<List<ReadReservationListResponse>> getDoneReservationsByStoreId(@RequestParam String storeId) {
         List<ReadReservationResponse> reservationResponseList = reservationService.getEndByStoreId(storeId);
         List<ReadFirstItemResponse> firstItemResponse = itemsService.getFirstItemNamesFromReservations(reservationResponseList);
         List<ReadReservationListResponse> responseList = new ArrayList<>();
+
+        for(int i=0; i<reservationResponseList.size(); i++) {
+            ReadReservationListResponse response = ReadReservationListResponse.builder()
+                    .reservationId(reservationResponseList.get(i).id())
+                    .firstItemName(firstItemResponse.get(i).itemName())
+                    .itemQuantity(firstItemResponse.get(i).itemQuantity())
+                    .createdAt(reservationResponseList.get(i).createdAt())
+                    .pickupTime(reservationResponseList.get(i).pickupTime())
+                    .reservationState(reservationResponseList.get(i).reservationState())
+                    .build();
+
+            responseList.add(response);
+        }
+
+        return ResponseEntity.ok(responseList);
+    }
+
+    @Operation(summary = "storeId 값, 시간 값으로 해당 가게의 완료 예약들을 가져옵니다.", description = "storeId 값, 시간 값으로 해당 가게의 완료 예약들을 가져옵니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "완료 예약 조회 성공", content = @Content(schema = @Schema(implementation = List.class))),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
+            @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
+    })
+    @GetMapping("/reservation-done-time")
+    public ResponseEntity<List<ReadReservationListResponse>> getDoneReservationsByStoreId(@RequestParam String storeId, @RequestParam String timestamp) {
+
+        Timestamp ts = Timestamp.parseTimestamp(timestamp);
+
+        List<ReadReservationResponse> reservationResponseList = reservationService.getEndByStoreIdAndTimestamp(storeId, ts);
+        List<ReadFirstItemResponse> firstItemResponse = itemsService.getFirstItemNamesFromReservations(reservationResponseList);
+        List<ReadReservationListResponse> responseList = new ArrayList<>();
+
+
 
         for(int i=0; i<reservationResponseList.size(); i++) {
             ReadReservationListResponse response = ReadReservationListResponse.builder()
