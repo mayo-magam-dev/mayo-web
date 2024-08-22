@@ -6,6 +6,7 @@ import com.example.mayoweb.items.service.ItemsService;
 import com.example.mayoweb.items.domain.request.CreateItemRequest;
 import com.example.mayoweb.items.domain.response.ReadItemResponse;
 import com.example.mayoweb.reservation.domain.dto.response.ReadReservationResponse;
+import com.example.mayoweb.storage.service.StorageService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -16,7 +17,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @Tag(name = "아이템 API", description = "아이템 관리 API")
@@ -26,6 +29,7 @@ import java.util.List;
 public class ItemRestController {
 
     private final ItemsService itemsService;
+    private final StorageService storageService;
 
     @Operation(summary = "itemId 값으로 해당 item객체를 가져옵니다.", description = "item PK값으로 해당 item 객체를 가져옵니다.")
     @ApiResponses(value = {
@@ -57,9 +61,15 @@ public class ItemRestController {
             @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
     })
     @PostMapping("/item")
-    public ResponseEntity<Void> createItem(@RequestBody CreateItemRequest request, @RequestParam String storeId) {
+    public ResponseEntity<Void> createItem(@RequestBody CreateItemRequest request, @RequestParam String storeId, @RequestParam(value = "itemImage", required = false) MultipartFile file) throws IOException {
 
-        itemsService.save(request, storeId);
+        if(file != null && !file.isEmpty()) {
+            String imageUrl = storageService.uploadFirebaseBucket(file, request.itemName());
+            CreateItemRequest createItemRequest = CreateItemRequest.updateItemURL(request, imageUrl);
+            itemsService.save(createItemRequest, storeId);
+        } else {
+            itemsService.save(request, storeId);
+        }
 
         return ResponseEntity.noContent().build();
     }
@@ -72,9 +82,15 @@ public class ItemRestController {
             @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
     })
     @PutMapping("/item")
-    public ResponseEntity<Void> updateItem(@RequestBody UpdateItemRequest request) {
+    public ResponseEntity<Void> updateItem(@RequestBody UpdateItemRequest request, @RequestParam(value = "itemImage", required = false) MultipartFile file) throws IOException {
 
-        itemsService.updateItem(request);
+        if(file != null && !file.isEmpty()) {
+            String imageUrl = storageService.uploadFirebaseBucket(file, request.itemName());
+            UpdateItemRequest updateItemRequest = UpdateItemRequest.updateItemURL(request, imageUrl);
+            itemsService.updateItem(updateItemRequest);
+        } else {
+            itemsService.updateItem(request);
+        }
 
         return ResponseEntity.noContent().build();
     }
