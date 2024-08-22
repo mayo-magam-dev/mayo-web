@@ -112,6 +112,11 @@ public class ReservationService {
         return reservationsAdapter.findEndReservationsByStoreId(storeId, pageable).get().map(ReadReservationResponse::fromEntity);
     }
 
+    public Slice<ReadReservationResponse> getReservationsByStoreIdAndTimeSlice(String storeId, Timestamp timestamp, int page, int size) throws ExecutionException, InterruptedException {
+        Pageable pageable = PageRequest.of(page, size);
+        return reservationsAdapter.findEndReservationsByStoreIdAndTime(storeId, pageable, timestamp).get().map(ReadReservationResponse::fromEntity);
+    }
+
     public ReadReservationResponse getReservationById(String reservationId) {
         return ReadReservationResponse.fromEntity(reservationsAdapter.findByReservationId(reservationId)
                 .orElseThrow( () -> new ApplicationException(
