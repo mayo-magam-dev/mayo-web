@@ -2,7 +2,9 @@ package com.example.mayoweb.items.domain.request;
 
 import com.example.mayoweb.items.domain.ItemsEntity;
 import com.google.cloud.firestore.DocumentReference;
+import lombok.Builder;
 
+@Builder
 public record CreateItemRequest(
         String itemName,
 
@@ -32,6 +34,19 @@ public record CreateItemRequest(
                 .cookingTime(cookingTime)
                 .additionalInformation(additionalInformation)
                 .storeRef(storeDocument)
+                .build();
+    }
+
+    public static CreateItemRequest updateItemURL(CreateItemRequest createItemRequest, String imageUrl) {
+        return CreateItemRequest.builder()
+                .itemName(createItemRequest.itemName())
+                .itemDescription(createItemRequest.itemDescription())
+                .originalPrice(createItemRequest.originalPrice())
+                .salePercent(createItemRequest.salePercent())
+                .itemImage(imageUrl)
+                .salePrice(createItemRequest.salePrice())
+                .cookingTime(createItemRequest.cookingTime())
+                .additionalInformation(createItemRequest.additionalInformation())
                 .build();
     }
 }
