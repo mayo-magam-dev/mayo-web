@@ -27,12 +27,14 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew build
 
-      - name: Write Firebase JSON file
-        env:
-          FIREBASE_JSON: ${{ secrets.FIREBASE_JSON }}
-        run: echo "${{ secrets.FIREBASE_JSON }}" > build/resources/main/key/mayo-app-280d4.json
+      - name: Publish Unit Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
+        with:
+          check_name: 'Gradle Test Results'
+          junit_files: build/test-results/test/**/*.xml
 
-      - name: Upload JAR and JSON to Remote Server
+      - name: Upload JAR to Remote Server
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           REMOTE_USER: ${{ secrets.SSH_USER }}
@@ -44,4 +46,3 @@ jobs:
           chmod 400 ~/.ssh/github_rsa
           ssh-keyscan ${REMOTE_HOST} >> ~/.ssh/known_hosts
           scp -i ~/.ssh/github_rsa -o StrictHostKeyChecking=no build/libs/*.jar ${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_DIR}
-          scp -i ~/.ssh/github_rsa -o StrictHostKeyChecking=no build/resources/main/key/mayo-app-280d4.json ${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_DIR}
