@@ -169,6 +169,7 @@ public class ItemsAdapter {
         if (document.exists()) {
             documentReference.update(
                     "item_name", itemsEntity.getItemName(),
+                    "item_image", itemsEntity.getItemImage(),
                     "item_description", itemsEntity.getItemDescription(),
                     "original_price", itemsEntity.getOriginalPrice(),
                     "sale_price", itemsEntity.getSalePrice(),
