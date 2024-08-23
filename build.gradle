@@ -51,3 +51,9 @@ dependencies {
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
+processResources {
+	from('src/main/resources/key') {
+		include 'mayo-app-280d4.json'
+	}
+}
