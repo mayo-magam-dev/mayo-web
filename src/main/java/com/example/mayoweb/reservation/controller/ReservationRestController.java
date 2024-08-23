@@ -22,9 +22,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -528,9 +526,32 @@ public class ReservationRestController {
             @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
             @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
     })
-    @GetMapping("/reservations-end-slice")
-    public Slice<ReadReservationResponse> endReservationsCursor(@RequestParam String storeId, int page, @RequestParam int size) throws ExecutionException, InterruptedException {
-        return reservationService.getReservationsByStoreIdSlice(storeId, page, size);
+    @GetMapping("/reservations-end-slice-time")
+    public Slice<ReadReservationListResponse> endReservationsCursor(@RequestParam String storeId, @RequestParam int page, @RequestParam int size, @RequestParam String timeStamp) throws ExecutionException, InterruptedException {
+        Timestamp ts = Timestamp.parseTimestamp(timeStamp);
+
+        Slice<ReadReservationResponse> reservationResponseSlice = reservationService.getReservationsByStoreIdAndTimeSlice(storeId, ts, page, size);
+
+        List<ReadReservationResponse> reservationResponseList = reservationResponseSlice.getContent();
+
+        List<ReadFirstItemResponse> firstItemResponseList = itemsService.getFirstItemNamesFromReservations(reservationResponseList);
+        List<ReadReservationListResponse> responseList = new ArrayList<>();
+
+        for (int i = 0; i < reservationResponseList.size(); i++) {
+            ReadReservationListResponse response = ReadReservationListResponse.builder()
+                    .reservationId(reservationResponseList.get(i).id())
+                    .firstItemName(firstItemResponseList.get(i).itemName())
+                    .itemQuantity(firstItemResponseList.get(i).itemQuantity())
+                    .createdAt(reservationResponseList.get(i).createdAt())
+                    .pickupTime(reservationResponseList.get(i).pickupTime())
+                    .reservationState(reservationResponseList.get(i).reservationState())
+                    .build();
+            responseList.add(response);
+        }
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        return new SliceImpl<>(responseList, pageable, reservationResponseSlice.hasNext());
     }
 
 }
