@@ -1,5 +1,5 @@
 ###
-GET http://localhost:8080/reservation-done-async?storeId=VQtTGTCc13EWulU5sZmI
+GET http://3.35.168.205:8080/reservation-done-async?storeId=VQtTGTCc13EWulU5sZmI
 Content-Type: application/json
 
 ###
