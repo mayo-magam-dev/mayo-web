@@ -21,6 +21,13 @@ jobs:
           distribution: 'temurin'
           cache: 'gradle'
 
+      - name: Generate JSON file
+        env:
+          FIREBASE_JSON: ${{ secrets.FIREBASE_JSON }}
+        run: |
+            mkdir -p src/main/resources/key
+            echo ${FIREBASE_JSON} > src/main/resources/key/mayo-app-280d4.json
+
       - name: Grant execute permission for Gradle Wrapper
         run: chmod +x ./gradlew
 
