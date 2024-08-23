@@ -28,6 +28,8 @@ jobs:
         run: ./gradlew build
 
       - name: Write Firebase JSON file
+        env:
+          FIREBASE_JSON: ${{ secrets.FIREBASE_JSON }}
         run: echo "${{ secrets.FIREBASE_JSON }}" > build/resources/main/key/mayo-app-280d4.json
 
       - name: Upload JAR and JSON to Remote Server
