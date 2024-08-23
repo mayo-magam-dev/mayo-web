@@ -61,7 +61,7 @@ public class ItemRestController {
             @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
     })
     @PostMapping("/item")
-    public ResponseEntity<Void> createItem(@RequestBody CreateItemRequest request, @RequestParam String storeId, @RequestParam(value = "itemImage", required = false) MultipartFile file) throws IOException {
+    public ResponseEntity<Void> createItem(@RequestPart CreateItemRequest request, @RequestParam String storeId, @RequestParam(value = "itemImage", required = false) MultipartFile file) throws IOException {
 
         if(file != null && !file.isEmpty()) {
             String imageUrl = storageService.uploadFirebaseBucket(file, request.itemName());
@@ -82,7 +82,7 @@ public class ItemRestController {
             @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
     })
     @PutMapping("/item")
-    public ResponseEntity<Void> updateItem(@RequestBody UpdateItemRequest request, @RequestParam(value = "itemImage", required = false) MultipartFile file) throws IOException {
+    public ResponseEntity<Void> updateItem(@RequestPart UpdateItemRequest request, @RequestParam(value = "itemImage", required = false) MultipartFile file) throws IOException {
 
         if(file != null && !file.isEmpty()) {
             String imageUrl = storageService.uploadFirebaseBucket(file, request.itemName());
