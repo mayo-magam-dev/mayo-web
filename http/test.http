@@ -41,3 +41,17 @@ Content-Type: application/json
 ###
 PUT http://localhost:8080/store/open?storeId=VQtTGTCc13EWulU5sZmI
 Content-Type: application/json
+
+{
+  "itemIdList": ["q2TWBiYmabDHryR1Gk6u", "nMaqz6EP7gD3YXREsbDw"],
+  "quantityList": [10, 20]
+}
+
+###
+GET http://localhost:8080/board-term
+Content-Type: application/json
+
+###
+GET http://localhost:8080/reservations-end-slice-time?storeId=VQtTGTCc13EWulU5sZmI&timeStamp=2024-08-19T12:00:00Z&page=0&size=3
+Content-Type: application/json
+

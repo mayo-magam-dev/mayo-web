@@ -26,6 +26,7 @@ public record UpdateItemRequest(
     public ItemsEntity updateEntity() {
         return ItemsEntity.builder()
                 .itemId(itemId)
+                .itemImage(itemImage)
                 .itemName(itemName)
                 .itemDescription(itemDescription)
                 .originalPrice(originalPrice)
@@ -39,6 +40,7 @@ public record UpdateItemRequest(
 
     public static UpdateItemRequest updateItemURL(UpdateItemRequest updateItemRequest, String imageUrl) {
         return UpdateItemRequest.builder()
+                .itemId(updateItemRequest.itemId())
                 .itemName(updateItemRequest.itemName())
                 .itemDescription(updateItemRequest.itemDescription())
                 .originalPrice(updateItemRequest.originalPrice())
