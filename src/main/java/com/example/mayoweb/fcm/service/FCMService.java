@@ -95,7 +95,7 @@ public class FCMService {
 
     private String getAccessToken() throws IOException {
 //        String firebaseConfigPath = "key/mayo-app-280d4-firebase-adminsdk-l6bfb-7770faf8c1.json";
-        String firebaseConfigPath = "/mayo-app-280d4.json";
+        String firebaseConfigPath = "/key/mayo-app-280d4.json";
         String url = "https://www.googleapis.com/auth/cloud-platform";
         GoogleCredentials googleCredentials = GoogleCredentials
                 .fromStream(new ClassPathResource(firebaseConfigPath).getInputStream())
