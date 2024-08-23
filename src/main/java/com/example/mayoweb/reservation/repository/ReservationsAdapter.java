@@ -467,6 +467,67 @@ public class ReservationsAdapter {
         return future;
     }
 
+    public CompletableFuture<Slice<ReservationEntity>> findEndReservationsByStoreIdAndTime(String storeId, Pageable pageable, Timestamp timestamp) {
+
+        Firestore firestore = FirestoreClient.getFirestore();
+
+        LocalDateTime localDateTime = timestamp.toSqlTimestamp().toLocalDateTime();
+        ZoneId kstZoneId = ZoneId.of("Asia/Seoul");
+
+        LocalDateTime startOfDay = localDateTime.toLocalDate().atStartOfDay().atZone(kstZoneId).toLocalDateTime();
+        LocalDateTime endOfDay = localDateTime.toLocalDate().atTime(23, 59, 59, 999999999).atZone(kstZoneId).toLocalDateTime();
+
+        DocumentReference storeDocumentId = firestore.collection("stores").document(storeId);
+        CollectionReference reservationsRef = firestore.collection("reservation");
+
+        Query query = reservationsRef.whereEqualTo("store_ref", storeDocumentId)
+                .whereIn("reservation_state", Arrays.asList(State.END.ordinal(), State.FAIL.ordinal()));
+
+        Comparator<ReservationEntity> createdAtComparator = Comparator
+                .comparing(entity -> entity.getCreatedAt().toSqlTimestamp(), Comparator.reverseOrder());
+
+        CompletableFuture<Slice<ReservationEntity>> future = new CompletableFuture<>();
+
+        query.addSnapshotListener((querySnapshot, e) -> {
+            if (e != null) {
+                future.completeExceptionally(e);
+                return;
+            }
+
+            List<ReservationEntity> endReservations = new ArrayList<>();
+            if (querySnapshot != null) {
+                for (QueryDocumentSnapshot reservationDocument : querySnapshot.getDocuments()) {
+                    ReservationEntity reservationEntity = reservationDocument.toObject(ReservationEntity.class);
+                    Timestamp createdAt = reservationEntity.getCreatedAt();
+
+                    LocalDateTime createdAtLocalDateTime = createdAt.toSqlTimestamp().toLocalDateTime();
+
+                    if ((createdAtLocalDateTime.compareTo(startOfDay) >= 0) &&
+                            (createdAtLocalDateTime.compareTo(endOfDay) <= 0) &&
+                            (reservationEntity.getReservationState() == State.END.ordinal() ||
+                                    reservationEntity.getReservationState() == State.FAIL.ordinal())) {
+                        endReservations.add(reservationEntity);
+                    }
+                }
+
+                endReservations.sort(createdAtComparator);
+
+                int start = (int) pageable.getOffset();
+                int end = Math.min(start + pageable.getPageSize(), endReservations.size());
+                List<ReservationEntity> paginatedList = endReservations.subList(start, end);
+
+                boolean hasNext = endReservations.size() > end;
+                Slice<ReservationEntity> sliceResult = new SliceImpl<>(paginatedList, pageable, hasNext);
+
+                future.complete(sliceResult);
+            } else {
+                future.complete(new SliceImpl<>(new ArrayList<>(), pageable, false));
+            }
+        });
+
+        return future;
+    }
+
     //예약 도큐먼트 Id를 입력받아 reservation 객체를 가져옵니다.
     public Optional<ReservationEntity> findByReservationId(String reservationId) {
         Firestore db = FirestoreClient.getFirestore();
