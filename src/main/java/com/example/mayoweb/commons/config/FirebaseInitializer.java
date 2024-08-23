@@ -33,7 +33,7 @@ public class FirebaseInitializer {
     @PostConstruct
     public void init() {
         try {
-            InputStream inputStream = new ClassPathResource("/mayo-app-280d4.json").getInputStream();
+            InputStream inputStream = new ClassPathResource("/key/mayo-app-280d4.json").getInputStream();
             File file = File.createTempFile("key", ".json");
             FileCopyUtils.copy(inputStream.readAllBytes(), file);
             FileInputStream firebaseAccount = new FileInputStream(file);
