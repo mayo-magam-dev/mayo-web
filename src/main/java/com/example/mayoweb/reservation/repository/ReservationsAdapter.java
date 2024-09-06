@@ -124,9 +124,6 @@ public class ReservationsAdapter {
                 return;
             }
 
-            List<ReservationEntity> newReservations = new ArrayList<>();
-            List<ReadReservationResponse> readReservationResponses = new ArrayList<>();
-
             if (querySnapshot != null) {
 
                 for (DocumentChange change : querySnapshot.getDocumentChanges()) {
@@ -138,7 +135,7 @@ public class ReservationsAdapter {
                 }
             }
 
-            future.complete(newReservations);
+            future.complete(null);
         });
 
         return future;
