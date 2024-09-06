@@ -10,6 +10,7 @@ import com.google.cloud.Timestamp;
 import com.google.cloud.firestore.*;
 import com.google.firebase.cloud.FirestoreClient;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Repository;
 
@@ -22,6 +23,7 @@ import java.util.concurrent.Executors;
 
 @Repository
 @RequiredArgsConstructor
+@Slf4j
 public class ReservationsAdapter {
 
     private final SseService sseService;
@@ -108,7 +110,6 @@ public class ReservationsAdapter {
     }
 
     public CompletableFuture<List<ReservationEntity>> getNewByStoreIdSse(String storeId) {
-
         Firestore firestore = FirestoreClient.getFirestore();
         DocumentReference storeDocumentId = firestore.collection("stores").document(storeId);
         CollectionReference reservationsRef = firestore.collection("reservation");
@@ -117,84 +118,28 @@ public class ReservationsAdapter {
 
         CompletableFuture<List<ReservationEntity>> future = new CompletableFuture<>();
 
-        ApiFuture<QuerySnapshot> querySnapshotFuture = query.get();
+        query.addSnapshotListener((querySnapshot, e) -> {
+            if (e != null) {
+                future.completeExceptionally(e);
+                return;
+            }
 
-        querySnapshotFuture.addListener(() -> {
+            List<ReservationEntity> newReservations = new ArrayList<>();
+            List<ReadReservationResponse> readReservationResponses = new ArrayList<>();
 
-            try {
-                QuerySnapshot querySnapshot = querySnapshotFuture.get();  // 결과를 가져옴
-                List<ReservationEntity> newReservations = new ArrayList<>();
-                List<ReadReservationResponse> readReservationResponses = new ArrayList<>();
+            if (querySnapshot != null) {
 
-                if (querySnapshot != null) {
-                    for (QueryDocumentSnapshot reservationDocument : querySnapshot.getDocuments()) {
-                        ReservationEntity reservationEntity = reservationDocument.toObject(ReservationEntity.class);
-                        newReservations.add(reservationEntity);
+                for (DocumentChange change : querySnapshot.getDocumentChanges()) {
+
+                    if(change.getType() == DocumentChange.Type.ADDED) {
+                        ReservationEntity reservationEntity = change.getDocument().toObject(ReservationEntity.class);
+                        sseService.sendMessageToEmitters(ReadReservationResponse.fromEntity(reservationEntity).toString(), "new-reservation");
                     }
-                    newReservations.sort(Comparator.comparing(entity -> entity.getCreatedAt().toSqlTimestamp()));
-                    readReservationResponses = newReservations.stream().map(ReadReservationResponse::fromEntity).toList();
                 }
-
-                sseService.sendMessageToEmitters(readReservationResponses.get(0).toString(), "new-reservation");
-
-                future.complete(newReservations);
-
-            } catch (Exception e) {
-                future.completeExceptionally(e);
             }
-        }, Executors.newSingleThreadExecutor());
 
-        return future;
-    }
-
-    public CompletableFuture<ReservationEntity> getNewByStoreSse(String storeId) {
-
-        Firestore firestore = FirestoreClient.getFirestore();
-        DocumentReference storeDocumentId = firestore.collection("stores").document(storeId);
-        CollectionReference reservationsRef = firestore.collection("reservation");
-        Query query = reservationsRef.whereEqualTo("store_ref", storeDocumentId)
-                .whereEqualTo("reservation_state", State.NEW.ordinal());
-
-        CompletableFuture<ReservationEntity> future = new CompletableFuture<>();
-
-        ApiFuture<QuerySnapshot> querySnapshotFuture = query.get();
-
-        querySnapshotFuture.addListener(() -> {
-
-            try {
-                QuerySnapshot querySnapshot = querySnapshotFuture.get();  // 결과를 가져옴
-                List<ReservationEntity> newReservations = new ArrayList<>();
-                List<ReadReservationResponse> readReservationResponses = new ArrayList<>();
-
-                if (querySnapshot != null) {
-                    for (QueryDocumentSnapshot reservationDocument : querySnapshot.getDocuments()) {
-                        ReservationEntity reservationEntity = reservationDocument.toObject(ReservationEntity.class);
-                        newReservations.add(reservationEntity);
-                    }
-
-                    newReservations.sort(Comparator.comparing(entity -> entity.getCreatedAt().toSqlTimestamp()));
-
-                    if (!newReservations.isEmpty()) {
-                        ReservationEntity firstReservation = newReservations.get(0);
-                        ReadReservationResponse readReservationResponse = ReadReservationResponse.fromEntity(firstReservation);
-
-                        // SSE로 전송
-                        sseService.sendMessageToEmitters(readReservationResponse.toString(), "new-reservation");
-
-                        // 결과를 CompletableFuture로 반환
-                        future.complete(firstReservation);
-                    } else {
-                        // 새 예약이 없는 경우
-                        future.complete(null);
-                    }
-                } else {
-                    // 쿼리 결과가 없는 경우
-                    future.complete(null);
-                    }
-                } catch (Exception e) {
-                future.completeExceptionally(e);
-            }
-        }, Executors.newSingleThreadExecutor());
+            future.complete(newReservations);
+        });
 
         return future;
     }
