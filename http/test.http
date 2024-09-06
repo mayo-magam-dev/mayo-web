@@ -7,7 +7,7 @@ GET http://3.35.168.205:8080/user
 Content-Type: application/json
 
 ###
-GET http://3.35.168.205:8080/sse/reservations-new?storeId=VQtTGTCc13EWulU5sZmI
+GET http://localhost:8080/sse/reservations-new?storeId=VQtTGTCc13EWulU5sZmI
 Content-Type: application/json
 
 ###
