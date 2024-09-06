@@ -10,12 +10,12 @@ import com.google.cloud.Timestamp;
 import com.google.cloud.firestore.*;
 import com.google.firebase.cloud.FirestoreClient;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -23,6 +23,7 @@ import java.util.concurrent.Executors;
 
 @Repository
 @RequiredArgsConstructor
+@Slf4j
 public class ReservationsAdapter {
 
     private final SseService sseService;
@@ -117,32 +118,28 @@ public class ReservationsAdapter {
 
         CompletableFuture<List<ReservationEntity>> future = new CompletableFuture<>();
 
-        ApiFuture<QuerySnapshot> querySnapshotFuture = query.get();
-
-        querySnapshotFuture.addListener(() -> {
-
-            try {
-                QuerySnapshot querySnapshot = querySnapshotFuture.get();  // 결과를 가져옴
-                List<ReservationEntity> newReservations = new ArrayList<>();
-                List<ReadReservationResponse> readReservationResponses = new ArrayList<>();
-
-                if (querySnapshot != null) {
-                    for (QueryDocumentSnapshot reservationDocument : querySnapshot.getDocuments()) {
-                        ReservationEntity reservationEntity = reservationDocument.toObject(ReservationEntity.class);
-                        newReservations.add(reservationEntity);
-                    }
-                    newReservations.sort(Comparator.comparing(entity -> entity.getCreatedAt().toSqlTimestamp()));
-                    readReservationResponses = newReservations.stream().map(ReadReservationResponse::fromEntity).toList();
-                }
-
-                sseService.sendMessageToEmitters(readReservationResponses.get(0).toString(), "new-reservation");
-
-                future.complete(newReservations);
-
-            } catch (Exception e) {
+        query.addSnapshotListener((querySnapshot, e) -> {
+            if (e != null) {
                 future.completeExceptionally(e);
+                return;
             }
-        }, Executors.newSingleThreadExecutor());
+
+            List<ReservationEntity> newReservations = new ArrayList<>();
+            List<ReadReservationResponse> readReservationResponses = new ArrayList<>();
+
+            if (querySnapshot != null) {
+
+                for (DocumentChange change : querySnapshot.getDocumentChanges()) {
+
+                    if(change.getType() == DocumentChange.Type.ADDED) {
+                        ReservationEntity reservationEntity = change.getDocument().toObject(ReservationEntity.class);
+                        sseService.sendMessageToEmitters(ReadReservationResponse.fromEntity(reservationEntity).toString(), "new-reservation");
+                    }
+                }
+            }
+
+            future.complete(newReservations);
+        });
 
         return future;
     }
