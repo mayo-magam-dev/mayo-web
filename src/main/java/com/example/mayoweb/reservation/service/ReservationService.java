@@ -45,7 +45,7 @@ public class ReservationService {
         );
     }
 
-    public CompletableFuture<List<ReadReservationResponse>> getNewReservationsByStoreIdSse(String storeId) {
+    public CompletableFuture<List<ReadReservationResponse>> getNewReservationsByStoreIdSse(String storeId) throws ExecutionException, InterruptedException {
         return reservationsAdapter.getNewByStoreIdSse(storeId).thenApply(reservationEntities ->
                 reservationEntities.stream().map(ReadReservationResponse::fromEntity).toList()
         );
