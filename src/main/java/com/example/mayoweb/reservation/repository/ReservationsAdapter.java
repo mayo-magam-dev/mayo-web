@@ -120,6 +120,7 @@ public class ReservationsAdapter {
         ApiFuture<QuerySnapshot> querySnapshotFuture = query.get();
 
         querySnapshotFuture.addListener(() -> {
+
             try {
                 QuerySnapshot querySnapshot = querySnapshotFuture.get();  // 결과를 가져옴
                 List<ReservationEntity> newReservations = new ArrayList<>();
@@ -130,11 +131,11 @@ public class ReservationsAdapter {
                         ReservationEntity reservationEntity = reservationDocument.toObject(ReservationEntity.class);
                         newReservations.add(reservationEntity);
                     }
-                    newReservations.sort(Comparator.comparing(entity -> entity.getCreatedAt().toSqlTimestamp(), Comparator.reverseOrder()));
+                    newReservations.sort(Comparator.comparing(entity -> entity.getCreatedAt().toSqlTimestamp()));
                     readReservationResponses = newReservations.stream().map(ReadReservationResponse::fromEntity).toList();
                 }
 
-                sseService.sendMessageToEmitters(readReservationResponses.get(readReservationResponses.size()).toString(), "new-reservation");
+                sseService.sendMessageToEmitters(readReservationResponses.get(0).toString(), "new-reservation");
 
                 future.complete(newReservations);
 
