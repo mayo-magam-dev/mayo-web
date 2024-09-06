@@ -134,7 +134,7 @@ public class ReservationsAdapter {
                     readReservationResponses = newReservations.stream().map(ReadReservationResponse::fromEntity).toList();
                 }
 
-                sseService.sendMessageToEmitters(readReservationResponses.get(readReservationResponses.size() - 1).toString(), "new-reservation");
+                sseService.sendMessageToEmitters(readReservationResponses.get(readReservationResponses.size()).toString(), "new-reservation");
 
                 future.complete(newReservations);
 
