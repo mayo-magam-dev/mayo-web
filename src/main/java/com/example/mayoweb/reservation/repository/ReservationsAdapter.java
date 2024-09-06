@@ -19,6 +19,7 @@ import java.time.ZoneOffset;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
 
 @Repository
 @RequiredArgsConstructor
@@ -116,27 +117,31 @@ public class ReservationsAdapter {
 
         CompletableFuture<List<ReservationEntity>> future = new CompletableFuture<>();
 
-        query.addSnapshotListener((querySnapshot, e) -> {
-            if (e != null) {
-                future.completeExceptionally(e);
-                return;
-            }
+        ApiFuture<QuerySnapshot> querySnapshotFuture = query.get();
 
-            List<ReservationEntity> newReservations = new ArrayList<>();
-            List<ReadReservationResponse> readReservationResponses = new ArrayList<>();
-            if (querySnapshot != null) {
-                for (QueryDocumentSnapshot reservationDocument : querySnapshot.getDocuments()) {
-                    ReservationEntity reservationEntity = reservationDocument.toObject(ReservationEntity.class);
-                    newReservations.add(reservationEntity);
+        querySnapshotFuture.addListener(() -> {
+            try {
+                QuerySnapshot querySnapshot = querySnapshotFuture.get();  // 결과를 가져옴
+                List<ReservationEntity> newReservations = new ArrayList<>();
+                List<ReadReservationResponse> readReservationResponses = new ArrayList<>();
+
+                if (querySnapshot != null) {
+                    for (QueryDocumentSnapshot reservationDocument : querySnapshot.getDocuments()) {
+                        ReservationEntity reservationEntity = reservationDocument.toObject(ReservationEntity.class);
+                        newReservations.add(reservationEntity);
+                    }
+                    newReservations.sort(Comparator.comparing(entity -> entity.getCreatedAt().toSqlTimestamp(), Comparator.reverseOrder()));
+                    readReservationResponses = newReservations.stream().map(ReadReservationResponse::fromEntity).toList();
                 }
-                newReservations.sort(Comparator.comparing(entity -> entity.getCreatedAt().toSqlTimestamp(), Comparator.reverseOrder()));
-                readReservationResponses = newReservations.stream().map(ReadReservationResponse::fromEntity).toList();
+
+                sseService.sendMessageToEmitters(readReservationResponses.get(readReservationResponses.size() - 1).toString(), "new-reservation");
+
+                future.complete(newReservations);
+
+            } catch (Exception e) {
+                future.completeExceptionally(e);
             }
-
-            sseService.sendMessageToEmitters(readReservationResponses.toString(), "new-reservation");
-
-            future.complete(newReservations);
-        });
+        }, Executors.newSingleThreadExecutor());
 
         return future;
     }
