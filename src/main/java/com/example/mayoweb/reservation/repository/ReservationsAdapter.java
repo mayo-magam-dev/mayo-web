@@ -109,12 +109,23 @@ public class ReservationsAdapter {
         return future;
     }
 
-    public CompletableFuture<List<ReservationEntity>> getNewByStoreIdSse(String storeId) {
+    public CompletableFuture<List<ReservationEntity>> getNewByStoreIdSse(String storeId) throws ExecutionException, InterruptedException {
+
         Firestore firestore = FirestoreClient.getFirestore();
         DocumentReference storeDocumentId = firestore.collection("stores").document(storeId);
         CollectionReference reservationsRef = firestore.collection("reservation");
         Query query = reservationsRef.whereEqualTo("store_ref", storeDocumentId)
                 .whereEqualTo("reservation_state", State.NEW.ordinal());
+
+        ApiFuture<QuerySnapshot> querySnapshotApiFuture = query.get();
+        QuerySnapshot querySnapshotReservation = querySnapshotApiFuture.get();
+
+        Set<String> existingReservationIds = new HashSet<>();
+
+        for (QueryDocumentSnapshot reservation : querySnapshotReservation.getDocuments()) {
+            ReservationEntity reservationEntity = reservation.toObject(ReservationEntity.class);
+            existingReservationIds.add(reservation.getId());
+        }
 
         CompletableFuture<List<ReservationEntity>> future = new CompletableFuture<>();
 
@@ -129,8 +140,12 @@ public class ReservationsAdapter {
                 for (DocumentChange change : querySnapshot.getDocumentChanges()) {
 
                     if(change.getType() == DocumentChange.Type.ADDED) {
-                        ReservationEntity reservationEntity = change.getDocument().toObject(ReservationEntity.class);
-                        sseService.sendMessageToEmitters(ReadReservationResponse.fromEntity(reservationEntity).toString(), "new-reservation");
+                        String docId = change.getDocument().getId();
+                        if (!existingReservationIds.contains(docId)) {
+                            ReservationEntity reservationEntity = change.getDocument().toObject(ReservationEntity.class);
+                            sseService.sendMessageToEmitters(ReadReservationResponse.fromEntity(reservationEntity).toString(), "new-reservation");
+                            existingReservationIds.add(docId);
+                        }
                     }
                 }
             }
