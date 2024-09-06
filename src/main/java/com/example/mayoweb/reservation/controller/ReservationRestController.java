@@ -375,7 +375,7 @@ public class ReservationRestController {
             @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
     })
     @GetMapping("/sse/reservations-new")
-    public SseEmitter streamNewReservations(@RequestParam String storeId) {
+    public SseEmitter streamNewReservations(@RequestParam String storeId) throws ExecutionException, InterruptedException {
 
         SseEmitter emitter = new SseEmitter(0L);
         sseService.addEmitter(emitter);
