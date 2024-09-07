@@ -19,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Repository;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -193,6 +194,83 @@ public class ReservationsAdapter {
         });
 
         return future;
+    }
+
+    public SseEmitter streamNewReservations(String clientId, String storeId) {
+
+        SseEmitter emitter = sseService.addEmitter(clientId);
+
+        Firestore firestore = FirestoreClient.getFirestore();
+
+        DocumentReference storeDocumentId = firestore.collection("stores").document(storeId);
+        CollectionReference reservationsRef = firestore.collection("reservation");
+        Query query = reservationsRef.whereEqualTo("store_ref", storeDocumentId)
+                .whereEqualTo("reservation_state", State.NEW.ordinal());
+
+        Set<String> existingReservationIds = new HashSet<>();
+
+        try {
+            ApiFuture<QuerySnapshot> querySnapshotApiFuture = query.get();
+            QuerySnapshot querySnapshotReservation = querySnapshotApiFuture.get();
+
+            for (QueryDocumentSnapshot reservation : querySnapshotReservation.getDocuments()) {
+                ReservationEntity reservationEntity = reservation.toObject(ReservationEntity.class);
+                existingReservationIds.add(reservationEntity.getId());
+            }
+        } catch (ExecutionException | InterruptedException e) {
+            emitter.completeWithError(e);
+            return emitter;
+        }
+
+        query.addSnapshotListener((querySnapshot, e) -> {
+            if (e != null) {
+                emitter.completeWithError(e);
+                return;
+            }
+
+            if (querySnapshot != null) {
+                for (DocumentChange change : querySnapshot.getDocumentChanges()) {
+                    if (change.getType() == DocumentChange.Type.ADDED) {
+                        String docId = change.getDocument().getId();
+                        if (!existingReservationIds.contains(docId)) {
+                            ReservationEntity reservationEntity = change.getDocument().toObject(ReservationEntity.class);
+                            existingReservationIds.add(docId);
+
+                            ReadReservationResponse reservationResponse = ReadReservationResponse.fromEntity(reservationEntity);
+                            ReadFirstItemResponse firstItemResponse;
+                            try {
+                                firstItemResponse = getFirstItemNameFromReservation(reservationEntity);
+                            } catch (ExecutionException | InterruptedException ex) {
+                                emitter.completeWithError(ex);
+                                return;
+                            }
+
+                            ReadReservationListResponse response = ReadReservationListResponse.builder()
+                                    .reservationId(reservationResponse.id())
+                                    .firstItemName(firstItemResponse.itemName())
+                                    .itemQuantity(firstItemResponse.itemQuantity())
+                                    .createdAt(reservationResponse.createdAt())
+                                    .pickupTime(reservationResponse.pickupTime())
+                                    .reservationState(reservationEntity.getReservationState())
+                                    .build();
+
+                            String jsonResponse;
+
+                            try {
+                                jsonResponse = new ObjectMapper().writeValueAsString(response);
+                            } catch (JsonProcessingException ex) {
+                                throw new RuntimeException(ex);
+                            }
+
+                            sseService.sendMessageToClient(clientId , jsonResponse, "new-reservation");
+                            existingReservationIds.add(docId);
+                        }
+                    }
+                }
+            }
+        });
+
+        return emitter;
     }
 
 
