@@ -1,8 +1,12 @@
 package com.example.mayoweb.reservation.repository;
 
+import com.example.mayoweb.carts.repository.CartsAdapter;
 import com.example.mayoweb.commons.exception.ApplicationException;
 import com.example.mayoweb.commons.exception.payload.ErrorStatus;
+import com.example.mayoweb.items.domain.response.ReadFirstItemResponse;
+import com.example.mayoweb.items.repository.ItemsAdapter;
 import com.example.mayoweb.reservation.domain.ReservationEntity;
+import com.example.mayoweb.reservation.domain.dto.response.ReadReservationListResponse;
 import com.example.mayoweb.reservation.domain.dto.response.ReadReservationResponse;
 import com.example.mayoweb.sse.SseService;
 import com.google.api.core.ApiFuture;
@@ -14,7 +18,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Repository;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
@@ -27,6 +30,8 @@ import java.util.concurrent.ExecutionException;
 public class ReservationsAdapter {
 
     private final SseService sseService;
+    private final CartsAdapter cartsAdapter;
+    private final ItemsAdapter itemsAdapter;
 
     //가게 도큐먼트 id를 받아 해당 가게의 모든 예약들을 가져옵니다.
     public List<ReservationEntity> getReservationsByStoreRef(String storesRef) throws ExecutionException, InterruptedException {
@@ -142,8 +147,20 @@ public class ReservationsAdapter {
                     if(change.getType() == DocumentChange.Type.ADDED) {
                         String docId = change.getDocument().getId();
                         if (!existingReservationIds.contains(docId)) {
+
                             ReservationEntity reservationEntity = change.getDocument().toObject(ReservationEntity.class);
-                            sseService.sendMessageToClient(clientId ,ReadReservationResponse.fromEntity(reservationEntity).toString(), "new-reservation");
+                            List<ReadFirstItemResponse> firstItemResponseList = getFirstItemNamesFromReservation(reservationEntity);
+
+                            ReadReservationListResponse response = ReadReservationListResponse.builder()
+                                    .reservationId(reservationEntity.getId())
+                                    .firstItemName(firstItemResponseList.get(0).itemName())
+                                    .itemQuantity(firstItemResponseList.get(0).itemQuantity())
+                                    .createdAt(reservationEntity.getCreatedAt())
+                                    .pickupTime(reservationEntity.getPickupTime())
+                                    .reservationState(reservationEntity.getReservationState())
+                                    .build();
+
+                            sseService.sendMessageToClient(clientId , response.toString(), "new-reservation");
                             existingReservationIds.add(docId);
                         }
                     }
@@ -533,6 +550,16 @@ public class ReservationsAdapter {
         if (document.exists()) {
             documentReference.update("reservation_state", State.FAIL.ordinal());
         }
+    }
+
+    public List<ReadFirstItemResponse> getFirstItemNamesFromReservation(ReservationEntity reservationEntity) {
+
+        List<ReservationEntity> reservationList = new ArrayList<>();
+        reservationList.add(reservationEntity);
+
+        List<DocumentReference> carts = cartsAdapter.getFirstCartsByReservations(reservationList);
+
+        return itemsAdapter.getFirstItemNamesFromCarts(carts);
     }
 
     enum State {
