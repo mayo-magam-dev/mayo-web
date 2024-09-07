@@ -112,8 +112,6 @@ public class ReservationRestController {
                         responseList.add(response);
                     }
 
-                    log.info("{}", responseList);
-
                     return ResponseEntity.ok(responseList);
                 });
     }
@@ -373,11 +371,11 @@ public class ReservationRestController {
             @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
     })
     @GetMapping("/sse/reservations-new")
-    public SseEmitter streamNewReservations(@RequestParam String storeId) throws ExecutionException, InterruptedException {
+    public SseEmitter streamNewReservations(@RequestParam String storeId, @RequestParam String userId) throws ExecutionException, InterruptedException {
 
-        SseEmitter emitter = sseService.addEmitter();
+        SseEmitter emitter = sseService.addEmitter(userId);
 
-        CompletableFuture<List<ReadReservationListResponse>> future = reservationService.getNewReservationsByStoreIdSse(storeId)
+        CompletableFuture<List<ReadReservationListResponse>> future = reservationService.getNewReservationsByStoreIdSse(userId, storeId)
                 .thenApply(reservationResponseList -> {
                     List<ReadFirstItemResponse> firstItemResponseList = itemsService.getFirstItemNamesFromReservations(reservationResponseList);
                     List<ReadReservationListResponse> responseList = new ArrayList<>();
