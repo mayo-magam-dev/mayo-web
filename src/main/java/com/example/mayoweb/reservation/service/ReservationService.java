@@ -65,12 +65,6 @@ public class ReservationService {
         );
     }
 
-    public CompletableFuture<List<ReadReservationResponse>> getProceedingReservationsByStoreIdSse(String storeId) {
-        return reservationsAdapter.getProceedingByStoreIdSse(storeId).thenApply(reservationEntities ->
-                reservationEntities.stream().map(ReadReservationResponse::fromEntity).toList()
-        );
-    }
-
     public List<ReadReservationResponse> getEndByStoreId(String storeId) {
         return reservationsAdapter.getEndByStoreRef(storeId).stream().map(ReadReservationResponse::fromEntity).toList();
     }
@@ -83,28 +77,6 @@ public class ReservationService {
         return reservationsAdapter.getEndByStoreIdAsync(storeId).thenApply(reservationEntities ->
                 reservationEntities.stream().map(ReadReservationResponse::fromEntity).collect(Collectors.toList())
         );
-    }
-
-    public CompletableFuture<List<ReadReservationResponse>> getEndReservationsByStoreIdSse(String storeId) {
-        return reservationsAdapter.getEndByStoreIdSse(storeId).thenApply(reservationEntities ->
-                reservationEntities.stream().map(ReadReservationResponse::fromEntity).toList()
-        );
-    }
-
-    public CompletableFuture<Page<ReadReservationResponse>> getEndReservationsByStoreIdSse(String storeId, int page, int size) {
-        return reservationsAdapter.getEndByStoreIdSse(storeId, page, size).thenApply(reservationEntities -> {
-            Pageable pageable = PageRequest.of(page, size);
-
-            List<ReadReservationResponse> readReservationResponses = reservationEntities.stream()
-                    .map(ReadReservationResponse::fromEntity)
-                    .toList();
-
-            int start = (int) pageable.getOffset();
-            int end = Math.min(start + pageable.getPageSize(), readReservationResponses.size());
-            List<ReadReservationResponse> paginatedList = readReservationResponses.subList(start, end);
-
-            return new PageImpl<>(paginatedList, pageable, readReservationResponses.size());
-        });
     }
 
     public Slice<ReadReservationResponse> getReservationsByStoreIdSlice(String storeId, int page, int size) throws ExecutionException, InterruptedException {
