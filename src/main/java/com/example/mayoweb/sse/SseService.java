@@ -11,7 +11,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class SseService {
 
     private final List<SseEmitter> emitters = new CopyOnWriteArrayList<>();
-    private String lastSentEvent = "";
 
 
     public void addEmitter(SseEmitter emitter) {
@@ -21,7 +20,7 @@ public class SseService {
     }
 
     public void sendMessageToEmitters(String message, String name) {
-        lastSentEvent = "";
+        String lastSentEvent = "";
         for (SseEmitter emitter : emitters) {
             try {
                 if(!lastSentEvent.equals(message)) {
