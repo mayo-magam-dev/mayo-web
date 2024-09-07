@@ -47,7 +47,6 @@ public class ReservationRestController {
     private final UsersService usersService;
     private final UsersService userService;
     private final FCMService fcmService;
-    private SseEmitter emitter = sseService.addEmitter();
 
     @Operation(summary = "ID 값으로 reservation 객체를 가져옵니다.", description = "reservation PK 값으로 객체를 가져옵니다.")
     @ApiResponses(value = {
@@ -375,6 +374,8 @@ public class ReservationRestController {
     })
     @GetMapping("/sse/reservations-new")
     public SseEmitter streamNewReservations(@RequestParam String storeId) throws ExecutionException, InterruptedException {
+
+        SseEmitter emitter = sseService.addEmitter();
 
         CompletableFuture<List<ReadReservationListResponse>> future = reservationService.getNewReservationsByStoreIdSse(storeId)
                 .thenApply(reservationResponseList -> {
