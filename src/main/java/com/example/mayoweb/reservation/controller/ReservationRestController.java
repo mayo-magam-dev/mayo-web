@@ -85,8 +85,6 @@ public class ReservationRestController {
             responseList.add(response);
         }
 
-        log.info("{}", responseList);
-
         return ResponseEntity.ok(responseList);
     }
 
@@ -113,8 +111,6 @@ public class ReservationRestController {
                                 .build();
                         responseList.add(response);
                     }
-
-                    log.info("{}", responseList);
 
                     return ResponseEntity.ok(responseList);
                 });
