@@ -21,6 +21,7 @@ public class SseService {
     }
 
     public void sendMessageToEmitters(String message, String name) {
+        lastSentEvent = "";
         for (SseEmitter emitter : emitters) {
             try {
                 if(!lastSentEvent.equals(message)) {
