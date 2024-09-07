@@ -11,8 +11,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class SseService {
 
     private final List<SseEmitter> emitters = new CopyOnWriteArrayList<>();
-    private String lastSentEvent = "";
-
+    private final SseEmitter emitter = new SseEmitter();
 
     public void addEmitter(SseEmitter emitter) {
         emitters.add(emitter);
@@ -20,16 +19,17 @@ public class SseService {
         emitter.onTimeout(() -> emitters.remove(emitter));
     }
 
+    public void sendMessageToEmitter(String message, String name) throws IOException {
+        emitter.send(SseEmitter.event().name(name).data(message));
+    }
+
     public void sendMessageToEmitters(String message, String name) {
-        lastSentEvent = "";
+
         for (SseEmitter emitter : emitters) {
             try {
-                if(!lastSentEvent.equals(message)) {
                     emitter.send(SseEmitter.event().name(name).data(message));
-                    lastSentEvent = message;
-                }
-            } catch (IOException e) {
-                emitters.remove(emitter);
+                } catch (IOException e) {
+                throw new RuntimeException(e);
             }
         }
     }
