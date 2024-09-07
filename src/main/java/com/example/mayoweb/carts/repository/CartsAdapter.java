@@ -69,6 +69,16 @@ public class CartsAdapter {
         return carts;
     }
 
+    public DocumentReference getFirstCartByReservation(ReservationEntity reservation) {
+
+        List<DocumentReference> cartRefs = reservation.getCartRef();
+        if (!cartRefs.isEmpty()) {
+            return cartRefs.get(0);
+        }
+
+        throw new ApplicationException(ErrorStatus.toErrorStatus("해당 주문에 속하는 카트가 없습니다.", 404, LocalDateTime.now()));
+    }
+
     private CartsEntity fromDocument(DocumentSnapshot document) {
         return CartsEntity.builder()
                 .cartId(document.getId())
