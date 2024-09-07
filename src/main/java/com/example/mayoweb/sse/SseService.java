@@ -1,6 +1,5 @@
 package com.example.mayoweb.sse;
 
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -38,7 +37,7 @@ public class SseService {
 
         if (emitter != null) {
             try {
-                emitter.send(SseEmitter.event().name(name).data(message, MediaType.APPLICATION_JSON));
+                emitter.send(SseEmitter.event().name(name).data(message));
             } catch (IOException e) {
                 emitters.remove(clientId);
             }
