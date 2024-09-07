@@ -9,6 +9,7 @@ import com.google.cloud.Timestamp;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -44,10 +45,14 @@ public class ReservationService {
         );
     }
 
-    public CompletableFuture<List<ReadReservationResponse>> getNewReservationsByStoreIdSse(String clientId, String storeId) throws ExecutionException, InterruptedException {
-        return reservationsAdapter.getNewByStoreIdSse(clientId, storeId).thenApply(reservationEntities ->
-                reservationEntities.stream().map(ReadReservationResponse::fromEntity).toList()
-        );
+//    public CompletableFuture<List<ReadReservationResponse>> getNewReservationsByStoreIdSse(String clientId, String storeId) throws ExecutionException, InterruptedException {
+//        return reservationsAdapter.getNewByStoreIdSse(clientId, storeId).thenApply(reservationEntities ->
+//                reservationEntities.stream().map(ReadReservationResponse::fromEntity).toList()
+//        );
+//    }
+
+    public SseEmitter getNewReservationsByStoreIdSse(String clientId, String storeId) {
+        return reservationsAdapter.streamNewReservations(clientId, storeId);
     }
 
     public List<ReadReservationResponse> getProcessingByStoreId(String storeId){
