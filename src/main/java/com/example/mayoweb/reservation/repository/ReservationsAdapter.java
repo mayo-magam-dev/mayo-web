@@ -7,7 +7,10 @@ import com.example.mayoweb.items.domain.response.ReadFirstItemResponse;
 import com.example.mayoweb.items.repository.ItemsAdapter;
 import com.example.mayoweb.reservation.domain.ReservationEntity;
 import com.example.mayoweb.reservation.domain.dto.response.ReadReservationListResponse;
+import com.example.mayoweb.reservation.domain.dto.response.ReadReservationResponse;
 import com.example.mayoweb.sse.SseService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.Timestamp;
 import com.google.cloud.firestore.*;
@@ -115,6 +118,8 @@ public class ReservationsAdapter {
 
     public CompletableFuture<List<ReservationEntity>> getNewByStoreIdSse(String clientId, String storeId) throws ExecutionException, InterruptedException {
 
+        ObjectMapper objectMapper = new ObjectMapper();
+
         Firestore firestore = FirestoreClient.getFirestore();
         DocumentReference storeDocumentId = firestore.collection("stores").document(storeId);
         CollectionReference reservationsRef = firestore.collection("reservation");
@@ -149,6 +154,7 @@ public class ReservationsAdapter {
                         if (!existingReservationIds.contains(docId)) {
 
                             ReservationEntity reservationEntity = change.getDocument().toObject(ReservationEntity.class);
+                            ReadReservationResponse reservationResponse = ReadReservationResponse.fromEntity(reservationEntity);
                             ReadFirstItemResponse firstItemResponse = null;
 
                             try {
@@ -159,16 +165,25 @@ public class ReservationsAdapter {
 
 
                             ReadReservationListResponse response = ReadReservationListResponse.builder()
-                                    .reservationId(reservationEntity.getId())
+                                    .reservationId(reservationResponse.id())
                                     .firstItemName(firstItemResponse.itemName())
                                     .itemQuantity(firstItemResponse.itemQuantity())
-                                    .createdAt(reservationEntity.getCreatedAt())
-                                    .pickupTime(reservationEntity.getPickupTime())
+                                    .createdAt(reservationResponse.createdAt())
+                                    .pickupTime(reservationResponse.pickupTime())
                                     .reservationState(reservationEntity.getReservationState())
                                     .build();
 
-                            sseService.sendMessageToClient(clientId , response.toString(), "new-reservation");
+                            String jsonResponse;
+
+                            try {
+                                jsonResponse = objectMapper.writeValueAsString(response);
+                            } catch (JsonProcessingException ex) {
+                                throw new RuntimeException(ex);
+                            }
+
+                            sseService.sendMessageToClient(clientId , jsonResponse, "new-reservation");
                             existingReservationIds.add(docId);
+
                         }
                     }
                 }
