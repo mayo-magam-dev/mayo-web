@@ -1,9 +1,12 @@
 package com.example.mayoweb.sse;
 
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -37,7 +40,8 @@ public class SseService {
 
         if (emitter != null) {
             try {
-                emitter.send(SseEmitter.event().name(name).data(message));
+                UUID uuid = UUID.randomUUID();
+                emitter.send(SseEmitter.event().name(name).data(message.getBytes(StandardCharsets.UTF_8)).id(uuid.toString()));
             } catch (IOException e) {
                 emitters.remove(clientId);
             }
