@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Repository;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
@@ -142,7 +143,11 @@ public class ReservationsAdapter {
                         String docId = change.getDocument().getId();
                         if (!existingReservationIds.contains(docId)) {
                             ReservationEntity reservationEntity = change.getDocument().toObject(ReservationEntity.class);
-                            sseService.sendMessageToEmitters(ReadReservationResponse.fromEntity(reservationEntity).toString(), "new-reservation");
+                            try {
+                                sseService.sendMessageToEmitter(ReadReservationResponse.fromEntity(reservationEntity).toString(), "new-reservation");
+                            } catch (IOException ex) {
+                                throw new RuntimeException(ex);
+                            }
                             existingReservationIds.add(docId);
                         }
                     }
