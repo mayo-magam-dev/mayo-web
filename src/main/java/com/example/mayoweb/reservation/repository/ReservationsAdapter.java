@@ -109,7 +109,7 @@ public class ReservationsAdapter {
         return future;
     }
 
-    public CompletableFuture<List<ReservationEntity>> getNewByStoreIdSse(String storeId) throws ExecutionException, InterruptedException {
+    public CompletableFuture<List<ReservationEntity>> getNewByStoreIdSse(String clientId, String storeId) throws ExecutionException, InterruptedException {
 
         Firestore firestore = FirestoreClient.getFirestore();
         DocumentReference storeDocumentId = firestore.collection("stores").document(storeId);
@@ -143,7 +143,7 @@ public class ReservationsAdapter {
                         String docId = change.getDocument().getId();
                         if (!existingReservationIds.contains(docId)) {
                             ReservationEntity reservationEntity = change.getDocument().toObject(ReservationEntity.class);
-                            sseService.sendMessage(ReadReservationResponse.fromEntity(reservationEntity).toString(), "new-reservation");
+                            sseService.sendMessageToClient(clientId ,ReadReservationResponse.fromEntity(reservationEntity).toString(), "new-reservation");
                             existingReservationIds.add(docId);
                         }
                     }
