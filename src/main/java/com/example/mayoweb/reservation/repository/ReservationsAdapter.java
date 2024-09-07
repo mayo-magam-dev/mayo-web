@@ -223,12 +223,16 @@ public class ReservationsAdapter {
         }
 
         query.addSnapshotListener((querySnapshot, e) -> {
+
             if (e != null) {
                 emitter.completeWithError(e);
                 return;
             }
 
             if (querySnapshot != null) {
+
+                ReadReservationListResponse response = null;
+
                 for (DocumentChange change : querySnapshot.getDocumentChanges()) {
                     if (change.getType() == DocumentChange.Type.ADDED) {
                         String docId = change.getDocument().getId();
@@ -245,7 +249,7 @@ public class ReservationsAdapter {
                                 return;
                             }
 
-                            ReadReservationListResponse response = ReadReservationListResponse.builder()
+                            response = ReadReservationListResponse.builder()
                                     .reservationId(reservationResponse.id())
                                     .firstItemName(firstItemResponse.itemName())
                                     .itemQuantity(firstItemResponse.itemQuantity())
@@ -253,18 +257,16 @@ public class ReservationsAdapter {
                                     .pickupTime(reservationResponse.pickupTime())
                                     .reservationState(reservationEntity.getReservationState())
                                     .build();
-
-                            String jsonResponse;
-
-                            try {
-                                jsonResponse = new ObjectMapper().writeValueAsString(response);
-                            } catch (JsonProcessingException ex) {
-                                throw new RuntimeException(ex);
-                            }
-
-                            sseService.sendMessageToClient(clientId , jsonResponse, "new-reservation");
-                            existingReservationIds.add(docId);
                         }
+                    }
+                }
+                if(response != null) {
+                    try {
+                        String jsonResponse = new ObjectMapper().writeValueAsString(response);
+                        sseService.sendMessageToClient(clientId, jsonResponse, "new-reservation");
+                        existingReservationIds.add(response.reservationId());
+                    } catch (JsonProcessingException ex) {
+                        throw new RuntimeException(ex);
                     }
                 }
             }
