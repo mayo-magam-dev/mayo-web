@@ -143,11 +143,7 @@ public class ReservationsAdapter {
                         String docId = change.getDocument().getId();
                         if (!existingReservationIds.contains(docId)) {
                             ReservationEntity reservationEntity = change.getDocument().toObject(ReservationEntity.class);
-                            try {
-                                sseService.sendMessageToEmitter(ReadReservationResponse.fromEntity(reservationEntity).toString(), "new-reservation");
-                            } catch (IOException ex) {
-                                throw new RuntimeException(ex);
-                            }
+                            sseService.sendMessage(ReadReservationResponse.fromEntity(reservationEntity).toString(), "new-reservation");
                             existingReservationIds.add(docId);
                         }
                     }
@@ -212,40 +208,6 @@ public class ReservationsAdapter {
                 proceedingReservations.sort(Comparator.comparing(entity -> entity.getCreatedAt().toSqlTimestamp(), Comparator.reverseOrder()));
             }
             future.complete(proceedingReservations);
-        });
-
-        return future;
-    }
-
-    public CompletableFuture<List<ReservationEntity>> getProceedingByStoreIdSse(String storeId) {
-        Firestore firestore = FirestoreClient.getFirestore();
-        DocumentReference storeDocumentId = firestore.collection("stores").document(storeId);
-        CollectionReference reservationsRef = firestore.collection("reservation");
-        Query query = reservationsRef.whereEqualTo("store_ref", storeDocumentId)
-                .whereEqualTo("reservation_state", State.PROCEEDING.ordinal());
-
-        CompletableFuture<List<ReservationEntity>> future = new CompletableFuture<>();
-
-        query.addSnapshotListener((querySnapshot, e) -> {
-            if (e != null) {
-                future.completeExceptionally(e);
-                return;
-            }
-
-            List<ReservationEntity> newReservations = new ArrayList<>();
-            List<ReadReservationResponse> readReservationResponses = new ArrayList<>();
-            if (querySnapshot != null) {
-                for (QueryDocumentSnapshot reservationDocument : querySnapshot.getDocuments()) {
-                    ReservationEntity reservationEntity = reservationDocument.toObject(ReservationEntity.class);
-                    newReservations.add(reservationEntity);
-                }
-                newReservations.sort(Comparator.comparing(entity -> entity.getCreatedAt().toSqlTimestamp(), Comparator.reverseOrder()));
-                readReservationResponses = newReservations.stream().map(ReadReservationResponse::fromEntity).toList();
-            }
-
-            sseService.sendMessageToEmitters(readReservationResponses.toString(), "proceeding-reservation");
-
-            future.complete(newReservations);
         });
 
         return future;
@@ -353,88 +315,6 @@ public class ReservationsAdapter {
                 endReservations.sort(Comparator.comparing(entity -> entity.getCreatedAt().toSqlTimestamp(), Comparator.reverseOrder()));
             }
             future.complete(endReservations);
-        });
-
-        return future;
-    }
-
-    public CompletableFuture<List<ReservationEntity>> getEndByStoreIdSse(String storeId) {
-        Firestore firestore = FirestoreClient.getFirestore();
-        DocumentReference storeDocumentId = firestore.collection("stores").document(storeId);
-        CollectionReference reservationsRef = firestore.collection("reservation");
-        Query query = reservationsRef.whereEqualTo("store_ref", storeDocumentId)
-                .whereIn("reservation_state", Arrays.asList(State.END.ordinal(), State.FAIL.ordinal()));
-
-        CompletableFuture<List<ReservationEntity>> future = new CompletableFuture<>();
-
-        query.addSnapshotListener((querySnapshot, e) -> {
-            if (e != null) {
-                future.completeExceptionally(e);
-                return;
-            }
-
-            List<ReservationEntity> endReservations = new ArrayList<>();
-            List<ReadReservationResponse> readReservationResponses = new ArrayList<>();
-            if (querySnapshot != null) {
-                for (QueryDocumentSnapshot reservationDocument : querySnapshot.getDocuments()) {
-                    ReservationEntity reservationEntity = reservationDocument.toObject(ReservationEntity.class);
-                    endReservations.add(reservationEntity);
-                }
-                endReservations.sort(Comparator.comparing(entity -> entity.getCreatedAt().toSqlTimestamp(), Comparator.reverseOrder()));
-                readReservationResponses = endReservations.stream().map(ReadReservationResponse::fromEntity).toList();
-            }
-
-            sseService.sendMessageToEmitters(readReservationResponses.toString(), "end-reservation");
-
-            future.complete(endReservations);
-        });
-
-        return future;
-    }
-
-    public CompletableFuture<Page<ReservationEntity>> getEndByStoreIdSse(String storeId, int page, int size) {
-        Firestore firestore = FirestoreClient.getFirestore();
-        DocumentReference storeDocumentId = firestore.collection("stores").document(storeId);
-        CollectionReference reservationsRef = firestore.collection("reservation");
-        Query query = reservationsRef.whereEqualTo("store_ref", storeDocumentId)
-                .whereIn("reservation_state", Arrays.asList(State.END.ordinal(), State.FAIL.ordinal()));
-
-        CompletableFuture<Page<ReservationEntity>> future = new CompletableFuture<>();
-
-        query.addSnapshotListener((querySnapshot, e) -> {
-            if (e != null) {
-                future.completeExceptionally(e);
-                return;
-            }
-
-            List<ReservationEntity> endReservations = new ArrayList<>();
-            if (querySnapshot != null) {
-                for (QueryDocumentSnapshot reservationDocument : querySnapshot.getDocuments()) {
-                    ReservationEntity reservationEntity = reservationDocument.toObject(ReservationEntity.class);
-                    endReservations.add(reservationEntity);
-                }
-
-                endReservations.sort(Comparator.comparing(entity -> entity.getCreatedAt().toSqlTimestamp(), Comparator.reverseOrder()));
-
-                Pageable pageable = PageRequest.of(page, size);
-                int start = (int) pageable.getOffset();
-                int end = Math.min((start + pageable.getPageSize()), endReservations.size());
-                List<ReservationEntity> paginatedList = endReservations.subList(start, end);
-
-                Page<ReservationEntity> paginatedResult = new PageImpl<>(paginatedList, pageable, endReservations.size());
-
-                List<ReadReservationResponse> readReservationResponses = paginatedList.stream()
-                        .map(ReadReservationResponse::fromEntity)
-                        .toList();
-
-                Page<ReadReservationResponse> paginatedResponses = new PageImpl<>(readReservationResponses, pageable, endReservations.size());
-
-                sseService.sendMessageToEmitters(paginatedResponses.toString(), "end-reservation");
-
-                future.complete(paginatedResult);
-            } else {
-                future.complete(Page.empty());
-            }
         });
 
         return future;
