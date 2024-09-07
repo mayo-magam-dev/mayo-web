@@ -404,8 +404,8 @@ public class ReservationRestController {
             @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
     })
     @GetMapping("/sse/reservations-new")
-    public SseEmitter streamNewReservations(@RequestParam String storeId, @RequestParam String userId){
-        return reservationService.getNewReservationsByStoreIdSse(userId, storeId);
+    public ResponseEntity<SseEmitter> streamNewReservations(@RequestParam String storeId, @RequestParam String userId){
+        return ResponseEntity.ok(reservationService.getNewReservationsByStoreIdSse(userId, storeId));
     }
 
     @Operation(summary = "storeId 값으로 해당 가게의 완료 예약들을 slice 형태로 가져옵니다.", description = "storeId 값으로 해당 가게의 완료 예약들을 slice 형태로 가져옵니다.")
