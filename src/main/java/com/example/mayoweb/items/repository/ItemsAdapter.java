@@ -184,6 +184,36 @@ public class ItemsAdapter {
         db.collection("items").document(itemId).delete();
     }
 
+    public ReadFirstItemResponse getFirstItemNameFromCart(DocumentReference cart) throws ExecutionException, InterruptedException {
+
+        DocumentSnapshot cartSnapshot = cart.get().get();
+
+        DocumentReference itemRef = (DocumentReference) cartSnapshot.get("item");
+
+        if(itemRef != null) {
+            DocumentSnapshot itemSnapshot = null;
+            try {
+                itemSnapshot = itemRef.get().get();
+            } catch (InterruptedException | ExecutionException e) {
+                throw new ApplicationException(ErrorStatus.toErrorStatus("cart로 아이템을 가져오는데 실패했습니다.", 400, LocalDateTime.now()));
+            }
+            if (itemSnapshot.exists()) {
+                return  ReadFirstItemResponse.builder()
+                            .itemName(itemSnapshot.getString("item_name"))
+                            .itemQuantity(cartSnapshot.get("itemCount", Integer.class))
+                            .build();
+
+            } else {
+                return ReadFirstItemResponse.builder()
+                        .itemName(" ")
+                        .itemQuantity(0)
+                        .build();
+            }
+        }
+
+        throw new ApplicationException(ErrorStatus.toErrorStatus("해당 아이템이 없습니다.", 404, LocalDateTime.now()));
+    }
+
     private ItemsEntity fromDocument(DocumentSnapshot document) {
         return ItemsEntity.builder()
                 .itemId(document.getId())
