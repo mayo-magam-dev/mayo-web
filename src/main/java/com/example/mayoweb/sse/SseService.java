@@ -13,6 +13,13 @@ public class SseService {
     private final ConcurrentMap<String, SseEmitter> emitters = new ConcurrentHashMap<>();
 
     public SseEmitter addEmitter(String clientId) {
+
+        SseEmitter existingEmitter = getEmitter(clientId);
+
+        if (existingEmitter != null) {
+            return existingEmitter;
+        }
+
         SseEmitter emitter = new SseEmitter(0L);
         emitters.put(clientId, emitter);
         emitter.onCompletion(() -> emitters.remove(clientId));  // 완료 시 제거
