@@ -364,6 +364,39 @@ public class ReservationRestController {
                     .build());
     }
 
+//    @Operation(summary = "storeId 값으로 해당 가게의 신규 예약들을 SSE를 통해 가져옵니다.", description = "storeId 값으로 해당 가게의 신규 예약들을 SSE를 통해 가져옵니다.")
+//    @ApiResponses(value = {
+//            @ApiResponse(responseCode = "200", description = "신규 예약 조회 성공", content = @Content(schema = @Schema(implementation = SseEmitter.class))),
+//            @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
+//            @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
+//    })
+//    @GetMapping("/sse/reservations-new")
+//    public SseEmitter streamNewReservations(@RequestParam String storeId, @RequestParam String userId) throws ExecutionException, InterruptedException {
+//
+//        SseEmitter emitter = sseService.addEmitter(userId);
+//
+//        CompletableFuture<List<ReadReservationListResponse>> future = reservationService.getNewReservationsByStoreIdSse(userId, storeId)
+//                .thenApply(reservationResponseList -> {
+//                    List<ReadFirstItemResponse> firstItemResponseList = itemsService.getFirstItemNamesFromReservations(reservationResponseList);
+//                    List<ReadReservationListResponse> responseList = new ArrayList<>();
+//                    for (int i = 0; i < reservationResponseList.size(); i++) {
+//                        ReadReservationListResponse response = ReadReservationListResponse.builder()
+//                                .reservationId(reservationResponseList.get(i).id())
+//                                .firstItemName(firstItemResponseList.get(i).itemName())
+//                                .itemQuantity(firstItemResponseList.get(i).itemQuantity())
+//                                .createdAt(reservationResponseList.get(i).createdAt())
+//                                .pickupTime(reservationResponseList.get(i).pickupTime())
+//                                .reservationState(reservationResponseList.get(i).reservationState())
+//                                .build();
+//                        responseList.add(response);
+//                    }
+//
+//                    return responseList;
+//                });
+//
+//        return emitter;
+//    }
+
     @Operation(summary = "storeId 값으로 해당 가게의 신규 예약들을 SSE를 통해 가져옵니다.", description = "storeId 값으로 해당 가게의 신규 예약들을 SSE를 통해 가져옵니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "신규 예약 조회 성공", content = @Content(schema = @Schema(implementation = SseEmitter.class))),
@@ -371,32 +404,9 @@ public class ReservationRestController {
             @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
     })
     @GetMapping("/sse/reservations-new")
-    public SseEmitter streamNewReservations(@RequestParam String storeId, @RequestParam String userId) throws ExecutionException, InterruptedException {
-
-        SseEmitter emitter = sseService.addEmitter(userId);
-
-        CompletableFuture<List<ReadReservationListResponse>> future = reservationService.getNewReservationsByStoreIdSse(userId, storeId)
-                .thenApply(reservationResponseList -> {
-                    List<ReadFirstItemResponse> firstItemResponseList = itemsService.getFirstItemNamesFromReservations(reservationResponseList);
-                    List<ReadReservationListResponse> responseList = new ArrayList<>();
-                    for (int i = 0; i < reservationResponseList.size(); i++) {
-                        ReadReservationListResponse response = ReadReservationListResponse.builder()
-                                .reservationId(reservationResponseList.get(i).id())
-                                .firstItemName(firstItemResponseList.get(i).itemName())
-                                .itemQuantity(firstItemResponseList.get(i).itemQuantity())
-                                .createdAt(reservationResponseList.get(i).createdAt())
-                                .pickupTime(reservationResponseList.get(i).pickupTime())
-                                .reservationState(reservationResponseList.get(i).reservationState())
-                                .build();
-                        responseList.add(response);
-                    }
-
-                    return responseList;
-                });
-
-        return emitter;
+    public SseEmitter streamNewReservations(@RequestParam String storeId, @RequestParam String userId){
+        return reservationService.getNewReservationsByStoreIdSse(userId, storeId);
     }
-
 
     @Operation(summary = "storeId 값으로 해당 가게의 완료 예약들을 slice 형태로 가져옵니다.", description = "storeId 값으로 해당 가게의 완료 예약들을 slice 형태로 가져옵니다.")
     @ApiResponses(value = {
