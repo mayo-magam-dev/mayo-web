@@ -21,7 +21,6 @@ import java.util.stream.Collectors;
 public class ReservationService {
 
     private final ReservationsAdapter reservationsAdapter;
-    private final SseService sseService;
 
     public void reservationAccept(String id){
         reservationsAdapter.reservationProceeding(id);
@@ -45,8 +44,8 @@ public class ReservationService {
         );
     }
 
-    public CompletableFuture<List<ReadReservationResponse>> getNewReservationsByStoreIdSse(String storeId) throws ExecutionException, InterruptedException {
-        return reservationsAdapter.getNewByStoreIdSse(storeId).thenApply(reservationEntities ->
+    public CompletableFuture<List<ReadReservationResponse>> getNewReservationsByStoreIdSse(String clientId, String storeId) throws ExecutionException, InterruptedException {
+        return reservationsAdapter.getNewByStoreIdSse(clientId, storeId).thenApply(reservationEntities ->
                 reservationEntities.stream().map(ReadReservationResponse::fromEntity).toList()
         );
     }
