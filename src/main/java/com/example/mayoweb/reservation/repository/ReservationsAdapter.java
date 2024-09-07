@@ -7,7 +7,6 @@ import com.example.mayoweb.items.domain.response.ReadFirstItemResponse;
 import com.example.mayoweb.items.repository.ItemsAdapter;
 import com.example.mayoweb.reservation.domain.ReservationEntity;
 import com.example.mayoweb.reservation.domain.dto.response.ReadReservationListResponse;
-import com.example.mayoweb.reservation.domain.dto.response.ReadReservationResponse;
 import com.example.mayoweb.sse.SseService;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.Timestamp;
@@ -129,7 +128,7 @@ public class ReservationsAdapter {
 
         for (QueryDocumentSnapshot reservation : querySnapshotReservation.getDocuments()) {
             ReservationEntity reservationEntity = reservation.toObject(ReservationEntity.class);
-            existingReservationIds.add(reservation.getId());
+            existingReservationIds.add(reservationEntity.getId());
         }
 
         CompletableFuture<List<ReservationEntity>> future = new CompletableFuture<>();
