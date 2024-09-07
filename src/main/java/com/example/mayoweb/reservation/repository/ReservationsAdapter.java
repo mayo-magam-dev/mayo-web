@@ -134,6 +134,7 @@ public class ReservationsAdapter {
         CompletableFuture<List<ReservationEntity>> future = new CompletableFuture<>();
 
         query.addSnapshotListener((querySnapshot, e) -> {
+
             if (e != null) {
                 future.completeExceptionally(e);
                 return;
@@ -148,12 +149,19 @@ public class ReservationsAdapter {
                         if (!existingReservationIds.contains(docId)) {
 
                             ReservationEntity reservationEntity = change.getDocument().toObject(ReservationEntity.class);
-                            List<ReadFirstItemResponse> firstItemResponseList = getFirstItemNamesFromReservation(reservationEntity);
+                            ReadFirstItemResponse firstItemResponse = null;
+
+                            try {
+                                firstItemResponse = getFirstItemNameFromReservation(reservationEntity);
+                            } catch (ExecutionException | InterruptedException ex) {
+                                throw new RuntimeException(ex);
+                            }
+
 
                             ReadReservationListResponse response = ReadReservationListResponse.builder()
                                     .reservationId(reservationEntity.getId())
-                                    .firstItemName(firstItemResponseList.get(0).itemName())
-                                    .itemQuantity(firstItemResponseList.get(0).itemQuantity())
+                                    .firstItemName(firstItemResponse.itemName())
+                                    .itemQuantity(firstItemResponse.itemQuantity())
                                     .createdAt(reservationEntity.getCreatedAt())
                                     .pickupTime(reservationEntity.getPickupTime())
                                     .reservationState(reservationEntity.getReservationState())
@@ -551,14 +559,11 @@ public class ReservationsAdapter {
         }
     }
 
-    public List<ReadFirstItemResponse> getFirstItemNamesFromReservation(ReservationEntity reservationEntity) {
+    private ReadFirstItemResponse getFirstItemNameFromReservation(ReservationEntity reservationEntity) throws ExecutionException, InterruptedException {
 
-        List<ReservationEntity> reservationList = new ArrayList<>();
-        reservationList.add(reservationEntity);
+        DocumentReference carts = cartsAdapter.getFirstCartByReservation(reservationEntity);
 
-        List<DocumentReference> carts = cartsAdapter.getFirstCartsByReservations(reservationList);
-
-        return itemsAdapter.getFirstItemNamesFromCarts(carts);
+        return itemsAdapter.getFirstItemNameFromCart(carts);
     }
 
     enum State {
