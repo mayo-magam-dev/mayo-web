@@ -1,24 +1,38 @@
 package com.example.mayoweb.items.domain.request;
 
 import com.example.mayoweb.items.domain.ItemsEntity;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Builder;
 
 @Builder
 public record UpdateItemRequest(
+
+        @NotNull
         String itemId,
 
+        @Size(min = 1, max = 15, message = "itemName의 글자 수는 1~15 사이여야합니다.")
         String itemName,
 
+        @Size(max = 200, message = "최대 200글자입니다.")
         String itemDescription,
 
+        @NotNull
         Integer originalPrice,
 
+        @NotNull
+        @Min(0)
+        @Max(100)
         Double salePercent,
 
         String itemImage,
 
+        @NotNull
         Double salePrice,
 
+        @NotNull
         Integer cookingTime,
 
         String additionalInformation
