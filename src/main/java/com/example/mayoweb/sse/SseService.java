@@ -1,6 +1,5 @@
 package com.example.mayoweb.sse;
 
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -14,6 +13,7 @@ import java.util.concurrent.ConcurrentMap;
 public class SseService {
 
     private final ConcurrentMap<String, SseEmitter> emitters = new ConcurrentHashMap<>();
+    private final ConcurrentMap<String, String> lastUuidMap = new ConcurrentHashMap<>();  // 클라이언트별로 마지막 UUID 저장
 
     public SseEmitter addEmitter(String clientId) {
 
@@ -41,7 +41,16 @@ public class SseService {
         if (emitter != null) {
             try {
                 UUID uuid = UUID.randomUUID();
-                emitter.send(SseEmitter.event().name(name).data(message.getBytes(StandardCharsets.UTF_8)).id(uuid.toString()));
+                String lastUuid = lastUuidMap.get(clientId);
+
+                if(lastUuid == null || lastUuid.isEmpty()) {
+                    lastUuid = "first";
+                }
+
+                if (!lastUuid.equals(uuid.toString())) {
+                    emitter.send(SseEmitter.event().name(name).data(message.getBytes(StandardCharsets.UTF_8)).id(uuid.toString()));
+                    lastUuidMap.put(clientId, uuid.toString());
+                }
             } catch (IOException e) {
                 emitters.remove(clientId);
             }
