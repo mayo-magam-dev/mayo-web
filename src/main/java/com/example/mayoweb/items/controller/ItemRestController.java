@@ -1,5 +1,6 @@
 package com.example.mayoweb.items.controller;
 
+import com.example.mayoweb.commons.exception.ValidationFailedException;
 import com.example.mayoweb.items.domain.request.UpdateItemRequest;
 import com.example.mayoweb.items.domain.response.ReadFirstItemResponse;
 import com.example.mayoweb.items.service.ItemsService;
@@ -14,8 +15,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -82,7 +85,11 @@ public class ItemRestController {
             @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
     })
     @PutMapping("/item")
-    public ResponseEntity<Void> updateItem(@RequestPart UpdateItemRequest request, @RequestParam(value = "itemImage", required = false) MultipartFile file) throws IOException {
+    public ResponseEntity<Void> updateItem(@RequestPart @Valid UpdateItemRequest request, @RequestParam(value = "itemImage", required = false) MultipartFile file, BindingResult bindingResult) throws IOException {
+
+        if (bindingResult.hasErrors()) {
+            throw new ValidationFailedException(bindingResult);
+        }
 
         if(file != null && !file.isEmpty()) {
             String imageUrl = storageService.uploadFirebaseBucket(file, request.itemName());
