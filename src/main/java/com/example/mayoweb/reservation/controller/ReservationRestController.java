@@ -11,6 +11,7 @@ import com.example.mayoweb.reservation.domain.dto.response.ReadReservationListRe
 import com.example.mayoweb.reservation.domain.dto.response.ReadReservationResponse;
 import com.example.mayoweb.reservation.service.ReservationService;
 import com.example.mayoweb.sse.SseService;
+import com.example.mayoweb.store.domain.dto.response.ReadStoreResponse;
 import com.example.mayoweb.user.domain.dto.response.ReadUserResponse;
 import com.example.mayoweb.user.service.UsersService;
 import com.google.cloud.Timestamp;
@@ -440,6 +441,18 @@ public class ReservationRestController {
         Pageable pageable = PageRequest.of(page, size);
 
         return new SliceImpl<>(responseList, pageable, reservationResponseSlice.hasNext());
+    }
+
+    @PutMapping("/reservation/all-fail")
+    public ResponseEntity<Void> reservationFailByStoreId(@RequestParam String storeId) {
+
+        List<ReadReservationResponse> reservationList = reservationService.getNewByStoreId(storeId);
+
+        for(ReadReservationResponse reservation : reservationList) {
+            reservationService.reservationFail(reservation.id());
+        }
+
+        return ResponseEntity.noContent().build();
     }
 
 }
