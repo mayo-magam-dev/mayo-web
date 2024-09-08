@@ -64,7 +64,11 @@ public class ItemRestController {
             @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
     })
     @PostMapping("/item")
-    public ResponseEntity<Void> createItem(@RequestPart CreateItemRequest request, @RequestParam String storeId, @RequestParam(value = "itemImage", required = false) MultipartFile file) throws IOException {
+    public ResponseEntity<Void> createItem(@RequestPart @Valid CreateItemRequest request, @RequestParam String storeId, @RequestParam(value = "itemImage", required = false) MultipartFile file, BindingResult bindingResult) throws IOException {
+
+        if (bindingResult.hasErrors()) {
+            throw new ValidationFailedException(bindingResult);
+        }
 
         if(file != null && !file.isEmpty()) {
             String imageUrl = storageService.uploadFirebaseBucket(file, request.itemName());
