@@ -1,5 +1,6 @@
 package com.example.mayoweb.store.controller;
 
+import com.example.mayoweb.commons.exception.ValidationFailedException;
 import com.example.mayoweb.fcm.service.FCMService;
 import com.example.mayoweb.items.domain.request.OpenItemRequest;
 import com.example.mayoweb.items.service.ItemsService;
@@ -14,8 +15,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -51,7 +54,12 @@ public class StoreRestController {
             @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
     })
     @PutMapping("/stores")
-    public ResponseEntity<UpdateStoreResponse> updateStore(@RequestBody UpdateStoreRequest request) {
+    public ResponseEntity<UpdateStoreResponse> updateStore(@RequestBody @Valid UpdateStoreRequest request, BindingResult bindingResult) {
+
+        if (bindingResult.hasErrors()) {
+            throw new ValidationFailedException(bindingResult);
+        }
+
         return ResponseEntity.ok(storesService.updateStoreInformation(request));
     }
 
