@@ -11,7 +11,6 @@ import com.example.mayoweb.reservation.domain.dto.response.ReadReservationListRe
 import com.example.mayoweb.reservation.domain.dto.response.ReadReservationResponse;
 import com.example.mayoweb.reservation.service.ReservationService;
 import com.example.mayoweb.sse.SseService;
-import com.example.mayoweb.store.domain.dto.response.ReadStoreResponse;
 import com.example.mayoweb.user.domain.dto.response.ReadUserResponse;
 import com.example.mayoweb.user.service.UsersService;
 import com.google.cloud.Timestamp;
@@ -38,7 +37,7 @@ import java.util.concurrent.ExecutionException;
 @RestController
 @RequiredArgsConstructor
 @Slf4j
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "https://www.mayomagam.store/")
 public class ReservationRestController {
 
     private final ReservationService reservationService;
