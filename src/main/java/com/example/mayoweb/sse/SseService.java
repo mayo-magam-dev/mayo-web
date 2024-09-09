@@ -23,7 +23,7 @@ public class SseService {
             return existingEmitter;
         }
 
-        SseEmitter emitter = new SseEmitter(3000L);
+        SseEmitter emitter = new SseEmitter(60000L);
         emitters.put(clientId, emitter);
         emitter.onCompletion(() -> emitters.remove(clientId));  // 완료 시 제거
         emitter.onTimeout(() -> emitters.remove(clientId));     // 타임아웃 시 제거
