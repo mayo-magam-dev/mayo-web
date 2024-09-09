@@ -73,5 +73,5 @@ GET http://13.209.16.2/sse/reservations-new?storeId=VQtTGTCc13EWulU5sZmI&userId=
 Content-Type: application/json
 
 ###
-GET http://ec2-13-209-16-2.ap-northeast-2.compute.amazonaws.com/sse/reservations-new?storeId=VQtTGTCc13EWulU5sZmI&userId=asdf
+GET https://mayo-api.store/sse/reservations-new?storeId=VQtTGTCc13EWulU5sZmI&userId=asdf
 Content-Type: application/json
