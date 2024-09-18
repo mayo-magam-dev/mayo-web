@@ -41,12 +41,12 @@ import java.util.concurrent.ExecutionException;
 public class ReservationRestController {
 
     private final ReservationService reservationService;
-    private final SseService sseService;
     private final ItemsService itemsService;
     private final CartService cartService;
     private final UsersService usersService;
     private final UsersService userService;
     private final FCMService fcmService;
+    private final SseService sseService;
 
     @Operation(summary = "ID 값으로 reservation 객체를 가져옵니다.", description = "reservation PK 값으로 객체를 가져옵니다.")
     @ApiResponses(value = {
