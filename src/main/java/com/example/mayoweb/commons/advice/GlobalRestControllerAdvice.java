@@ -11,6 +11,7 @@ public class GlobalRestControllerAdvice {
 
     @ExceptionHandler(ApplicationException.class)
     public ResponseEntity<ErrorStatus> handleException(ApplicationException e) {
+
         ErrorStatus errorStatus = e.getErrorStatus();
 
         return new ResponseEntity<>(errorStatus, errorStatus.toHttpStatus());

@@ -21,6 +21,7 @@ import java.util.concurrent.ExecutionException;
 public class CartsAdapter {
 
     public Optional<CartsEntity> findCartById(String cartId) {
+
         Firestore db = FirestoreClient.getFirestore();
 
         try {
@@ -33,13 +34,16 @@ public class CartsAdapter {
             }
         }
         catch (ExecutionException | InterruptedException e) {
-            throw new ApplicationException(ErrorStatus.toErrorStatus("장바구니를 찾는데 에러가 발생하였습니다.", 400, LocalDateTime.now()));
+            throw new ApplicationException(
+                    ErrorStatus.toErrorStatus("장바구니를 찾는데 에러가 발생하였습니다.", 400, LocalDateTime.now())
+            );
         }
 
         return Optional.empty();
     }
 
     public List<CartsEntity> getCartsByDocRef(List<DocumentReference> doc) {
+
         List<CartsEntity> cartsEntity = new ArrayList<>();
 
         for (DocumentReference cartRef : doc) {
@@ -53,30 +57,37 @@ public class CartsAdapter {
                 throw new ApplicationException(ErrorStatus.toErrorStatus("cart를 찾는 도중 오류가 발생하였습니다.", 400, LocalDateTime.now()));
             }
         }
+
         return cartsEntity;
     }
 
     public List<DocumentReference> getFirstCartsByReservations(List<ReservationEntity> reservations) {
+
         List<DocumentReference> carts = new ArrayList<>();
 
         for (ReservationEntity reservation : reservations) {
             List<DocumentReference> cartRefs = reservation.getCartRef();
+
             if (!cartRefs.isEmpty()) {
                 DocumentReference firstCartRef = cartRefs.get(0);
                 carts.add(firstCartRef);
             }
         }
+
         return carts;
     }
 
     public DocumentReference getFirstCartByReservation(ReservationEntity reservation) {
 
         List<DocumentReference> cartRefs = reservation.getCartRef();
+
         if (!cartRefs.isEmpty()) {
             return cartRefs.get(0);
         }
 
-        throw new ApplicationException(ErrorStatus.toErrorStatus("해당 주문에 속하는 카트가 없습니다.", 404, LocalDateTime.now()));
+        throw new ApplicationException(
+                ErrorStatus.toErrorStatus("해당 주문에 속하는 카트가 없습니다.", 404, LocalDateTime.now())
+        );
     }
 
     private CartsEntity fromDocument(DocumentSnapshot document) {
@@ -89,7 +100,8 @@ public class CartsAdapter {
                 .subtotal(document.getDouble("subtotal"))
                 .item((DocumentReference) document.get("item"))
                 .userRef((DocumentReference) document.get("userRef"))
-                .storeRef((DocumentReference) document.get("store_ref")).build();
+                .storeRef((DocumentReference) document.get("store_ref"))
+                .build();
     }
 
 }
