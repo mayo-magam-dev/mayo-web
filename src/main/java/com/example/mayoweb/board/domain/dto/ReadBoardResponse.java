@@ -23,13 +23,13 @@ public record ReadBoardResponse (
 {
     public static ReadBoardResponse fromEntity(BoardEntity entity) {
         return ReadBoardResponse.builder()
-                .boardId(entity.boardId)
-                .title(entity.title)
-                .content(entity.content)
-                .category(entity.category)
-                .image(entity.image)
-                .writer(entity.writer)
-                .writeTime(entity.writeTime)
+                .boardId(entity.getBoardId())
+                .title(entity.getTitle())
+                .content(entity.getContent())
+                .category(entity.getCategory())
+                .image(entity.getImage())
+                .writer(entity.getWriter())
+                .writeTime(entity.getWriteTime())
                 .build();
     }
 }
