@@ -1,10 +1,12 @@
 package com.example.mayoweb.sse;
 
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -13,7 +15,10 @@ import java.util.concurrent.ConcurrentMap;
 public class SseService {
 
     private final ConcurrentMap<String, SseEmitter> emitters = new ConcurrentHashMap<>();
-    private final ConcurrentMap<String, String> lastUuidMap = new ConcurrentHashMap<>();  // 클라이언트별로 마지막 UUID 저장
+    private final ConcurrentMap<String, String> lastUuidMap = new ConcurrentHashMap<>();
+    private final ConcurrentMap<String, Long> lastPongMap = new ConcurrentHashMap<>();
+    private final Long SSE_TIMEOUT = 60000L;
+    private final Long PONG_TIMEOUT = 60000L;
 
     public SseEmitter addEmitter(String clientId) {
 
@@ -23,10 +28,10 @@ public class SseService {
             return existingEmitter;
         }
 
-        SseEmitter emitter = new SseEmitter(60000L);
+        SseEmitter emitter = new SseEmitter(SSE_TIMEOUT);
         emitters.put(clientId, emitter);
-        emitter.onCompletion(() -> emitters.remove(clientId));  // 완료 시 제거
-        emitter.onTimeout(() -> emitters.remove(clientId));     // 타임아웃 시 제거
+        emitter.onCompletion(() -> emitters.remove(clientId));
+        emitter.onTimeout(() -> emitters.remove(clientId));
         return emitter;
     }
 
@@ -39,6 +44,7 @@ public class SseService {
         SseEmitter emitter = getEmitter(clientId);
 
         if (emitter != null) {
+
             try {
                 UUID uuid = UUID.randomUUID();
                 String lastUuid = lastUuidMap.get(clientId);
@@ -48,11 +54,66 @@ public class SseService {
                 }
 
                 if (!lastUuid.equals(uuid.toString())) {
-                    emitter.send(SseEmitter.event().name(name).data(message.getBytes(StandardCharsets.UTF_8)).id(uuid.toString()));
+
+                    emitter.send(SseEmitter.event()
+                            .name(name)
+                            .data(message.getBytes(StandardCharsets.UTF_8))
+                            .id(uuid.toString()));
+
                     lastUuidMap.put(clientId, uuid.toString());
                 }
             } catch (IOException e) {
                 emitters.remove(clientId);
+            }
+        }
+    }
+
+    public void pingClient(String clientId) {
+
+        SseEmitter emitter = getEmitter(clientId);
+
+        if (emitter != null) {
+            try {
+                emitter.send(SseEmitter.event()
+                        .name("ping")
+                        .data("ping"));
+
+            } catch (IOException e) {
+                emitters.remove(clientId);
+            }
+        }
+    }
+
+    public void receivePong(String clientId) {
+        lastPongMap.put(clientId, System.currentTimeMillis());
+    }
+
+    @Scheduled(fixedRate = 30000)
+    public void sendPings() {
+        for (String clientId : emitters.keySet()) {
+            pingClient(clientId);
+        }
+    }
+
+    @Scheduled(fixedRate = 10000)
+    public void checkPongTimeouts() {
+
+        long currentTime = System.currentTimeMillis();
+
+        for (Map.Entry<String, Long> entry : lastPongMap.entrySet()) {
+
+            String clientId = entry.getKey();
+            long lastPongTime = entry.getValue();
+
+            if (currentTime - lastPongTime > PONG_TIMEOUT) {
+
+                SseEmitter emitter = getEmitter(clientId);
+                if (emitter != null) {
+                    emitter.complete();
+                }
+
+                emitters.remove(clientId);
+                lastPongMap.remove(clientId);
             }
         }
     }
