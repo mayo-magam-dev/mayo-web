@@ -30,15 +30,15 @@ public record ReadReservationResponse(
 ) {
     public static ReadReservationResponse fromEntity(ReservationEntity entity) {
         return ReadReservationResponse.builder()
-                .id(entity.id)
-                .reservationId(entity.reservationId)
-                .reservationState(entity.reservationState)
-                .reservationRequest(entity.reservationRequest)
-                .reservationIsPlastics(entity.reservationIsPlastics)
-                .createdAt(entity.createdAt)
-                .quantityList(entity.quantityList)
-                .pickupTime(entity.pickupTime)
-                .totalPrice(entity.totalPrice)
+                .id(entity.getId())
+                .reservationId(entity.getReservationId())
+                .reservationState(entity.getReservationState())
+                .reservationRequest(entity.getReservationRequest())
+                .reservationIsPlastics(entity.getReservationIsPlastics())
+                .createdAt(entity.getCreatedAt())
+                .quantityList(entity.getQuantityList())
+                .pickupTime(entity.getPickupTime())
+                .totalPrice(entity.getTotalPrice())
                 .userRef(entity.getUserRef().getId())
                 .build();
     }
