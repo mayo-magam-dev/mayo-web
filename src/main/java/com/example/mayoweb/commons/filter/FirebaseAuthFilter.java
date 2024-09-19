@@ -38,6 +38,7 @@ public class FirebaseAuthFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
+
         String token = getBearerToken(request);
 
         if (token != null) {
@@ -52,7 +53,7 @@ public class FirebaseAuthFilter extends OncePerRequestFilter {
                 boolean isManager = false;
 
                 if(documentSnapshot.exists()) {
-                    isManager = documentSnapshot.getBoolean("is_manager");
+                    isManager = Boolean.TRUE.equals(documentSnapshot.getBoolean("is_manager"));
                 }
 
                 List<GrantedAuthority> authorities = new ArrayList<>();

@@ -10,25 +10,25 @@ import lombok.*;
 public class BoardEntity {
 
     @DocumentId
-    public String boardId;
+    private String boardId;
 
     @PropertyName("title")
-    public String title;
+    private String title;
 
     @PropertyName("content")
-    public String content;
+    private String content;
 
     @PropertyName("category")
-    public Integer category;
+    private Integer category;
 
     @PropertyName("image")
-    public String image;
+    private String image;
 
     @PropertyName("writer")
-    public String writer;
+    private String writer;
 
     @PropertyName("write_time")
-    public Timestamp writeTime;
+    private Timestamp writeTime;
 
     @Builder
     public BoardEntity(String boardId, String title, String content, Integer category, String image, String writer, Timestamp writeTime) {

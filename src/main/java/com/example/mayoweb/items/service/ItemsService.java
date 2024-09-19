@@ -42,7 +42,7 @@ public class ItemsService {
                 ErrorStatus.toErrorStatus("카트를 찾을 수 없습니다.", 404, LocalDateTime.now()
         )));
 
-        return ReadItemResponse.fromEntity(itemsAdapter.getItemByDocRef(cart.item).orElseThrow(() -> new ApplicationException(
+        return ReadItemResponse.fromEntity(itemsAdapter.getItemByDocRef(cart.getItem()).orElseThrow(() -> new ApplicationException(
                 ErrorStatus.toErrorStatus("아이템을 찾을 수 없습니다.", 404, LocalDateTime.now())
         )));
 
