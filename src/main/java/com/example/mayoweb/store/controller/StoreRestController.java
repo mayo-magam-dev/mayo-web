@@ -28,7 +28,7 @@ import java.util.concurrent.ExecutionException;
 @Tag(name = "가게 API", description = "가게 관리 API")
 @RestController
 @RequiredArgsConstructor
-@CrossOrigin(origins = "https://www.mayomagam.store/")
+@CrossOrigin(origins = "*")
 public class StoreRestController {
 
     private final StoresService storesService;

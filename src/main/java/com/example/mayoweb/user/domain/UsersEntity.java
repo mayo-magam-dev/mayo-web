@@ -13,58 +13,58 @@ import java.util.List;
 @ToString
 public class UsersEntity {
     @DocumentId
-    public String userid;
+    private String userid;
 
     @PropertyName("uid")
-    public String uid;
+    private String uid;
 
     @PropertyName("email")
-    public String email;
+    private String email;
 
     @PropertyName("display_name")
-    public String displayName;
+    private String displayName;
 
     @PropertyName("photo_url")
-    public String photoUrl;
+    private String photoUrl;
 
     @PropertyName("created_time")
-    public Date createdTime;
+    private Date createdTime;
 
     @PropertyName("phone_number")
-    public String phoneNumber;
+    private String phoneNumber;
 
     @PropertyName("is_manager")
-    public Boolean isManager;
+    private Boolean isManager;
 
     @PropertyName("agree_terms1")
-    public Boolean agreeTerms1;
+    private Boolean agreeTerms1;
 
     @PropertyName("agree_terms2")
-    public Boolean agreeTerms2;
+    private Boolean agreeTerms2;
 
     @PropertyName("agree_marketing")
-    public Boolean agreeMarketing;
+    private Boolean agreeMarketing;
 
     @PropertyName("currentLocation")
-    public String currentLocation;
+    private String currentLocation;
 
     @PropertyName("gender")
-    public String gender;
+    private String gender;
 
     @PropertyName("name")
-    public String name;
+    private String name;
 
     @PropertyName("birthday")
-    public Date birthday;
+    private Date birthday;
 
     @PropertyName("store_ref")
-    public DocumentReference storeRef;
+    private DocumentReference storeRef;
 
     @PropertyName("favorite_stores")
-    public List<DocumentReference> favoriteStores;
+    private List<DocumentReference> favoriteStores;
 
     @PropertyName("noticeStores")
-    public List<DocumentReference> noticeStores;
+    private List<DocumentReference> noticeStores;
 
     @Builder
     public UsersEntity(String userid, String uid, String email, String displayName, String photoUrl, Date createdTime, String phoneNumber, Boolean isManager, Boolean agreeTerms1, Boolean agreeTerms2, Boolean agreeMarketing, String currentLocation, String gender, String name, Date birthday, DocumentReference storeRef, List<DocumentReference> favoriteStores, List<DocumentReference> noticeStores) {
