@@ -13,49 +13,49 @@ import java.util.List;
 public class StoresEntity {
 
     @DocumentId
-    public String id;
+    private String id;
 
     @PropertyName("store_name")
-    public String storeName;
+    private String storeName;
 
     @PropertyName("open_state")
-    public Boolean openState;
+    private Boolean openState;
 
     @PropertyName("address")
-    public String address;
+    private String address;
 
     @PropertyName("store_image")
-    public String storeImage;
+    private String storeImage;
 
     @PropertyName("open_time")
-    public String openTime;
+    private String openTime;
 
     @PropertyName("close_time")
-    public String closeTime;
+    private String closeTime;
 
     @PropertyName("sale_start")
-    public String saleStart;
+    private String saleStart;
 
     @PropertyName("sale_end")
-    public String saleEnd;
+    private String saleEnd;
 
     @PropertyName("store_description")
-    public String storeDescription;
+    private String storeDescription;
 
     @PropertyName("store_number")
-    public String storeNumber;
+    private String storeNumber;
 
     @PropertyName("store_mapUrl")
-    public String storeMapUrl;
+    private String storeMapUrl;
 
     @PropertyName("origin_info")
-    public String originInfo;
+    private String originInfo;
 
     @PropertyName("additional_comment")
-    public String additionalComment;
+    private String additionalComment;
 
     @PropertyName("open_day_of_week")
-    public List<Integer> openDayOfWeek;
+    private List<Integer> openDayOfWeek;
 
     @Builder
     public StoresEntity(String id, String storeName, Boolean openState, String address, String storeImage, String openTime, String closeTime, String saleStart, String saleEnd, String storeDescription, String storeNumber, String storeMapUrl, String originInfo, String additionalComment, List<Integer> openDayOfWeek) {

@@ -23,16 +23,17 @@ public class UsersAdapter {
     private static final String FIELD_FCM_TOKEN = "fcm_token";
 
     public UsersEntity getUserByDocRef(DocumentReference doc){
+
         ApiFuture<DocumentSnapshot> userSnapshotFuture = doc.get();
         DocumentSnapshot userSnapshot = null;
+
         try {
             userSnapshot = userSnapshotFuture.get();
         } catch (InterruptedException | ExecutionException e) {
             throw new ApplicationException(ErrorStatus.toErrorStatus("유저를 찾을 수 없습니다.", 404, LocalDateTime.now()));
         }
         if (userSnapshot.exists()) {
-            UsersEntity userEntity = userSnapshot.toObject(UsersEntity.class);
-            return userEntity;
+            return userSnapshot.toObject(UsersEntity.class);
         }
         return null;
     }
