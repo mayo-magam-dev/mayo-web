@@ -12,31 +12,31 @@ import lombok.*;
 public class CartsEntity {
 
     @DocumentId
-    public String cartId;
+    private String cartId;
 
     @PropertyName("ItemCount")
-    public Integer itemCount;
+    private Integer itemCount;
 
     @PropertyName("cartActive")
-    public Boolean cartActive;
+    private Boolean cartActive;
 
     @PropertyName("created_at")
-    public Timestamp createdAt;
+    private Timestamp createdAt;
 
     @PropertyName("pickup_time")
-    public Timestamp pickupTime;
+    private Timestamp pickupTime;
 
     @PropertyName("subtotal")
-    public Double subtotal;
+    private Double subtotal;
 
     @PropertyName("userRef")
-    public DocumentReference userRef;
+    private DocumentReference userRef;
 
     @PropertyName("item")
-    public DocumentReference item;
+    private DocumentReference item;
 
     @PropertyName("store_ref")
-    public DocumentReference storeRef;
+    private DocumentReference storeRef;
 
     @Builder
     public CartsEntity(String cartId, Integer itemCount, Boolean cartActive, Timestamp createdAt, Timestamp pickupTime, Double subtotal, DocumentReference userRef, DocumentReference item, DocumentReference storeRef) {

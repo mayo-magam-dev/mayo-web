@@ -27,11 +27,13 @@ public class BoardAdapter {
         ApiFuture<QuerySnapshot> querySnapshotApiFuture = query.get();
 
         QuerySnapshot querySnapshot = null;
+
         try {
             querySnapshot = querySnapshotApiFuture.get();
         } catch (InterruptedException | ExecutionException e) {
             throw new ApplicationException(ErrorStatus.toErrorStatus("약관 및 정책을 가져오는데 에러가 발생하였습니다.", 400, LocalDateTime.now()));
         }
+
         for (QueryDocumentSnapshot boardDocument : querySnapshot.getDocuments()) {
             BoardEntity boardEntity = boardDocument.toObject(BoardEntity.class);
             boards.add(boardEntity);

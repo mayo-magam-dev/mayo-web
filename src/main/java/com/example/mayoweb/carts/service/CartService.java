@@ -21,9 +21,11 @@ public class CartService {
     private final ReservationsAdapter reservationsAdapter;
 
     public List<ReadCartsResponse> getCartsByReservation(String reservationId) {
-        ReservationEntity reservation = reservationsAdapter.findByReservationId(reservationId).orElseThrow(() -> new ApplicationException(
-                ErrorStatus.toErrorStatus("예약을 찾을 수 없습니다.", 404, LocalDateTime.now())
-        ));
+
+        ReservationEntity reservation = reservationsAdapter.findByReservationId(reservationId)
+                .orElseThrow(() -> new ApplicationException(
+                    ErrorStatus.toErrorStatus("예약을 찾을 수 없습니다.", 404, LocalDateTime.now())
+                ));
 
         return cartsAdapter.getCartsByDocRef(reservation.getCartRef()).stream().map(ReadCartsResponse::fromEntity).toList();
     }
