@@ -64,6 +64,10 @@ public class SseService {
                 }
             } catch (IOException e) {
                 emitters.remove(clientId);
+                emitter.complete();
+                emitter.completeWithError(e);
+                lastUuidMap.remove(clientId);
+                lastPongMap.remove(clientId);
             }
         }
     }
@@ -80,6 +84,10 @@ public class SseService {
 
             } catch (IOException e) {
                 emitters.remove(clientId);
+                emitter.complete();
+                emitter.completeWithError(e);
+                lastUuidMap.remove(clientId);
+                lastPongMap.remove(clientId);
             }
         }
     }
