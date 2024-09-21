@@ -14,43 +14,43 @@ import java.util.List;
 public class ReservationEntity {
 
     @DocumentId
-    private String id;
+    public String id;
 
     @PropertyName("reservation_id")
-    private String reservationId;
+    public String reservationId;
 
     @PropertyName("reservation_state")
-    private Integer reservationState;
+    public Integer reservationState;
 
     @PropertyName("reservation_request")
-    private String reservationRequest;
+    public String reservationRequest;
 
     @PropertyName("reservation_is_plastics")
-    private Boolean reservationIsPlastics;
+    public Boolean reservationIsPlastics;
 
     @PropertyName("created_at")
-    private Timestamp createdAt;
+    public Timestamp createdAt;
 
     @PropertyName("quantityList")
-    private List<Integer> quantityList;
+    public List<Integer> quantityList;
 
     @PropertyName("pickup_time")
-    private Timestamp pickupTime;
+    public Timestamp pickupTime;
 
     @PropertyName("total_price")
-    private Double totalPrice;
+    public Double totalPrice;
 
     @PropertyName("store_ref")
-    private DocumentReference storeRef;
+    public DocumentReference storeRef;
 
     @PropertyName("user_ref")
-    private DocumentReference userRef;
+    public DocumentReference userRef;
 
     @PropertyName("itemList_ref")
-    private List<DocumentReference> itemListRef;
+    public List<DocumentReference> itemListRef;
 
     @PropertyName("cart_ref")
-    private List<DocumentReference> cartRef;
+    public List<DocumentReference> cartRef;
 
     @Builder
     public ReservationEntity(String id, String reservationId, Integer reservationState, String reservationRequest, Boolean reservationIsPlastics, Timestamp createdAt, List<Integer> quantityList, Timestamp pickupTime, Double totalPrice, DocumentReference storeRef, DocumentReference userRef, List<DocumentReference> itemListRef, List<DocumentReference> cartRef) {
