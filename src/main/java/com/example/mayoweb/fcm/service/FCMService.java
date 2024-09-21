@@ -85,6 +85,7 @@ public class FCMService {
                 )
                 .validateOnly(false)
                 .build();
+
         return objectMapper.writeValueAsString(fcmMessageDto);
     }
 
