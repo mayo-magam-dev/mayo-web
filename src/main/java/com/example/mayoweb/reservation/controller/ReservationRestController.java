@@ -405,6 +405,9 @@ public class ReservationRestController {
     })
     @GetMapping("/sse/reservations-new")
     public ResponseEntity<SseEmitter> streamNewReservations(@RequestParam String storeId, @RequestParam String userId){
+
+        sseService.sendMessageToClient(userId, "initialMessage", "new-reservation");
+
         return ResponseEntity.ok(reservationService.getNewReservationsByStoreIdSse(userId, storeId));
     }
 
