@@ -12,55 +12,55 @@ import lombok.*;
 public class ItemsEntity {
 
     @DocumentId
-    private String itemId;
+    public String itemId;
 
     @PropertyName("item_name")
-    private String itemName;
+    public String itemName;
 
     @PropertyName("item_description")
-    private String itemDescription;
+    public String itemDescription;
 
     @PropertyName("original_price")
-    private Integer originalPrice;
+    public Integer originalPrice;
 
     @PropertyName("sale_percent")
-    private Double salePercent;
+    public Double salePercent;
 
     @PropertyName("item_created")
-    private Timestamp itemCreated;
+    public Timestamp itemCreated;
 
     @PropertyName("item_modified")
-    private Timestamp itemModified;
+    public Timestamp itemModified;
 
     @PropertyName("item_quantity")
-    private Integer itemQuantity;
+    public Integer itemQuantity;
 
     @PropertyName("item_on_sale")
-    private Boolean itemOnSale;
+    public Boolean itemOnSale;
 
     @PropertyName("item_image")
-    private String itemImage;
+    public String itemImage;
 
     @PropertyName("store_name")
-    private String storeName;
+    public String storeName;
 
     @PropertyName("store_address")
-    private String storeAddress;
+    public String storeAddress;
 
     @PropertyName("user_item_quantity")
-    private Integer userItemQuantity;
+    public Integer userItemQuantity;
 
     @PropertyName("sale_price")
-    private Double salePrice;
+    public Double salePrice;
 
     @PropertyName("cooking_time")
-    private Integer cookingTime;
+    public Integer cookingTime;
 
     @PropertyName("additional_information")
-    private String additionalInformation;
+    public String additionalInformation;
 
     @PropertyName("store_ref")
-    private DocumentReference storeRef;
+    public DocumentReference storeRef;
 
     @Builder
     public ItemsEntity(String itemId, String itemName, String itemDescription, Integer originalPrice, Double salePercent, Timestamp itemCreated, Timestamp itemModified, Integer itemQuantity, Boolean itemOnSale, String itemImage, String storeName, String storeAddress, Integer userItemQuantity, Double salePrice, Integer cookingTime, String additionalInformation, DocumentReference storeRef) {
