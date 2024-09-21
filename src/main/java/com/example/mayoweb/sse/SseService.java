@@ -1,5 +1,6 @@
 package com.example.mayoweb.sse;
 
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -96,6 +97,7 @@ public class SseService {
         lastPongMap.put(clientId, System.currentTimeMillis());
     }
 
+    @Async
     @Scheduled(fixedRate = 60000)
     public void sendPings() {
         for (String clientId : emitters.keySet()) {
@@ -103,6 +105,7 @@ public class SseService {
         }
     }
 
+    @Async
     @Scheduled(fixedRate = 60000)
     public void checkPongTimeouts() {
 
