@@ -17,8 +17,8 @@ public class SseService {
     private final ConcurrentMap<String, SseEmitter> emitters = new ConcurrentHashMap<>();
     private final ConcurrentMap<String, String> lastUuidMap = new ConcurrentHashMap<>();
     private final ConcurrentMap<String, Long> lastPongMap = new ConcurrentHashMap<>();
-    private final Long SSE_TIMEOUT = 60000L;
-    private final Long PONG_TIMEOUT = 60000L;
+    private final Long SSE_TIMEOUT = 300000L;
+    private final Long PONG_TIMEOUT = 180000L;
 
     public SseEmitter addEmitter(String clientId) {
 
@@ -64,6 +64,10 @@ public class SseService {
                 }
             } catch (IOException e) {
                 emitters.remove(clientId);
+                emitter.complete();
+                emitter.completeWithError(e);
+                lastUuidMap.remove(clientId);
+                lastPongMap.remove(clientId);
             }
         }
     }
@@ -80,6 +84,10 @@ public class SseService {
 
             } catch (IOException e) {
                 emitters.remove(clientId);
+                emitter.complete();
+                emitter.completeWithError(e);
+                lastUuidMap.remove(clientId);
+                lastPongMap.remove(clientId);
             }
         }
     }
@@ -88,14 +96,14 @@ public class SseService {
         lastPongMap.put(clientId, System.currentTimeMillis());
     }
 
-    @Scheduled(fixedRate = 30000)
+    @Scheduled(fixedRate = 60000)
     public void sendPings() {
         for (String clientId : emitters.keySet()) {
             pingClient(clientId);
         }
     }
 
-    @Scheduled(fixedRate = 10000)
+    @Scheduled(fixedRate = 60000)
     public void checkPongTimeouts() {
 
         long currentTime = System.currentTimeMillis();
@@ -108,6 +116,7 @@ public class SseService {
             if (currentTime - lastPongTime > PONG_TIMEOUT) {
 
                 SseEmitter emitter = getEmitter(clientId);
+
                 if (emitter != null) {
                     emitter.complete();
                 }
