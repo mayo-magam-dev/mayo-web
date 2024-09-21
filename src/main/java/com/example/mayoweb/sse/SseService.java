@@ -1,6 +1,5 @@
 package com.example.mayoweb.sse;
 
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -97,36 +96,34 @@ public class SseService {
         lastPongMap.put(clientId, System.currentTimeMillis());
     }
 
-    @Async
-    @Scheduled(fixedRate = 60000)
-    public void sendPings() {
-        for (String clientId : emitters.keySet()) {
-            pingClient(clientId);
-        }
-    }
-
-    @Async
-    @Scheduled(fixedRate = 60000)
-    public void checkPongTimeouts() {
-
-        long currentTime = System.currentTimeMillis();
-
-        for (Map.Entry<String, Long> entry : lastPongMap.entrySet()) {
-
-            String clientId = entry.getKey();
-            long lastPongTime = entry.getValue();
-
-            if (currentTime - lastPongTime > PONG_TIMEOUT) {
-
-                SseEmitter emitter = getEmitter(clientId);
-
-                if (emitter != null) {
-                    emitter.complete();
-                }
-
-                emitters.remove(clientId);
-                lastPongMap.remove(clientId);
-            }
-        }
-    }
+//    @Scheduled(fixedRate = 60000)
+//    public void sendPings() {
+//        for (String clientId : emitters.keySet()) {
+//            pingClient(clientId);
+//        }
+//    }
+//
+//    @Scheduled(fixedRate = 60000)
+//    public void checkPongTimeouts() {
+//
+//        long currentTime = System.currentTimeMillis();
+//
+//        for (Map.Entry<String, Long> entry : lastPongMap.entrySet()) {
+//
+//            String clientId = entry.getKey();
+//            long lastPongTime = entry.getValue();
+//
+//            if (currentTime - lastPongTime > PONG_TIMEOUT) {
+//
+//                SseEmitter emitter = getEmitter(clientId);
+//
+//                if (emitter != null) {
+//                    emitter.complete();
+//                }
+//
+//                emitters.remove(clientId);
+//                lastPongMap.remove(clientId);
+//            }
+//        }
+//    }
 }
