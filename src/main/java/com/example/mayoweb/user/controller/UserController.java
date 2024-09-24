@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "유저 API", description = "유저 정보 API")
 @RestController
 @RequiredArgsConstructor
-@CrossOrigin(origins = "https://www.mayomagam.store/")
 public class UserController {
 
     private final UsersService userService;
