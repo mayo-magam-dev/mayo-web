@@ -83,10 +83,10 @@ public class ReservationService {
         );
     }
 
-    public Slice<ReadReservationResponse> getReservationsByStoreIdSlice(String storeId, int page, int size) throws ExecutionException, InterruptedException {
-        Pageable pageable = PageRequest.of(page, size);
-        return reservationsAdapter.findEndReservationsByStoreId(storeId, pageable).get().map(ReadReservationResponse::fromEntity);
-    }
+//    public Slice<ReadReservationResponse> getReservationsByStoreIdSlice(String storeId, int page, int size) throws ExecutionException, InterruptedException {
+//        Pageable pageable = PageRequest.of(page, size);
+//        return reservationsAdapter.findEndReservationsByStoreId(storeId, pageable).get().map(ReadReservationResponse::fromEntity);
+//    }
 
     public Slice<ReadReservationResponse> getReservationsByStoreIdAndTimeSlice(String storeId, Timestamp timestamp, int page, int size) throws ExecutionException, InterruptedException {
         Pageable pageable = PageRequest.of(page, size);

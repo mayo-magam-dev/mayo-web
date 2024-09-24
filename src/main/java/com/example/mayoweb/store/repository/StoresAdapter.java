@@ -20,33 +20,33 @@ public class StoresAdapter {
 
     private static final String COLLECTION_NAME = "stores";
 
-    public Optional<String> getStoreIdByUserId(String uid) {
-        Firestore db = FirestoreClient.getFirestore();
-        String storeID = null;
-
-        try {
-            DocumentReference docRef = db.collection("users").document(uid);
-            ApiFuture<DocumentSnapshot> future = docRef.get();
-            DocumentSnapshot document = future.get();
-
-            if (document.exists()) {
-                DocumentReference storeRef = (DocumentReference) document.get("store_ref");
-                if (storeRef != null) {
-                    ApiFuture<DocumentSnapshot> store_ref = storeRef.get();
-                    DocumentSnapshot storeDocument = store_ref.get();
-                    if (storeDocument.exists()) {
-                        StoresEntity storeEntity = storeDocument.toObject(StoresEntity.class);
-                        return Optional.ofNullable(storeEntity.getId());
-                    }
-                }
-            }
-        }
-        catch (InterruptedException | ExecutionException e) {
-            throw new ApplicationException(ErrorStatus.toErrorStatus("해당 가게를 찾는데 오류가 발생하였습니다.", 400, LocalDateTime.now()));
-        }
-
-        return Optional.empty();
-    }
+//    public Optional<String> getStoreIdByUserId(String uid) {
+//        Firestore db = FirestoreClient.getFirestore();
+//        String storeID = null;
+//
+//        try {
+//            DocumentReference docRef = db.collection("users").document(uid);
+//            ApiFuture<DocumentSnapshot> future = docRef.get();
+//            DocumentSnapshot document = future.get();
+//
+//            if (document.exists()) {
+//                DocumentReference storeRef = (DocumentReference) document.get("store_ref");
+//                if (storeRef != null) {
+//                    ApiFuture<DocumentSnapshot> store_ref = storeRef.get();
+//                    DocumentSnapshot storeDocument = store_ref.get();
+//                    if (storeDocument.exists()) {
+//                        StoresEntity storeEntity = storeDocument.toObject(StoresEntity.class);
+//                        return Optional.ofNullable(storeEntity.getId());
+//                    }
+//                }
+//            }
+//        }
+//        catch (InterruptedException | ExecutionException e) {
+//            throw new ApplicationException(ErrorStatus.toErrorStatus("해당 가게를 찾는데 오류가 발생하였습니다.", 400, LocalDateTime.now()));
+//        }
+//
+//        return Optional.empty();
+//    }
 
     public DocumentReference getDocsRef(String storeId) {
         Firestore firestore = FirestoreClient.getFirestore();
