@@ -30,11 +30,11 @@ public class ItemsService {
     private final StoresAdapter storesAdapter;
     private final ReservationsAdapter reservationsAdapter;
 
-    public ReadItemResponse getItemByDocRef(DocumentReference doc){
-        return ReadItemResponse.fromEntity(itemsAdapter.getItemByDocRef(doc).orElseThrow(() -> new ApplicationException(
-                ErrorStatus.toErrorStatus("아이템을 찾을 수 없습니다. ", 404, LocalDateTime.now())
-        )));
-    }
+//    public ReadItemResponse getItemByDocRef(DocumentReference doc){
+//        return ReadItemResponse.fromEntity(itemsAdapter.getItemByDocRef(doc).orElseThrow(() -> new ApplicationException(
+//                ErrorStatus.toErrorStatus("아이템을 찾을 수 없습니다. ", 404, LocalDateTime.now())
+//        )));
+//    }
 
     public ReadItemResponse getItemByCartId(String cartId) {
 
