@@ -37,7 +37,6 @@ import java.util.concurrent.ExecutionException;
 @RestController
 @RequiredArgsConstructor
 @Slf4j
-@CrossOrigin(origins = "https://www.mayomagam.store/")
 public class ReservationRestController {
 
     private final ReservationService reservationService;
