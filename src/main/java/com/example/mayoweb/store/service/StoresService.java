@@ -32,9 +32,9 @@ public class StoresService {
         storesAdapter.openStore(storeId);
     }
 
-    public DocumentReference getDocsRef(String storeId) {
-        return storesAdapter.getDocsRef(storeId);
-    }
+//    public DocumentReference getDocsRef(String storeId) {
+//        return storesAdapter.getDocsRef(storeId);
+//    }
 
     public UpdateStoreResponse updateStoreInformation(UpdateStoreRequest updateStoreRequest) {
         return storesAdapter.updateStore(updateStoreRequest);

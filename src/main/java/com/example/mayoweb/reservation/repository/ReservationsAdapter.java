@@ -37,23 +37,23 @@ public class ReservationsAdapter {
     private final ItemsAdapter itemsAdapter;
 
     //가게 도큐먼트 id를 받아 해당 가게의 모든 예약들을 가져옵니다.
-    public List<ReservationEntity> getReservationsByStoreRef(String storesRef) throws ExecutionException, InterruptedException {
-
-        List<ReservationEntity> reservations = new ArrayList<>();
-        Firestore firestore = FirestoreClient.getFirestore();
-        DocumentReference storeDocumentId = firestore.collection("stores").document(storesRef);
-        CollectionReference reservationsRef = firestore.collection("reservations");
-        Query query = reservationsRef.whereEqualTo("store_ref", storeDocumentId);
-        ApiFuture<QuerySnapshot> querySnapshotApiFuture = query.get();
-        QuerySnapshot querySnapshot = querySnapshotApiFuture.get();
-
-        for (QueryDocumentSnapshot reservationDocument : querySnapshot.getDocuments()) {
-            ReservationEntity reservationEntity = reservationDocument.toObject(ReservationEntity.class);
-            reservations.add(reservationEntity);
-        }
-
-        return reservations;
-    }
+//    public List<ReservationEntity> getReservationsByStoreRef(String storesRef) throws ExecutionException, InterruptedException {
+//
+//        List<ReservationEntity> reservations = new ArrayList<>();
+//        Firestore firestore = FirestoreClient.getFirestore();
+//        DocumentReference storeDocumentId = firestore.collection("stores").document(storesRef);
+//        CollectionReference reservationsRef = firestore.collection("reservations");
+//        Query query = reservationsRef.whereEqualTo("store_ref", storeDocumentId);
+//        ApiFuture<QuerySnapshot> querySnapshotApiFuture = query.get();
+//        QuerySnapshot querySnapshot = querySnapshotApiFuture.get();
+//
+//        for (QueryDocumentSnapshot reservationDocument : querySnapshot.getDocuments()) {
+//            ReservationEntity reservationEntity = reservationDocument.toObject(ReservationEntity.class);
+//            reservations.add(reservationEntity);
+//        }
+//
+//        return reservations;
+//    }
 
     //가게 도큐먼트 id를 받아 해당 가게의 신규 예약들을 가져옵니다.
     public List<ReservationEntity> getNewByStoreRef(String storeId){
@@ -117,84 +117,84 @@ public class ReservationsAdapter {
         return future;
     }
 
-    public CompletableFuture<List<ReservationEntity>> getNewByStoreIdSse(String clientId, String storeId) throws ExecutionException, InterruptedException {
-
-        ObjectMapper objectMapper = new ObjectMapper();
-
-        Firestore firestore = FirestoreClient.getFirestore();
-        DocumentReference storeDocumentId = firestore.collection("stores").document(storeId);
-        CollectionReference reservationsRef = firestore.collection("reservation");
-        Query query = reservationsRef.whereEqualTo("store_ref", storeDocumentId)
-                .whereEqualTo("reservation_state", State.NEW.ordinal());
-
-        ApiFuture<QuerySnapshot> querySnapshotApiFuture = query.get();
-        QuerySnapshot querySnapshotReservation = querySnapshotApiFuture.get();
-
-        Set<String> existingReservationIds = new HashSet<>();
-
-        for (QueryDocumentSnapshot reservation : querySnapshotReservation.getDocuments()) {
-            ReservationEntity reservationEntity = reservation.toObject(ReservationEntity.class);
-            existingReservationIds.add(reservationEntity.getId());
-        }
-
-        CompletableFuture<List<ReservationEntity>> future = new CompletableFuture<>();
-
-        query.addSnapshotListener((querySnapshot, e) -> {
-
-            if (e != null) {
-                future.completeExceptionally(e);
-                return;
-            }
-
-            if (querySnapshot != null) {
-
-                for (DocumentChange change : querySnapshot.getDocumentChanges()) {
-
-                    if(change.getType() == DocumentChange.Type.ADDED) {
-                        String docId = change.getDocument().getId();
-                        if (!existingReservationIds.contains(docId)) {
-
-                            ReservationEntity reservationEntity = change.getDocument().toObject(ReservationEntity.class);
-                            ReadReservationResponse reservationResponse = ReadReservationResponse.fromEntity(reservationEntity);
-                            ReadFirstItemResponse firstItemResponse = null;
-
-                            try {
-                                firstItemResponse = getFirstItemNameFromReservation(reservationEntity);
-                            } catch (ExecutionException | InterruptedException ex) {
-                                throw new RuntimeException(ex);
-                            }
-
-
-                            ReadReservationListResponse response = ReadReservationListResponse.builder()
-                                    .reservationId(reservationResponse.id())
-                                    .firstItemName(firstItemResponse.itemName())
-                                    .itemQuantity(firstItemResponse.itemQuantity())
-                                    .createdAt(reservationResponse.createdAt())
-                                    .pickupTime(reservationResponse.pickupTime())
-                                    .reservationState(reservationEntity.getReservationState())
-                                    .build();
-
-                            String jsonResponse;
-
-                            try {
-                                jsonResponse = objectMapper.writeValueAsString(response);
-                            } catch (JsonProcessingException ex) {
-                                throw new RuntimeException(ex);
-                            }
-
-                            sseService.sendMessageToClient(clientId , jsonResponse, "new-reservation");
-                            existingReservationIds.add(docId);
-
-                        }
-                    }
-                }
-            }
-
-            future.complete(null);
-        });
-
-        return future;
-    }
+//    public CompletableFuture<List<ReservationEntity>> getNewByStoreIdSse(String clientId, String storeId) throws ExecutionException, InterruptedException {
+//
+//        ObjectMapper objectMapper = new ObjectMapper();
+//
+//        Firestore firestore = FirestoreClient.getFirestore();
+//        DocumentReference storeDocumentId = firestore.collection("stores").document(storeId);
+//        CollectionReference reservationsRef = firestore.collection("reservation");
+//        Query query = reservationsRef.whereEqualTo("store_ref", storeDocumentId)
+//                .whereEqualTo("reservation_state", State.NEW.ordinal());
+//
+//        ApiFuture<QuerySnapshot> querySnapshotApiFuture = query.get();
+//        QuerySnapshot querySnapshotReservation = querySnapshotApiFuture.get();
+//
+//        Set<String> existingReservationIds = new HashSet<>();
+//
+//        for (QueryDocumentSnapshot reservation : querySnapshotReservation.getDocuments()) {
+//            ReservationEntity reservationEntity = reservation.toObject(ReservationEntity.class);
+//            existingReservationIds.add(reservationEntity.getId());
+//        }
+//
+//        CompletableFuture<List<ReservationEntity>> future = new CompletableFuture<>();
+//
+//        query.addSnapshotListener((querySnapshot, e) -> {
+//
+//            if (e != null) {
+//                future.completeExceptionally(e);
+//                return;
+//            }
+//
+//            if (querySnapshot != null) {
+//
+//                for (DocumentChange change : querySnapshot.getDocumentChanges()) {
+//
+//                    if(change.getType() == DocumentChange.Type.ADDED) {
+//                        String docId = change.getDocument().getId();
+//                        if (!existingReservationIds.contains(docId)) {
+//
+//                            ReservationEntity reservationEntity = change.getDocument().toObject(ReservationEntity.class);
+//                            ReadReservationResponse reservationResponse = ReadReservationResponse.fromEntity(reservationEntity);
+//                            ReadFirstItemResponse firstItemResponse = null;
+//
+//                            try {
+//                                firstItemResponse = getFirstItemNameFromReservation(reservationEntity);
+//                            } catch (ExecutionException | InterruptedException ex) {
+//                                throw new RuntimeException(ex);
+//                            }
+//
+//
+//                            ReadReservationListResponse response = ReadReservationListResponse.builder()
+//                                    .reservationId(reservationResponse.id())
+//                                    .firstItemName(firstItemResponse.itemName())
+//                                    .itemQuantity(firstItemResponse.itemQuantity())
+//                                    .createdAt(reservationResponse.createdAt())
+//                                    .pickupTime(reservationResponse.pickupTime())
+//                                    .reservationState(reservationEntity.getReservationState())
+//                                    .build();
+//
+//                            String jsonResponse;
+//
+//                            try {
+//                                jsonResponse = objectMapper.writeValueAsString(response);
+//                            } catch (JsonProcessingException ex) {
+//                                throw new RuntimeException(ex);
+//                            }
+//
+//                            sseService.sendMessageToClient(clientId , jsonResponse, "new-reservation");
+//                            existingReservationIds.add(docId);
+//
+//                        }
+//                    }
+//                }
+//            }
+//
+//            future.complete(null);
+//        });
+//
+//        return future;
+//    }
 
     public SseEmitter streamNewReservations(String clientId, String storeId) {
 
@@ -439,51 +439,51 @@ public class ReservationsAdapter {
         return future;
     }
 
-    public CompletableFuture<Slice<ReservationEntity>> findEndReservationsByStoreId(String storeId, Pageable pageable) {
-
-        Firestore firestore = FirestoreClient.getFirestore();
-
-        DocumentReference storeDocumentId = firestore.collection("stores").document(storeId);
-        CollectionReference reservationsRef = firestore.collection("reservation");
-
-        Query query = reservationsRef.whereEqualTo("store_ref", storeDocumentId)
-                .whereIn("reservation_state", Arrays.asList(State.END.ordinal(), State.FAIL.ordinal()));
-
-        Comparator<ReservationEntity> createdAtComparator = Comparator
-                .comparing(entity -> entity.getCreatedAt().toSqlTimestamp(), Comparator.reverseOrder());
-
-        CompletableFuture<Slice<ReservationEntity>> future = new CompletableFuture<>();
-
-        query.addSnapshotListener((querySnapshot, e) -> {
-            if (e != null) {
-                future.completeExceptionally(e);
-                return;
-            }
-
-            List<ReservationEntity> endReservations = new ArrayList<>();
-            if (querySnapshot != null) {
-                for (QueryDocumentSnapshot reservationDocument : querySnapshot.getDocuments()) {
-                    ReservationEntity reservationEntity = reservationDocument.toObject(ReservationEntity.class);
-                    endReservations.add(reservationEntity);
-                }
-
-                endReservations.sort(createdAtComparator);
-
-                int start = (int) pageable.getOffset();
-                int end = Math.min(start + pageable.getPageSize(), endReservations.size());
-                List<ReservationEntity> paginatedList = endReservations.subList(start, end);
-
-                boolean hasNext = endReservations.size() > end;
-                Slice<ReservationEntity> sliceResult = new SliceImpl<>(paginatedList, pageable, hasNext);
-
-                future.complete(sliceResult);
-            } else {
-                future.complete(new SliceImpl<>(new ArrayList<>(), pageable, false));
-            }
-        });
-
-        return future;
-    }
+//    public CompletableFuture<Slice<ReservationEntity>> findEndReservationsByStoreId(String storeId, Pageable pageable) {
+//
+//        Firestore firestore = FirestoreClient.getFirestore();
+//
+//        DocumentReference storeDocumentId = firestore.collection("stores").document(storeId);
+//        CollectionReference reservationsRef = firestore.collection("reservation");
+//
+//        Query query = reservationsRef.whereEqualTo("store_ref", storeDocumentId)
+//                .whereIn("reservation_state", Arrays.asList(State.END.ordinal(), State.FAIL.ordinal()));
+//
+//        Comparator<ReservationEntity> createdAtComparator = Comparator
+//                .comparing(entity -> entity.getCreatedAt().toSqlTimestamp(), Comparator.reverseOrder());
+//
+//        CompletableFuture<Slice<ReservationEntity>> future = new CompletableFuture<>();
+//
+//        query.addSnapshotListener((querySnapshot, e) -> {
+//            if (e != null) {
+//                future.completeExceptionally(e);
+//                return;
+//            }
+//
+//            List<ReservationEntity> endReservations = new ArrayList<>();
+//            if (querySnapshot != null) {
+//                for (QueryDocumentSnapshot reservationDocument : querySnapshot.getDocuments()) {
+//                    ReservationEntity reservationEntity = reservationDocument.toObject(ReservationEntity.class);
+//                    endReservations.add(reservationEntity);
+//                }
+//
+//                endReservations.sort(createdAtComparator);
+//
+//                int start = (int) pageable.getOffset();
+//                int end = Math.min(start + pageable.getPageSize(), endReservations.size());
+//                List<ReservationEntity> paginatedList = endReservations.subList(start, end);
+//
+//                boolean hasNext = endReservations.size() > end;
+//                Slice<ReservationEntity> sliceResult = new SliceImpl<>(paginatedList, pageable, hasNext);
+//
+//                future.complete(sliceResult);
+//            } else {
+//                future.complete(new SliceImpl<>(new ArrayList<>(), pageable, false));
+//            }
+//        });
+//
+//        return future;
+//    }
 
     public CompletableFuture<Slice<ReservationEntity>> findEndReservationsByStoreIdAndTime(String storeId, Pageable pageable, Timestamp timestamp) {
 
