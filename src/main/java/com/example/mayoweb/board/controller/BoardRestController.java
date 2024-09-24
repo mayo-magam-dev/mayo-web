@@ -20,7 +20,6 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @Tag(name = "게시판 API", description = "게시판 관리 API")
-@CrossOrigin(origins = "https://www.mayomagam.store/")
 public class BoardRestController {
 
     private final BoardService boardService;
