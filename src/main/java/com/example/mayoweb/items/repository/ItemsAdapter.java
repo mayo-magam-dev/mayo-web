@@ -61,14 +61,61 @@ public class ItemsAdapter {
     }
 
     public void updateItemOnSale(List<String> itemidList, List<Integer> quantityList) {
+
         Firestore firestore = FirestoreClient.getFirestore();
         CollectionReference itemRef = firestore.collection("items");
 
-        for(int i=0;i<itemidList.size();i++) {
+        for(int i=0; i<itemidList.size(); i++) {
             if(quantityList.get(i) != 0) {
                 DocumentReference item = itemRef.document(itemidList.get(i));
                 item.update("item_on_sale", true, "item_quantity", quantityList.get(i));
             }
+        }
+    }
+
+    public void updateItemQuantityPlus(String itemId) throws ExecutionException, InterruptedException {
+
+        Firestore db = FirestoreClient.getFirestore();
+
+        try {
+            DocumentReference docRef = db.collection("items").document(itemId);
+            ApiFuture<DocumentSnapshot> future = docRef.get();
+            DocumentSnapshot itemSnapshot = future.get();
+
+            if (itemSnapshot.exists()) {
+                Integer itemQuantity = itemSnapshot.get("item_quantity", Integer.class);
+
+                if(itemQuantity != null) {
+                    Integer updatedItemQuantity = itemQuantity + 1;
+                    docRef.update("item_quantity", updatedItemQuantity);
+                }
+            }
+        }
+        catch (ExecutionException | InterruptedException e) {
+            throw new ApplicationException(ErrorStatus.toErrorStatus("아이템을 찾는데 에러가 발생하였습니다.", 400, LocalDateTime.now()));
+        }
+    }
+
+    public void updateItemQuantityMinus(String itemId) throws ExecutionException, InterruptedException {
+
+        Firestore db = FirestoreClient.getFirestore();
+
+        try {
+            DocumentReference docRef = db.collection("items").document(itemId);
+            ApiFuture<DocumentSnapshot> future = docRef.get();
+            DocumentSnapshot itemSnapshot = future.get();
+
+            if (itemSnapshot.exists()) {
+                Integer itemQuantity = itemSnapshot.get("item_quantity", Integer.class);
+
+                if(itemQuantity != null && itemQuantity > 0) {
+                    Integer updatedItemQuantity = itemQuantity - 1;
+                    docRef.update("item_quantity", updatedItemQuantity);
+                }
+            }
+        }
+        catch (ExecutionException | InterruptedException e) {
+            throw new ApplicationException(ErrorStatus.toErrorStatus("아이템을 찾는데 에러가 발생하였습니다.", 400, LocalDateTime.now()));
         }
     }
 
@@ -92,6 +139,7 @@ public class ItemsAdapter {
 
         for (DocumentReference cart : carts) {
             DocumentSnapshot cartSnapshot = null;
+
             try {
                 cartSnapshot = cart.get().get();
             } catch (InterruptedException | ExecutionException e) {
@@ -100,6 +148,7 @@ public class ItemsAdapter {
 
             if(cartSnapshot.exists()) {
                 DocumentReference itemRef = (DocumentReference) cartSnapshot.get("item");
+
                 if(itemRef != null) {
                     DocumentSnapshot itemSnapshot = null;
                     try {
@@ -107,6 +156,7 @@ public class ItemsAdapter {
                     } catch (InterruptedException | ExecutionException e) {
                         throw new ApplicationException(ErrorStatus.toErrorStatus("cart로 아이템을 가져오는데 실패했습니다.", 400, LocalDateTime.now()));
                     }
+
                     if (itemSnapshot.exists()) {
                         ReadFirstItemResponse response = ReadFirstItemResponse.builder()
                                         .itemName(itemSnapshot.getString("item_name"))
@@ -114,6 +164,7 @@ public class ItemsAdapter {
                                         .build();
 
                         firstItemResponse.add(response);
+
                     } else {
                         firstItemResponse.add(ReadFirstItemResponse.builder()
                                 .itemName(" ")
@@ -175,7 +226,8 @@ public class ItemsAdapter {
                     "sale_price", itemsEntity.getSalePrice(),
                     "sale_percent", itemsEntity.getSalePercent(),
                     "additional_information", itemsEntity.getAdditionalInformation(),
-                    "cooking_time", itemsEntity.getCookingTime());
+                    "cooking_time", itemsEntity.getCookingTime()
+            );
         }
     }
 

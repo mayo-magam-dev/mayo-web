@@ -30,10 +30,10 @@ public class CartService {
         return cartsAdapter.getCartsByDocRef(reservation.getCartRef()).stream().map(ReadCartsResponse::fromEntity).toList();
     }
 
-    public ReadCartsResponse getCartsById(String cartId) {
-        return ReadCartsResponse.fromEntity(cartsAdapter.findCartById(cartId)
-                .orElseThrow(() -> new ApplicationException(ErrorStatus.toErrorStatus("알맞은 장바구니를 찾지 못했습니다.", 404, LocalDateTime.now())
-                )));
-    }
+//    public ReadCartsResponse getCartsById(String cartId) {
+//        return ReadCartsResponse.fromEntity(cartsAdapter.findCartById(cartId)
+//                .orElseThrow(() -> new ApplicationException(ErrorStatus.toErrorStatus("알맞은 장바구니를 찾지 못했습니다.", 404, LocalDateTime.now())
+//                )));
+//    }
 
 }
