@@ -43,6 +43,7 @@ public class FirebaseAuthFilter extends OncePerRequestFilter {
 
         if (token != null) {
             try {
+
                 FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(token);
                 String uid = decodedToken.getUid();
 
