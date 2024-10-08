@@ -24,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 @Tag(name = "아이템 API", description = "아이템 관리 API")
 @RestController
@@ -129,6 +130,20 @@ public class ItemRestController {
     public ResponseEntity<List<ReadFirstItemResponse>> getFirstItemByReservations(@RequestBody List<ReadReservationResponse> reservations) {
 
         return ResponseEntity.ok(itemsService.getFirstItemNamesFromReservations(reservations));
+    }
+
+    @PostMapping("/item-quantity-plus")
+    public ResponseEntity<Void> itemQuantityPlus(@RequestParam String itemId) throws ExecutionException, InterruptedException {
+        itemsService.updateItemQuantityPlus(itemId);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/item-quantity-minus")
+    public ResponseEntity<Void> itemQuantityMinus(@RequestParam String itemId) throws ExecutionException, InterruptedException {
+        itemsService.updateItemQuantityMinus(itemId);
+
+        return ResponseEntity.noContent().build();
     }
 
 }
