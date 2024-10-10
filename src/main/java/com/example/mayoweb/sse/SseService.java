@@ -62,10 +62,19 @@ public class SseService {
             } catch (IOException e) {
                 emitters.remove(clientId);
                 emitter.complete();
-                emitter.completeWithError(e);
                 lastUuidMap.remove(clientId);
                 lastPongMap.remove(clientId);
             }
         }
+    }
+
+    public void removeEmitter(String clientId) {
+
+        SseEmitter emitter = emitters.get(clientId);
+
+        emitters.remove(clientId);
+        emitter.complete();
+        lastUuidMap.remove(clientId);
+        lastPongMap.remove(clientId);
     }
 }
