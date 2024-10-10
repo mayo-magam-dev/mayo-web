@@ -21,6 +21,7 @@ import org.springframework.data.domain.*;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
@@ -265,8 +266,9 @@ public class ReservationsAdapter {
                         String jsonResponse = new ObjectMapper().writeValueAsString(response);
                         sseService.sendMessageToClient(clientId, jsonResponse, "new-reservation");
                         existingReservationIds.add(response.reservationId());
-                    } catch (JsonProcessingException ex) {
-                        throw new RuntimeException(ex);
+                    } catch(IOException ioException) {
+                        log.error(ioException.getMessage());
+                        sseService.removeEmitter(clientId);
                     }
                 }
             }
