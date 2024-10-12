@@ -9,7 +9,6 @@ import com.example.mayoweb.reservation.domain.ReservationEntity;
 import com.example.mayoweb.reservation.domain.dto.response.ReadReservationListResponse;
 import com.example.mayoweb.reservation.domain.dto.response.ReadReservationResponse;
 import com.example.mayoweb.sse.SseService;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.Timestamp;
@@ -220,13 +219,13 @@ public class ReservationsAdapter {
                 existingReservationIds.add(reservationEntity.getId());
             }
         } catch (ExecutionException | InterruptedException e) {
-            sseService.removeEmitter(clientId);
+            log.info("streamNewReservations : {}", e.getMessage());
         }
 
         query.addSnapshotListener((querySnapshot, e) -> {
 
             if (e != null) {
-                sseService.removeEmitter(clientId);
+                log.info("streamNewReservations : {}", e.getMessage());
                 return;
             }
 
@@ -246,7 +245,6 @@ public class ReservationsAdapter {
                             try {
                                 firstItemResponse = getFirstItemNameFromReservation(reservationEntity);
                             } catch (ExecutionException | InterruptedException ex) {
-                                sseService.removeEmitter(clientId);
                                 log.error("sseError : {} ", ex.getMessage());
                                 return;
                             }
@@ -268,8 +266,7 @@ public class ReservationsAdapter {
                         sseService.sendMessageToClient(clientId, jsonResponse, "new-reservation");
                         existingReservationIds.add(response.reservationId());
                     } catch(IOException ioException) {
-                        log.error("sseError : {}", ioException.getMessage());
-                        sseService.removeEmitter(clientId);
+                        log.error("streamNewReservations : {}", ioException.getMessage());
                     }
                 }
             }
