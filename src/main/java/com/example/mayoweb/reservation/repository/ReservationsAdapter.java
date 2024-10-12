@@ -199,7 +199,8 @@ public class ReservationsAdapter {
 
     public SseEmitter streamNewReservations(String clientId, String storeId) {
 
-        SseEmitter emitter = sseService.addEmitter(clientId);
+        sseService.addEmitter(clientId);
+        SseEmitter emitter = sseService.getEmitter(clientId);
 
         Firestore firestore = FirestoreClient.getFirestore();
 
