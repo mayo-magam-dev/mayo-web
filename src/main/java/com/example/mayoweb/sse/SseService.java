@@ -16,14 +16,15 @@ import java.util.concurrent.ConcurrentMap;
 public class SseService {
 
     private final ConcurrentMap<String, SseEmitter> emitters = new ConcurrentHashMap<>();
-    private final ConcurrentMap<String, String> lastUuidMap = new ConcurrentHashMap<>();
+//    private final ConcurrentMap<String, String> lastUuidMap = new ConcurrentHashMap<>();
 
-    public SseEmitter addEmitter(String clientId) {
+    public void addEmitter(String clientId) {
 
         SseEmitter existingEmitter = getEmitter(clientId);
 
         if (existingEmitter != null) {
-            return existingEmitter;
+            existingEmitter.complete();
+            removeEmitter(clientId);
         }
 
         SseEmitter emitter = new SseEmitter(864000L);
@@ -31,8 +32,6 @@ public class SseService {
         emitter.onCompletion(() -> removeEmitter(clientId));
         emitter.onTimeout(() -> removeEmitter(clientId));
         emitter.onError(e -> removeEmitter(clientId));
-
-        return emitter;
     }
 
     public SseEmitter getEmitter(String clientId) {
@@ -46,29 +45,22 @@ public class SseService {
         if (emitter != null) {
 
             try {
-                UUID uuid = UUID.randomUUID();
-                String lastUuid = lastUuidMap.get(clientId);
+//                UUID uuid = UUID.randomUUID();
+//                String lastUuid = lastUuidMap.get(clientId);
 
-                if(lastUuid == null || lastUuid.isEmpty()) {
-                    lastUuid = "first";
-                }
+//                if(lastUuid == null || lastUuid.isEmpty()) {
+//                    lastUuid = "first";
+//                }
 
-                if (!lastUuid.equals(uuid.toString())) {
+//                if (!lastUuid.equals(uuid.toString())) {
 
                     emitter.send(SseEmitter.event()
                             .name(name)
-                            .data(message.getBytes(StandardCharsets.UTF_8))
-                            .id(uuid.toString()));
+                            .data(message.getBytes(StandardCharsets.UTF_8)));
 
-                    lastUuidMap.put(clientId, uuid.toString());
-                }
-            } catch (IOException e) {
-
-                if(emitter != null) {
-                    emitter.complete();
-                }
-                emitters.remove(clientId);
-                lastUuidMap.remove(clientId);
+//                    lastUuidMap.put(clientId, uuid.toString());
+                } catch (IOException e) {
+                removeEmitter(clientId);
 
                 throw new SseException(ErrorStatus.toErrorStatus("sse 오류가 발생하였습니다." + e.getMessage(), 500, LocalDateTime.now()));
             }
@@ -84,6 +76,6 @@ public class SseService {
         }
 
         emitters.remove(clientId);
-        lastUuidMap.remove(clientId);
+//        lastUuidMap.remove(clientId);
     }
 }
