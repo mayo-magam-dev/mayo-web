@@ -219,14 +219,13 @@ public class ReservationsAdapter {
                 existingReservationIds.add(reservationEntity.getId());
             }
         } catch (ExecutionException | InterruptedException e) {
-            emitter.completeWithError(e);
             sseService.removeEmitter(clientId);
         }
 
         query.addSnapshotListener((querySnapshot, e) -> {
 
             if (e != null) {
-                emitter.completeWithError(e);
+                sseService.removeEmitter(clientId);
                 return;
             }
 
@@ -246,7 +245,8 @@ public class ReservationsAdapter {
                             try {
                                 firstItemResponse = getFirstItemNameFromReservation(reservationEntity);
                             } catch (ExecutionException | InterruptedException ex) {
-                                emitter.completeWithError(ex);
+                                sseService.removeEmitter(clientId);
+                                log.error("sseError : {} ", ex.getMessage());
                                 return;
                             }
 
@@ -267,7 +267,7 @@ public class ReservationsAdapter {
                         sseService.sendMessageToClient(clientId, jsonResponse, "new-reservation");
                         existingReservationIds.add(response.reservationId());
                     } catch(IOException ioException) {
-                        log.error(ioException.getMessage());
+                        log.error("sseError : {}", ioException.getMessage());
                         sseService.removeEmitter(clientId);
                     }
                 }
