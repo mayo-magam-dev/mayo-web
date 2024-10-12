@@ -15,7 +15,6 @@ public class SseService {
     private final ConcurrentMap<String, SseEmitter> emitters = new ConcurrentHashMap<>();
     private final ConcurrentMap<String, String> lastUuidMap = new ConcurrentHashMap<>();
     private final ConcurrentMap<String, Long> lastPongMap = new ConcurrentHashMap<>();
-    private final Long SSE_TIMEOUT = 180000L;
 
     public SseEmitter addEmitter(String clientId) {
 
@@ -25,10 +24,12 @@ public class SseService {
             return existingEmitter;
         }
 
-        SseEmitter emitter = new SseEmitter(SSE_TIMEOUT);
+        SseEmitter emitter = new SseEmitter(0L);
         emitters.put(clientId, emitter);
         emitter.onCompletion(() -> emitters.remove(clientId));
         emitter.onTimeout(() -> emitters.remove(clientId));
+        emitter.onError(e -> removeEmitter(clientId));
+
         return emitter;
     }
 
