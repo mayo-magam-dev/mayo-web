@@ -220,7 +220,7 @@ public class ReservationsAdapter {
             }
         } catch (ExecutionException | InterruptedException e) {
             emitter.completeWithError(e);
-            return emitter;
+            sseService.removeEmitter(clientId);
         }
 
         query.addSnapshotListener((querySnapshot, e) -> {
