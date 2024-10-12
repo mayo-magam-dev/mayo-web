@@ -1,10 +1,13 @@
 package com.example.mayoweb.sse;
 
+import com.example.mayoweb.commons.exception.SseException;
+import com.example.mayoweb.commons.exception.payload.ErrorStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -14,7 +17,6 @@ public class SseService {
 
     private final ConcurrentMap<String, SseEmitter> emitters = new ConcurrentHashMap<>();
     private final ConcurrentMap<String, String> lastUuidMap = new ConcurrentHashMap<>();
-    private final ConcurrentMap<String, Long> lastPongMap = new ConcurrentHashMap<>();
 
     public SseEmitter addEmitter(String clientId) {
 
@@ -26,8 +28,8 @@ public class SseService {
 
         SseEmitter emitter = new SseEmitter(864000L);
         emitters.put(clientId, emitter);
-        emitter.onCompletion(() -> emitters.remove(clientId));
-        emitter.onTimeout(() -> emitters.remove(clientId));
+        emitter.onCompletion(() -> removeEmitter(clientId));
+        emitter.onTimeout(() -> removeEmitter(clientId));
         emitter.onError(e -> removeEmitter(clientId));
 
         return emitter;
@@ -61,10 +63,14 @@ public class SseService {
                     lastUuidMap.put(clientId, uuid.toString());
                 }
             } catch (IOException e) {
+
+                if(emitter != null) {
+                    emitter.complete();
+                }
                 emitters.remove(clientId);
-                emitter.complete();
                 lastUuidMap.remove(clientId);
-                lastPongMap.remove(clientId);
+
+                throw new SseException(ErrorStatus.toErrorStatus("sse 오류가 발생하였습니다." + e.getMessage(), 500, LocalDateTime.now()));
             }
         }
     }
@@ -73,9 +79,11 @@ public class SseService {
 
         SseEmitter emitter = emitters.get(clientId);
 
+        if (emitter != null) {
+            emitter.complete();
+        }
+
         emitters.remove(clientId);
-        emitter.complete();
         lastUuidMap.remove(clientId);
-        lastPongMap.remove(clientId);
     }
 }
