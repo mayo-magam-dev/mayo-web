@@ -24,7 +24,7 @@ public class SseService {
             return existingEmitter;
         }
 
-        SseEmitter emitter = new SseEmitter(0L);
+        SseEmitter emitter = new SseEmitter(864000L);
         emitters.put(clientId, emitter);
         emitter.onCompletion(() -> emitters.remove(clientId));
         emitter.onTimeout(() -> emitters.remove(clientId));
