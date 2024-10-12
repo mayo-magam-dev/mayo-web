@@ -29,8 +29,8 @@ public class SseService {
 
         SseEmitter emitter = new SseEmitter(864000L);
         emitters.put(clientId, emitter);
-        emitter.onCompletion(() -> emitters.remove(clientId));
-        emitter.onTimeout(() -> emitters.remove(clientId));
+        emitter.onCompletion(() -> removeEmitter(clientId));
+        emitter.onTimeout(() -> removeEmitter(clientId));
         emitter.onError(e -> removeEmitter(clientId));
 
         return emitter;
@@ -64,8 +64,11 @@ public class SseService {
                     lastUuidMap.put(clientId, uuid.toString());
                 }
             } catch (IOException e) {
+
+                if(emitter != null) {
+                    emitter.complete();
+                }
                 emitters.remove(clientId);
-                emitter.complete();
                 lastUuidMap.remove(clientId);
                 lastPongMap.remove(clientId);
 
@@ -78,8 +81,11 @@ public class SseService {
 
         SseEmitter emitter = emitters.get(clientId);
 
+        if (emitter != null) {
+            emitter.complete();
+        }
+
         emitters.remove(clientId);
-        emitter.complete();
         lastUuidMap.remove(clientId);
         lastPongMap.remove(clientId);
     }
