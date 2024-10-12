@@ -200,6 +200,7 @@ public class ReservationsAdapter {
 
         sseService.addEmitter(clientId);
         SseEmitter emitter = sseService.getEmitter(clientId);
+        sseService.sendMessageToClient(clientId, "initialMessage", "new-reservation");
 
         Firestore firestore = FirestoreClient.getFirestore();
 
