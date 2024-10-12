@@ -17,7 +17,6 @@ public class SseService {
 
     private final ConcurrentMap<String, SseEmitter> emitters = new ConcurrentHashMap<>();
     private final ConcurrentMap<String, String> lastUuidMap = new ConcurrentHashMap<>();
-    private final ConcurrentMap<String, Long> lastPongMap = new ConcurrentHashMap<>();
 
     public SseEmitter addEmitter(String clientId) {
 
@@ -70,7 +69,6 @@ public class SseService {
                 }
                 emitters.remove(clientId);
                 lastUuidMap.remove(clientId);
-                lastPongMap.remove(clientId);
 
                 throw new SseException(ErrorStatus.toErrorStatus("sse 오류가 발생하였습니다." + e.getMessage(), 500, LocalDateTime.now()));
             }
@@ -87,6 +85,5 @@ public class SseService {
 
         emitters.remove(clientId);
         lastUuidMap.remove(clientId);
-        lastPongMap.remove(clientId);
     }
 }
