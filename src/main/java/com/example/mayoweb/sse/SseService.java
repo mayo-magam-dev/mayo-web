@@ -67,7 +67,7 @@ public class SseService {
         }
     }
 
-    public void removeEmitter(String clientId) {
+    private void removeEmitter(String clientId) {
 
         SseEmitter emitter = emitters.get(clientId);
 
