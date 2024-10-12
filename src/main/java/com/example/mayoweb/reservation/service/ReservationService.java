@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 public class ReservationService {
 
     private final ReservationsAdapter reservationsAdapter;
+    private final SseService sseService;
 
     public void reservationAccept(String id){
         reservationsAdapter.reservationProceeding(id);
