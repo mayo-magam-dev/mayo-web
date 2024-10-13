@@ -2,6 +2,7 @@ package com.example.mayoweb.sse;
 
 import com.example.mayoweb.commons.exception.SseException;
 import com.example.mayoweb.commons.exception.payload.ErrorStatus;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -13,6 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 @Service
+@Slf4j
 public class SseService {
 
     private final ConcurrentMap<String, SseEmitter> emitters = new ConcurrentHashMap<>();
@@ -27,11 +29,17 @@ public class SseService {
             removeEmitter(clientId);
         }
 
-        SseEmitter emitter = new SseEmitter(864000L);
+        SseEmitter emitter = new SseEmitter(30_000L);
         emitters.put(clientId, emitter);
         emitter.onCompletion(() -> removeEmitter(clientId));
-        emitter.onTimeout(() -> removeEmitter(clientId));
         emitter.onError(e -> removeEmitter(clientId));
+        emitter.onCompletion(() -> {
+            log.info("SSE 연결이 완료되었습니다.");
+        });
+        emitter.onTimeout(() -> {
+            log.info("SSE 연결이 타임아웃되었습니다.");
+            removeEmitter(clientId);
+        });
     }
 
     public SseEmitter getEmitter(String clientId) {
@@ -54,6 +62,8 @@ public class SseService {
 
 //                if (!lastUuid.equals(uuid.toString())) {
 
+                log.info("send message : {}", message.getBytes(StandardCharsets.UTF_8));
+
                     emitter.send(SseEmitter.event()
                             .name(name)
                             .data(message.getBytes(StandardCharsets.UTF_8)));
@@ -71,10 +81,9 @@ public class SseService {
 
         SseEmitter emitter = emitters.get(clientId);
 
-        if (emitter != null) {
-            emitter.complete();
-        }
+        log.info("removeEmitter : {}", emitter.toString());
 
+        emitter.complete();
         emitters.remove(clientId);
 //        lastUuidMap.remove(clientId);
     }
