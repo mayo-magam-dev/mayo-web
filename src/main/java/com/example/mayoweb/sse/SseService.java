@@ -62,6 +62,8 @@ public class SseService {
 
 //                if (!lastUuid.equals(uuid.toString())) {
 
+                log.info("send message : {}", message.getBytes(StandardCharsets.UTF_8));
+
                     emitter.send(SseEmitter.event()
                             .name(name)
                             .data(message.getBytes(StandardCharsets.UTF_8)));
@@ -81,10 +83,7 @@ public class SseService {
 
         log.info("removeEmitter : {}", emitter.toString());
 
-        if (emitter != null) {
-            emitter.complete();
-        }
-
+        emitter.complete();
         emitters.remove(clientId);
 //        lastUuidMap.remove(clientId);
     }
