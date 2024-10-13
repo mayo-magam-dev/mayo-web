@@ -20,33 +20,35 @@ public class SseService {
     private final ConcurrentMap<String, SseEmitter> emitters = new ConcurrentHashMap<>();
 //    private final ConcurrentMap<String, String> lastUuidMap = new ConcurrentHashMap<>();
 
-    public void addEmitter(String clientId) {
+    public SseEmitter addEmitter(String clientId) {
 
         SseEmitter existingEmitter = getEmitter(clientId);
 
         if (existingEmitter != null) {
-            existingEmitter.complete();
-            removeEmitter(clientId);
-        }
+            return existingEmitter;
+        } else {
+            SseEmitter emitter = new SseEmitter(30_000L);
+            emitters.put(clientId, emitter);
+            emitter.onError(e -> removeEmitter(clientId));
+            emitter.onCompletion(() -> {
+                log.info("SSE 연결이 완료되었습니다.");
+            });
+            emitter.onTimeout(() -> {
+                log.info("SSE 연결이 타임아웃되었습니다.");
+                removeEmitter(clientId);
+            });
 
-        SseEmitter emitter = new SseEmitter(30_000L);
-        emitters.put(clientId, emitter);
-        emitter.onCompletion(() -> removeEmitter(clientId));
-        emitter.onError(e -> removeEmitter(clientId));
-        emitter.onCompletion(() -> {
-            log.info("SSE 연결이 완료되었습니다.");
-        });
-        emitter.onTimeout(() -> {
-            log.info("SSE 연결이 타임아웃되었습니다.");
-            removeEmitter(clientId);
-        });
+            sendMessageToClient(clientId, "initialMessage", "new-reservation");
+
+            return emitter;
+        }
     }
 
     public SseEmitter getEmitter(String clientId) {
         return emitters.get(clientId);
     }
 
-    public void sendMessageToClient(String clientId, String message, String name) {
+    public synchronized void sendMessageToClient(String clientId, String message, String name) {
 
         SseEmitter emitter = getEmitter(clientId);
 
@@ -77,14 +79,17 @@ public class SseService {
         }
     }
 
-    private void removeEmitter(String clientId) {
+    private synchronized void removeEmitter(String clientId) {
 
         SseEmitter emitter = emitters.get(clientId);
 
-        log.info("removeEmitter : {}", emitter.toString());
+        if (emitter != null) {
 
-        emitter.complete();
-        emitters.remove(clientId);
+            log.info("removeEmitter : {}", emitter);
+
+            emitter.complete();
+            emitters.remove(clientId);
+        }
 //        lastUuidMap.remove(clientId);
     }
 }
