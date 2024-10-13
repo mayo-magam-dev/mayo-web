@@ -30,9 +30,13 @@ public class SseService {
 
             sendMessageToClient(clientId, "initialMessage", "new-reservation");
 
-            emitter.onError(e -> removeEmitter(clientId));
+            emitter.onError((e) -> {
+                log.error("SSE에서 에러가 발생하였습니다 {}", e.getMessage());
+                removeEmitter(clientId);
+            });
             emitter.onCompletion(() -> {
-                log.info("SSE 연결이 완료되었습니다.");
+                log.info("SSE 연결이 정상적으로 종료되었습니다.");
+                removeEmitter(clientId);
             });
             emitter.onTimeout(() -> {
                 log.info("SSE 연결이 타임아웃되었습니다.");
