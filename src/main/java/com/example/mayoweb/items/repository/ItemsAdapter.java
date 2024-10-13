@@ -34,8 +34,8 @@ public class ItemsAdapter {
         }
 
         for (QueryDocumentSnapshot itemDocument : querySnapshot.getDocuments()) {
-            ItemsEntity itemsEntity = itemDocument.toObject(ItemsEntity.class);
-            items.add(itemsEntity);
+            ItemsEntity item = fromDocument(itemDocument);
+            items.add(item);
         }
 
         return items;
