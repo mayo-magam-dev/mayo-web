@@ -58,13 +58,13 @@ public class FirebaseAuthFilter extends OncePerRequestFilter {
                 }
 
                 List<GrantedAuthority> authorities = new ArrayList<>();
-                if (isManager) {
-                    authorities.add(new SimpleGrantedAuthority("ROLE_MANAGER"));
-                }
+                UserDetails userDetails;
 
-                UserDetails userDetails = new User(uid, "", authorities);
-                Authentication auth = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                SecurityContextHolder.getContext().setAuthentication(auth);
+                if (isManager) {
+                    userDetails = new User(uid, "", authorities);
+                    Authentication auth = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                    SecurityContextHolder.getContext().setAuthentication(auth);
+                }
 
             } catch (FirebaseAuthException | InterruptedException | ExecutionException e) {
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
