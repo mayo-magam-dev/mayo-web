@@ -220,13 +220,13 @@ public class ReservationsAdapter {
                 existingReservationIds.add(reservationEntity.getId());
             }
         } catch (ExecutionException | InterruptedException e) {
-            log.info("streamNewReservations : {}", e.getMessage());
+            log.info("streamNewReservations api : {}", e.getMessage());
         }
 
         query.addSnapshotListener((querySnapshot, e) -> {
 
             if (e != null) {
-                log.info("streamNewReservations : {}", e.getMessage());
+                log.info("streamNewReservations snapshot : {}", e.getMessage());
                 return;
             }
 
@@ -267,7 +267,7 @@ public class ReservationsAdapter {
                         sseService.sendMessageToClient(clientId, jsonResponse, "new-reservation");
                         existingReservationIds.add(response.reservationId());
                     } catch(IOException ioException) {
-                        log.error("streamNewReservations : {}", ioException.getMessage());
+                        log.error("streamNewReservations parse json : {}", ioException.getMessage());
                     }
                 }
             }
