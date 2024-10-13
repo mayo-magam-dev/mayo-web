@@ -9,7 +9,6 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -18,7 +17,6 @@ import java.util.concurrent.ConcurrentMap;
 public class SseService {
 
     private final ConcurrentMap<String, SseEmitter> emitters = new ConcurrentHashMap<>();
-//    private final ConcurrentMap<String, String> lastUuidMap = new ConcurrentHashMap<>();
 
     public SseEmitter addEmitter(String clientId) {
 
@@ -55,22 +53,13 @@ public class SseService {
         if (emitter != null) {
 
             try {
-//                UUID uuid = UUID.randomUUID();
-//                String lastUuid = lastUuidMap.get(clientId);
 
-//                if(lastUuid == null || lastUuid.isEmpty()) {
-//                    lastUuid = "first";
-//                }
-
-//                if (!lastUuid.equals(uuid.toString())) {
-
-                log.info("send message : {}", message.getBytes(StandardCharsets.UTF_8));
+                log.info("send message : {}", message);
 
                     emitter.send(SseEmitter.event()
                             .name(name)
                             .data(message.getBytes(StandardCharsets.UTF_8)));
 
-//                    lastUuidMap.put(clientId, uuid.toString());
                 } catch (IOException e) {
                 removeEmitter(clientId);
 
@@ -90,6 +79,5 @@ public class SseService {
             emitter.complete();
             emitters.remove(clientId);
         }
-//        lastUuidMap.remove(clientId);
     }
 }
