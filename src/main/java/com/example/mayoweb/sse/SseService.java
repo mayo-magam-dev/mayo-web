@@ -15,7 +15,6 @@ import java.util.concurrent.ConcurrentMap;
 @Service
 @Slf4j
 public class SseService {
-
     private final ConcurrentMap<String, SseEmitter> emitters = new ConcurrentHashMap<>();
 
     public SseEmitter addEmitter(String clientId) {
@@ -23,28 +22,29 @@ public class SseService {
         SseEmitter existingEmitter = getEmitter(clientId);
 
         if (existingEmitter != null) {
-            return existingEmitter;
-        } else {
-            SseEmitter emitter = new SseEmitter(0L);
-            emitters.put(clientId, emitter);
-
-            sendMessageToClient(clientId, "initialMessage", "new-reservation");
-
-            emitter.onError((e) -> {
-                log.error("SSE에서 에러가 발생하였습니다 {}", e.getMessage());
-                removeEmitter(clientId);
-            });
-            emitter.onCompletion(() -> {
-                log.info("SSE 연결이 정상적으로 종료되었습니다.");
-                removeEmitter(clientId);
-            });
-            emitter.onTimeout(() -> {
-                log.info("SSE 연결이 타임아웃되었습니다.");
-                removeEmitter(clientId);
-        });
-
-            return emitter;
+            removeEmitter(clientId);
         }
+
+        SseEmitter emitter = new SseEmitter(0L);
+        emitters.put(clientId, emitter);
+
+        sendMessageToClient(clientId, "initialMessage", "new-reservation");
+
+        emitter.onError((e) -> {
+            log.error("SSE에서 에러가 발생하였습니다 {}", e.getMessage());
+            removeEmitter(clientId);
+        });
+        emitter.onCompletion(() -> {
+            log.info("SSE 연결이 정상적으로 종료되었습니다.");
+            removeEmitter(clientId);
+        });
+        emitter.onTimeout(() -> {
+            log.info("SSE 연결이 타임아웃되었습니다.");
+            removeEmitter(clientId);
+    });
+
+        return emitter;
+
     }
 
     public SseEmitter getEmitter(String clientId) {
