@@ -25,8 +25,11 @@ public class SseService {
         if (existingEmitter != null) {
             return existingEmitter;
         } else {
-            SseEmitter emitter = new SseEmitter(30_000L);
+            SseEmitter emitter = new SseEmitter(0L);
             emitters.put(clientId, emitter);
+
+            sendMessageToClient(clientId, "initialMessage", "new-reservation");
+
             emitter.onError(e -> removeEmitter(clientId));
             emitter.onCompletion(() -> {
                 log.info("SSE 연결이 완료되었습니다.");
@@ -34,9 +37,7 @@ public class SseService {
             emitter.onTimeout(() -> {
                 log.info("SSE 연결이 타임아웃되었습니다.");
                 removeEmitter(clientId);
-            });
-
-            sendMessageToClient(clientId, "initialMessage", "new-reservation");
+        });
 
             return emitter;
         }
