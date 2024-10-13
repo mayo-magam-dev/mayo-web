@@ -9,7 +9,6 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -18,57 +17,50 @@ import java.util.concurrent.ConcurrentMap;
 public class SseService {
 
     private final ConcurrentMap<String, SseEmitter> emitters = new ConcurrentHashMap<>();
-//    private final ConcurrentMap<String, String> lastUuidMap = new ConcurrentHashMap<>();
 
-    public void addEmitter(String clientId) {
+    public SseEmitter addEmitter(String clientId) {
 
         SseEmitter existingEmitter = getEmitter(clientId);
 
         if (existingEmitter != null) {
-            existingEmitter.complete();
-            removeEmitter(clientId);
-        }
+            return existingEmitter;
+        } else {
+            SseEmitter emitter = new SseEmitter(0L);
+            emitters.put(clientId, emitter);
 
-        SseEmitter emitter = new SseEmitter(30_000L);
-        emitters.put(clientId, emitter);
-        emitter.onCompletion(() -> removeEmitter(clientId));
-        emitter.onError(e -> removeEmitter(clientId));
-        emitter.onCompletion(() -> {
-            log.info("SSE 연결이 완료되었습니다.");
+            sendMessageToClient(clientId, "initialMessage", "new-reservation");
+
+            emitter.onError(e -> removeEmitter(clientId));
+            emitter.onCompletion(() -> {
+                log.info("SSE 연결이 완료되었습니다.");
+            });
+            emitter.onTimeout(() -> {
+                log.info("SSE 연결이 타임아웃되었습니다.");
+                removeEmitter(clientId);
         });
-        emitter.onTimeout(() -> {
-            log.info("SSE 연결이 타임아웃되었습니다.");
-            removeEmitter(clientId);
-        });
+
+            return emitter;
+        }
     }
 
     public SseEmitter getEmitter(String clientId) {
         return emitters.get(clientId);
     }
 
-    public void sendMessageToClient(String clientId, String message, String name) {
+    public synchronized void sendMessageToClient(String clientId, String message, String name) {
 
         SseEmitter emitter = getEmitter(clientId);
 
         if (emitter != null) {
 
             try {
-//                UUID uuid = UUID.randomUUID();
-//                String lastUuid = lastUuidMap.get(clientId);
 
-//                if(lastUuid == null || lastUuid.isEmpty()) {
-//                    lastUuid = "first";
-//                }
-
-//                if (!lastUuid.equals(uuid.toString())) {
-
-                log.info("send message : {}", message.getBytes(StandardCharsets.UTF_8));
+                log.info("send message : {}", message);
 
                     emitter.send(SseEmitter.event()
                             .name(name)
                             .data(message.getBytes(StandardCharsets.UTF_8)));
 
-//                    lastUuidMap.put(clientId, uuid.toString());
                 } catch (IOException e) {
                 removeEmitter(clientId);
 
@@ -77,14 +69,16 @@ public class SseService {
         }
     }
 
-    private void removeEmitter(String clientId) {
+    private synchronized void removeEmitter(String clientId) {
 
         SseEmitter emitter = emitters.get(clientId);
 
-        log.info("removeEmitter : {}", emitter.toString());
+        if (emitter != null) {
 
-        emitter.complete();
-        emitters.remove(clientId);
-//        lastUuidMap.remove(clientId);
+            log.info("removeEmitter : {}", emitter);
+
+            emitter.complete();
+            emitters.remove(clientId);
+        }
     }
 }
