@@ -42,7 +42,7 @@ out/
 target
 <<<<<<< HEAD
 =======
-.DS
+.DS_Store
 .json
 >>>>>>> origin/developer1
 
