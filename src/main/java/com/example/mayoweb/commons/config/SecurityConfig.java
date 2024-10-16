@@ -41,7 +41,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorizeRequests -> authorizeRequests
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/webjars/**").permitAll()
 //                        .requestMatchers("/reservation-new-async", "/sse/reservations-new", "/reservation-proceed-async","/reservations-new","/user", "/stores", "/item-store").permitAll()
-                        .anyRequest().access(ipAccessAuthorizationManager))
+                        .anyRequest().permitAll())
                 .addFilterBefore(new FirebaseAuthFilter(firestore), UsernamePasswordAuthenticationFilter.class);
         http
             .cors(corsCustomizer -> corsCustomizer.configurationSource(new CorsConfigurationSource() {
