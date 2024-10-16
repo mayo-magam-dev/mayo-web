@@ -39,6 +39,7 @@ public class FirebaseAuthFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
 
+        String url = request.getRequestURI();
         String token = getBearerToken(request);
 
         if (token != null) {
