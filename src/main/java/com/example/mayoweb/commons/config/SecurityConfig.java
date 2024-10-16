@@ -1,6 +1,7 @@
 package com.example.mayoweb.commons.config;
 
 import com.example.mayoweb.commons.filter.FirebaseAuthFilter;
+import com.example.mayoweb.commons.manager.IpAccessAuthorizationManager;
 import com.google.cloud.firestore.Firestore;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +29,7 @@ import java.util.List;
 public class SecurityConfig {
 
     private final Firestore firestore;
+    private final IpAccessAuthorizationManager ipAccessAuthorizationManager;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -39,7 +41,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorizeRequests -> authorizeRequests
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/webjars/**").permitAll()
 //                        .requestMatchers("/reservation-new-async", "/sse/reservations-new", "/reservation-proceed-async","/reservations-new","/user", "/stores", "/item-store").permitAll()
-                        .anyRequest().access(this::isAllowedIp))
+                        .anyRequest().access(ipAccessAuthorizationManager))
                 .addFilterBefore(new FirebaseAuthFilter(firestore), UsernamePasswordAuthenticationFilter.class);
         http
             .cors(corsCustomizer -> corsCustomizer.configurationSource(new CorsConfigurationSource() {
@@ -63,30 +65,5 @@ public class SecurityConfig {
             }));
 
         return http.build();
-    }
-
-    private boolean isAllowedIp(HttpServletRequest request) {
-        String clientIp = getClientIp(request);
-
-        log.info("Client IP: {}", clientIp);
-
-        List<String> allowedIps = new ArrayList<>();
-
-        allowedIps.add("127.0.0.1");
-
-        return allowedIps.contains(clientIp);
-    }
-
-    private String getClientIp(HttpServletRequest request) {
-
-        String xForwardedFor = request.getHeader("X-Forwarded-For");
-
-        if (xForwardedFor != null && !xForwardedFor.isEmpty()) {
-            log.info("X-Forwarded-For: {}", xForwardedFor.split(",")[0]);
-            return xForwardedFor.split(",")[0];
-        }
-
-        log.info(request.getRemoteAddr());
-        return request.getRemoteAddr();
     }
 }
