@@ -32,11 +32,11 @@ public class IpAccessAuthorizationManager implements AuthorizationManager {
         String xForwardedFor = request.getHeader("X-Forwarded-For");
 
         if (xForwardedFor != null && !xForwardedFor.isEmpty()) {
-            log.info(xForwardedFor.split(",")[0]);
+            log.info("x-forwarded-for : {}", xForwardedFor.split(",")[0]);
             return xForwardedFor.split(",")[0];
         }
 
-        log.info(request.getRemoteAddr());
+        log.info("remote address : {}", request.getRemoteAddr());
         return request.getRemoteAddr();
     }
 }
