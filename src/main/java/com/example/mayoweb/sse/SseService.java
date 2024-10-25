@@ -3,6 +3,8 @@ package com.example.mayoweb.sse;
 import com.example.mayoweb.commons.exception.SseException;
 import com.example.mayoweb.commons.exception.payload.ErrorStatus;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -29,7 +31,15 @@ public class SseService {
         SseEmitter emitter = new SseEmitter(0L);
         emitters.put(clientId, emitter);
 
-        sendMessageToClient(clientId, "initialMessage", "new-reservation");
+        JSONObject json = new JSONObject();
+
+        try {
+            json.put("data", "연결시작");
+        } catch (JSONException e) {
+            log.error("json Error");
+        }
+
+        sendMessageToClient(clientId, String.valueOf(json), "new-reservation");
 
         emitter.onError((e) -> {
             log.error("SSE에서 에러가 발생하였습니다 {}", e.getMessage());
