@@ -22,7 +22,7 @@ public class SseService {
         SseEmitter existingEmitter = getEmitter(clientId);
 
         if (existingEmitter != null) {
-            removeEmitter(clientId);
+            return existingEmitter;
         }
 
         SseEmitter emitter = new SseEmitter(0L);
