@@ -22,7 +22,8 @@ public class SseService {
         SseEmitter existingEmitter = getEmitter(clientId);
 
         if (existingEmitter != null) {
-            return existingEmitter;
+            log.error("SseEmitter already exists: {}", existingEmitter);
+            removeEmitter(clientId);
         }
 
         SseEmitter emitter = new SseEmitter(0L);
@@ -41,7 +42,7 @@ public class SseService {
         emitter.onTimeout(() -> {
             log.info("SSE 연결이 타임아웃되었습니다.");
             removeEmitter(clientId);
-    });
+        });
 
         return emitter;
 
@@ -68,21 +69,26 @@ public class SseService {
                 } catch (IOException e) {
                 removeEmitter(clientId);
 
-                throw new SseException(ErrorStatus.toErrorStatus("sse 오류가 발생하였습니다." + e.getMessage(), 500, LocalDateTime.now()));
+                log.error("sse 오류가 발생하였습니다. : {} / clientId : {}" ,e, clientId);
+
             }
+        } else {
+            log.info("해당하는 sse가 없습니다. {}", clientId);
         }
     }
 
     private synchronized void removeEmitter(String clientId) {
 
+        log.info("remove emitter: {}", clientId);
+
         SseEmitter emitter = emitters.get(clientId);
 
         if (emitter != null) {
 
-            log.info("removeEmitter : {}", emitter);
-
             emitter.complete();
             emitters.remove(clientId);
+            log.info("emitter removed: {}", clientId);
+
         }
     }
 }
