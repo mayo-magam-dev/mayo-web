@@ -40,8 +40,8 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorizeRequests -> authorizeRequests
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/webjars/**").permitAll()
-//                        .requestMatchers("/reservation-new-async", "/sse/reservations-new", "/reservation-proceed-async","/reservations-new","/user", "/stores", "/item-store").permitAll()
-                        .anyRequest().permitAll())
+                        .requestMatchers("/reservation-new-async", "/sse/reservations-new", "/reservation-proceed-async","/reservations-new","/user", "/stores", "/item-store").permitAll()
+                        .anyRequest().authenticated())
                 .addFilterBefore(new FirebaseAuthFilter(firestore), UsernamePasswordAuthenticationFilter.class);
         http
             .cors(corsCustomizer -> corsCustomizer.configurationSource(new CorsConfigurationSource() {
