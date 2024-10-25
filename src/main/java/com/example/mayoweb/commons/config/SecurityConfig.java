@@ -29,7 +29,6 @@ import java.util.List;
 public class SecurityConfig {
 
     private final Firestore firestore;
-    private final IpAccessAuthorizationManager ipAccessAuthorizationManager;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
