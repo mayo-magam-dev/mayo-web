@@ -81,6 +81,7 @@ public class SseService {
             }
         } else {
             log.info("해당하는 sse가 없습니다. {}", clientId);
+            removeEmitter(clientId);
         }
     }
 
