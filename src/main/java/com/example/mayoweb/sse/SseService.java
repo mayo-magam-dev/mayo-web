@@ -1,7 +1,5 @@
 package com.example.mayoweb.sse;
 
-import com.example.mayoweb.commons.exception.SseException;
-import com.example.mayoweb.commons.exception.payload.ErrorStatus;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
@@ -10,7 +8,6 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
