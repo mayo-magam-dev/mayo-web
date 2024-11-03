@@ -3,12 +3,14 @@ package com.example.mayoweb.reservation.repository;
 import com.example.mayoweb.carts.repository.CartsAdapter;
 import com.example.mayoweb.commons.exception.ApplicationException;
 import com.example.mayoweb.commons.exception.payload.ErrorStatus;
+import com.example.mayoweb.fcm.service.FCMService;
 import com.example.mayoweb.items.domain.response.ReadFirstItemResponse;
 import com.example.mayoweb.items.repository.ItemsAdapter;
 import com.example.mayoweb.reservation.domain.ReservationEntity;
 import com.example.mayoweb.reservation.domain.dto.response.ReadReservationListResponse;
 import com.example.mayoweb.reservation.domain.dto.response.ReadReservationResponse;
 import com.example.mayoweb.sse.SseService;
+import com.example.mayoweb.user.service.UsersService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.Timestamp;
@@ -35,6 +37,8 @@ public class ReservationsAdapter {
     private final SseService sseService;
     private final CartsAdapter cartsAdapter;
     private final ItemsAdapter itemsAdapter;
+    private final FCMService fcmService;
+    private final UsersService userService;
 
     //가게 도큐먼트 id를 받아 해당 가게의 모든 예약들을 가져옵니다.
 //    public List<ReservationEntity> getReservationsByStoreRef(String storesRef) throws ExecutionException, InterruptedException {
@@ -63,7 +67,9 @@ public class ReservationsAdapter {
         Firestore firestore = FirestoreClient.getFirestore();
         DocumentReference storeDocumentId = firestore.collection("stores").document(storeId);
         CollectionReference reservationsRef = firestore.collection("reservation");
-        Query query = reservationsRef.whereEqualTo("store_ref", storeDocumentId);
+        Query query = reservationsRef.whereEqualTo("store_ref", storeDocumentId)
+                .whereEqualTo("reservation_state", State.NEW.ordinal());
+
         ApiFuture<QuerySnapshot> querySnapshotApiFuture = query.get();
         QuerySnapshot querySnapshot = null;
 
@@ -97,22 +103,36 @@ public class ReservationsAdapter {
 
         CompletableFuture<List<ReservationEntity>> future = new CompletableFuture<>();
 
-        query.addSnapshotListener((querySnapshot, e) -> {
-            if (e != null) {
-                future.completeExceptionally(e);
-                return;
-            }
-
-            List<ReservationEntity> newReservations = new ArrayList<>();
-            if (querySnapshot != null) {
-                for (QueryDocumentSnapshot reservationDocument : querySnapshot.getDocuments()) {
-                    ReservationEntity reservationEntity = reservationDocument.toObject(ReservationEntity.class);
-                    newReservations.add(reservationEntity);
-                }
-                newReservations.sort(Comparator.comparing(entity -> entity.getCreatedAt().toSqlTimestamp(), Comparator.reverseOrder()));
-            }
-            future.complete(newReservations);
-        });
+//        query.addSnapshotListener((querySnapshot, e) -> {
+//            if (e != null) {
+//                future.completeExceptionally(e);
+//                return;
+//            }
+//
+//            List<ReservationEntity> newReservations = new ArrayList<>();
+//            if (querySnapshot != null) {
+//                for (QueryDocumentSnapshot reservationDocument : querySnapshot.getDocuments()) {
+//                    ReservationEntity reservationEntity = reservationDocument.toObject(ReservationEntity.class);
+//                    newReservations.add(reservationEntity);
+//
+//                    List<String> tokens = null;
+//                    try {
+//                        tokens = userService.getTokensByStoresId(storeId);
+//                        log.info("tokens : {}", tokens);
+//                    } catch (ExecutionException | InterruptedException ex) {
+//                        throw new RuntimeException(ex);
+//                    }
+//                    try {
+//                        fcmService.sendNewReservationMessage(tokens);
+//                        log.info("fcm send");
+//                    } catch (IOException ex) {
+//                        throw new RuntimeException(ex);
+//                    }
+//                }
+//                newReservations.sort(Comparator.comparing(entity -> entity.getCreatedAt().toSqlTimestamp(), Comparator.reverseOrder()));
+//            }
+//            future.complete(newReservations);
+//        });
 
         return future;
     }
@@ -658,6 +678,46 @@ public class ReservationsAdapter {
         DocumentReference carts = cartsAdapter.getFirstCartByReservation(reservationEntity);
 
         return itemsAdapter.getFirstItemNameFromCart(carts);
+    }
+
+    public CompletableFuture<Void> sendNewReservationFCM(String storeId, String userId) {
+
+        Firestore firestore = FirestoreClient.getFirestore();
+
+        DocumentReference storeDocumentId = firestore.collection("stores").document(storeId);
+        CollectionReference reservationsRef = firestore.collection("reservation");
+
+        Query query = reservationsRef.whereEqualTo("store_ref", storeDocumentId)
+                .whereEqualTo("reservation_state", State.NEW.ordinal());
+
+        CompletableFuture<Void> future = new CompletableFuture<>();
+
+        query.addSnapshotListener((querySnapshot, e) -> {
+            if (e != null) {
+                future.completeExceptionally(e);
+                return;
+            }
+
+            if (querySnapshot != null) {
+
+                List<String> tokens = null;
+                try {
+                    tokens.addAll(userService.getTokensByUserRef(userId));
+                    tokens = tokens.stream().distinct().toList();
+                    log.info("tokens : {}", tokens);
+                } catch (ExecutionException | InterruptedException ex) {
+                    throw new RuntimeException(ex);
+                }
+                try {
+                    fcmService.sendNewReservationMessage(tokens);
+                    log.info("fcm send");
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+        });
+
+        return future;
     }
 
     enum State {

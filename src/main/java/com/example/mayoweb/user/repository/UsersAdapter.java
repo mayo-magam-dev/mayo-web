@@ -1,18 +1,18 @@
 package com.example.mayoweb.user.repository;
 import com.example.mayoweb.commons.exception.ApplicationException;
 import com.example.mayoweb.commons.exception.payload.ErrorStatus;
+import com.example.mayoweb.fcm.entity.FCMToken;
 import com.example.mayoweb.user.domain.UsersEntity;
 import com.google.api.core.ApiFuture;
+import com.google.cloud.Timestamp;
 import com.google.cloud.firestore.*;
 import com.google.firebase.cloud.FirestoreClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
-import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 @Repository
@@ -105,6 +105,65 @@ public class UsersAdapter {
             log.error("getFCMTokenByStoresRef error: " + LocalDateTime.now() + ", " + e.getMessage());
         }
         return fcmTokens;
+    }
+
+    public List<String> getFCMTokenByStoresId(String storesId) {
+        Firestore firestore = FirestoreClient.getFirestore();
+        List<String> fcmTokens = new ArrayList<>();
+        CollectionReference usersCollection = firestore.collection("users");
+        DocumentReference storesDocumentId = firestore.collection("stores").document(storesId);
+        Query query = usersCollection.whereEqualTo("store_ref", storesDocumentId);
+
+        try {
+            ApiFuture<QuerySnapshot> querySnapshotApiFuture = query.get();
+            for (QueryDocumentSnapshot userDocument : querySnapshotApiFuture.get().getDocuments()) {
+                CollectionReference fcmTokensCollection = userDocument.getReference()
+                        .collection(COLLECTION_NAME_FCM_TOKENS);
+                ApiFuture<QuerySnapshot> fcmTokenSnapshot = fcmTokensCollection.get();
+
+                if (!fcmTokenSnapshot.get().isEmpty()) {
+                    for(QueryDocumentSnapshot docSnap : fcmTokenSnapshot.get().getDocuments()) {
+                        fcmTokens.add(docSnap.getString(FIELD_FCM_TOKEN));
+                    }
+                }
+            }
+        } catch (ExecutionException | InterruptedException e) {
+            log.error("getFCMTokenByStoresRef error: " + LocalDateTime.now() + ", " + e.getMessage());
+        }
+        return fcmTokens;
+    }
+
+    public void createFCMTokenById(String userId, String token) throws ExecutionException, InterruptedException {
+        Firestore firestore = FirestoreClient.getFirestore();
+        DocumentReference userRef = firestore.collection("users").document(userId);
+
+        DocumentSnapshot userDocument = userRef.get().get();
+
+        if (userDocument.exists()) {
+            CollectionReference fcmTokensCollectionRef = userRef.collection(COLLECTION_NAME_FCM_TOKENS);
+            ApiFuture<QuerySnapshot> future = fcmTokensCollectionRef.get();
+            List<QueryDocumentSnapshot> documents = future.get().getDocuments();
+
+            for (QueryDocumentSnapshot document : documents) {
+                String fcmToken = document.getString(FIELD_FCM_TOKEN);
+                if(fcmToken != null && fcmToken.equals(token)) {
+                    return;
+                }
+            }
+
+            FCMToken fcmToken = FCMToken.builder()
+                    .token(token)
+                    .createdAt(Timestamp.now().toString())
+                    .deviceType("web")
+                    .build();
+
+            Map<String, String> fcmMap = new HashMap<>();
+            fcmMap.put("fcm_token", fcmToken.getToken());
+            fcmMap.put("created_at", fcmToken.getCreatedAt());
+            fcmMap.put("device_type", "web");
+
+            fcmTokensCollectionRef.add(fcmMap);
+        }
     }
 
     private UsersEntity fromDocument(DocumentSnapshot document) {
