@@ -6,6 +6,7 @@ import com.example.mayoweb.fcm.dto.CreateFCMTokenRequest;
 import com.example.mayoweb.user.domain.UsersEntity;
 import com.example.mayoweb.user.domain.dto.response.ReadUserResponse;
 import com.example.mayoweb.user.repository.UsersAdapter;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.cloud.firestore.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -42,7 +43,11 @@ public class UsersService {
         return usersAdapter.getFCMTokenByStoresRef(storesRef);
     }
 
-    public void createWebFCMToken(CreateFCMTokenRequest request) throws ExecutionException, InterruptedException {
+    public List<String> getTokensByStoresId(String storeId) throws ExecutionException, InterruptedException {
+        return usersAdapter.getFCMTokenByStoresId(storeId);
+    }
+
+    public void createWebFCMToken(CreateFCMTokenRequest request) throws ExecutionException, InterruptedException, JsonProcessingException {
         usersAdapter.createFCMTokenById(request.userId(), request.fcmToken());
     }
 }
