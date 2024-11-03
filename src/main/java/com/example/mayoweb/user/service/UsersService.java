@@ -2,6 +2,7 @@ package com.example.mayoweb.user.service;
 
 import com.example.mayoweb.commons.exception.ApplicationException;
 import com.example.mayoweb.commons.exception.payload.ErrorStatus;
+import com.example.mayoweb.fcm.dto.CreateFCMTokenRequest;
 import com.example.mayoweb.user.domain.UsersEntity;
 import com.example.mayoweb.user.domain.dto.response.ReadUserResponse;
 import com.example.mayoweb.user.repository.UsersAdapter;
@@ -39,5 +40,9 @@ public class UsersService {
 
     public List<String> getTokensByStoresRef(String storesRef) throws ExecutionException, InterruptedException {
         return usersAdapter.getFCMTokenByStoresRef(storesRef);
+    }
+
+    public void createWebFCMToken(CreateFCMTokenRequest request) throws ExecutionException, InterruptedException {
+        usersAdapter.createFCMTokenById(request.userId(), request.fcmToken());
     }
 }

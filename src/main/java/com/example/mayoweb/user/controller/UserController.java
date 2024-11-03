@@ -1,5 +1,6 @@
 package com.example.mayoweb.user.controller;
 
+import com.example.mayoweb.fcm.dto.CreateFCMTokenRequest;
 import com.example.mayoweb.user.domain.dto.response.ReadUserResponse;
 import com.example.mayoweb.user.service.UsersService;
 import com.google.firebase.auth.FirebaseAuth;
@@ -12,11 +13,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -53,5 +52,17 @@ public class UserController {
     @GetMapping("/user-fcmToken")
     public ResponseEntity<List<String>> getFcmTokenByUserId(@RequestParam String userId) throws ExecutionException, InterruptedException {
         return ResponseEntity.ok(userService.getTokensByUserRef(userId));
+    }
+
+    @Operation(summary = "userId값 및 fcmToken으로 해당 user의 fcm토큰을 생성합니다.", description = "userId값 및 fcmToken으로 해당 user의 fcm토큰을 생성합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "토큰 생성 성공"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
+            @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
+    })
+    @PostMapping("/fcm")
+    public ResponseEntity<Void> createFCMToken(@RequestBody CreateFCMTokenRequest request) throws Exception {
+        userService.createWebFCMToken(request);
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 }
