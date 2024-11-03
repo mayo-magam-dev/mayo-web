@@ -454,9 +454,15 @@ public class ReservationRestController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "유저 Id와 가게 Id값으로 해당 유저의 알림을 받을 수 있는 리스너를 생성합니다.", description = "유저 Id와 가게 Id값으로 해당 유저의 알림을 받을 수 있는 리스너를 생성합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "알림 리스너 성공"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
+            @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
+    })
     @PostMapping("/reservation-new/fcm")
-    public ResponseEntity<Void> reservationNewFCM(@RequestParam String storeId) {
-        reservationService.sendFCMNewReservation(storeId);
+    public ResponseEntity<Void> reservationNewFCM(@RequestParam String storeId, @RequestParam String userId) {
+        reservationService.sendFCMNewReservation(storeId, userId);
         return ResponseEntity.noContent().build();
     }
 
