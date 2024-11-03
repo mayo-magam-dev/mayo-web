@@ -100,8 +100,8 @@ public class ReservationService {
                 )));
     }
 
-    public void sendFCMNewReservation(String storeId) {
-        reservationsAdapter.sendNewReservationFCM(storeId);
+    public void sendFCMNewReservation(String storeId, String userId) {
+        reservationsAdapter.sendNewReservationFCM(storeId, userId);
     }
 
 }
