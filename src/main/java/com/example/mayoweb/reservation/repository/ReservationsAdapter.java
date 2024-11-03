@@ -680,7 +680,7 @@ public class ReservationsAdapter {
         return itemsAdapter.getFirstItemNameFromCart(carts);
     }
 
-    public CompletableFuture<Void> sendNewReservationFCM(String storeId) {
+    public CompletableFuture<Void> sendNewReservationFCM(String storeId, String userId) {
 
         Firestore firestore = FirestoreClient.getFirestore();
 
@@ -702,7 +702,7 @@ public class ReservationsAdapter {
 
                 List<String> tokens = null;
                 try {
-                    tokens.addAll(userService.getTokensByStoresId(storeId));
+                    tokens.addAll(userService.getTokensByUserRef(userId));
                     tokens = tokens.stream().distinct().toList();
                     log.info("tokens : {}", tokens);
                 } catch (ExecutionException | InterruptedException ex) {
