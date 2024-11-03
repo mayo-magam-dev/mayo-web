@@ -66,7 +66,7 @@ public class ReservationRestController {
             @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
     })
     @GetMapping("/reservation-new")
-    public ResponseEntity<List<ReadReservationListResponse>> getNewReservationsByStoreId(String storeId) {
+    public ResponseEntity<List<ReadReservationListResponse>> getNewReservationsByStoreId(@RequestParam String storeId) {
 
         List<ReadReservationResponse> reservationResponseList = reservationService.getNewByStoreId(storeId);
         List<ReadFirstItemResponse> firstItemResponse = itemsService.getFirstItemNamesFromReservations(reservationResponseList);
@@ -74,7 +74,7 @@ public class ReservationRestController {
 
         for(int i=0; i<reservationResponseList.size(); i++) {
             ReadReservationListResponse response = ReadReservationListResponse.builder()
-                    .reservationId(reservationResponseList.get(i).reservationId())
+                    .reservationId(reservationResponseList.get(i).id())
                     .firstItemName(firstItemResponse.get(i).itemName())
                     .itemQuantity(firstItemResponse.get(i).itemQuantity())
                     .createdAt(reservationResponseList.get(i).createdAt())
@@ -451,6 +451,12 @@ public class ReservationRestController {
             reservationService.reservationFail(reservation.id());
         }
 
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/reservation-new/fcm")
+    public ResponseEntity<Void> reservationNewFCM(@RequestParam String storeId) {
+        reservationService.sendFCMNewReservation(storeId);
         return ResponseEntity.noContent().build();
     }
 
