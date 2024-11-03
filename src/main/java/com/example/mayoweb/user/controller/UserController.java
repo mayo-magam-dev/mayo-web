@@ -15,7 +15,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 @Tag(name = "유저 API", description = "유저 정보 API")
 @RestController
@@ -38,5 +42,16 @@ public class UserController {
         String uid = decodedToken.getUid();
 
         return ResponseEntity.ok(userService.getUserById(uid));
+    }
+
+    @Operation(summary = "userId값으로 fcm 토큰을 가져옵니다.", description = "userId값으로 fcm 토큰을 가져옵니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "토큰 조회 성공", content = @Content(schema = @Schema(implementation = List.class))),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
+            @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
+    })
+    @GetMapping("/user-fcmToken")
+    public ResponseEntity<List<String>> getFcmTokenByUserId(@RequestParam String userId) throws ExecutionException, InterruptedException {
+        return ResponseEntity.ok(userService.getTokensByUserRef(userId));
     }
 }
