@@ -181,4 +181,30 @@ public class FCMService {
         }
         return status;
     }
+
+    public boolean sendNewReservationMessage(List<String> tokens) throws IOException {
+
+        List<Boolean> results = new ArrayList<>();
+
+        for (String token : tokens) {
+            results.add(sendMessageTo(token, "신규 주문이 있습니다!", "주문을 확인해주세요!", null));
+        }
+
+        boolean status = !results.contains(false);
+        WebPushNotificationsDto webUserPushNotificationsDto = WebPushNotificationsDto.builder()
+                .notificationText("주문을 확인해주세요!")
+                .notificationTitle("신규 주문이 들어왔어요!")
+                .sender(SERVER_NAME)
+                .numSent(results.size())
+                .timestamp(Timestamp.now())
+                .status(status)
+                .build();
+
+        if (!addWebPushNotifications(webUserPushNotificationsDto)) {
+            log.info("push notification false = " + Timestamp.now());
+        }
+        return status;
+    }
+
+
 }
