@@ -1,18 +1,9 @@
 package com.example.mayoweb.reservation.controller;
 
-import com.example.mayoweb.carts.domain.dto.response.ReadCartsResponse;
-import com.example.mayoweb.carts.service.CartService;
-import com.example.mayoweb.fcm.service.FCMService;
-import com.example.mayoweb.items.domain.response.ReadFirstItemResponse;
-import com.example.mayoweb.items.domain.response.ReadItemResponse;
-import com.example.mayoweb.items.service.ItemsService;
 import com.example.mayoweb.reservation.domain.dto.response.ReadReservationDetailResponse;
 import com.example.mayoweb.reservation.domain.dto.response.ReadReservationListResponse;
 import com.example.mayoweb.reservation.domain.dto.response.ReadReservationResponse;
 import com.example.mayoweb.reservation.service.ReservationService;
-import com.example.mayoweb.sse.SseService;
-import com.example.mayoweb.user.domain.dto.response.ReadUserResponse;
-import com.example.mayoweb.user.service.UsersService;
 import com.google.cloud.Timestamp;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -22,16 +13,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.*;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 @Tag(name = "예약 API", description = "예약 관리 API")
@@ -41,11 +26,6 @@ import java.util.concurrent.ExecutionException;
 public class ReservationRestController {
 
     private final ReservationService reservationService;
-    private final ItemsService itemsService;
-    private final CartService cartService;
-    private final UsersService usersService;
-    private final UsersService userService;
-    private final FCMService fcmService;
 
     @Operation(summary = "ID 값으로 reservation 객체를 가져옵니다.", description = "reservation PK 값으로 객체를 가져옵니다.")
     @ApiResponses(value = {
@@ -66,25 +46,7 @@ public class ReservationRestController {
     })
     @GetMapping("/reservation-new")
     public ResponseEntity<List<ReadReservationListResponse>> getNewReservationsByStoreId(@RequestParam String storeId) {
-
-        List<ReadReservationResponse> reservationResponseList = reservationService.getNewByStoreId(storeId);
-        List<ReadFirstItemResponse> firstItemResponse = itemsService.getFirstItemNamesFromReservations(reservationResponseList);
-        List<ReadReservationListResponse> responseList = new ArrayList<>();
-
-        for(int i=0; i<reservationResponseList.size(); i++) {
-            ReadReservationListResponse response = ReadReservationListResponse.builder()
-                    .reservationId(reservationResponseList.get(i).id())
-                    .firstItemName(firstItemResponse.get(i).itemName())
-                    .itemQuantity(firstItemResponse.get(i).itemQuantity())
-                    .createdAt(reservationResponseList.get(i).createdAt())
-                    .pickupTime(reservationResponseList.get(i).pickupTime())
-                    .reservationState(reservationResponseList.get(i).reservationState())
-                    .build();
-
-            responseList.add(response);
-        }
-
-        return ResponseEntity.ok(responseList);
+        return ResponseEntity.ok(reservationService.getNewByStoreId(storeId));
     }
 
     @Operation(summary = "storeId 값으로 해당 가게의 진행 예약들을 가져옵니다.", description = "storeId 값으로 해당 가게의 진행 예약들을 가져옵니다.")
@@ -94,25 +56,8 @@ public class ReservationRestController {
             @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
     })
     @GetMapping("/reservation-proceed")
-    public ResponseEntity<List<ReadReservationListResponse>> getProceedingReservationsByStoreId(@RequestParam String storeId) {
-        List<ReadReservationResponse> reservationResponseList = reservationService.getProcessingByStoreId(storeId);
-        List<ReadFirstItemResponse> firstItemResponse = itemsService.getFirstItemNamesFromReservations(reservationResponseList);
-        List<ReadReservationListResponse> responseList = new ArrayList<>();
-
-        for(int i=0; i<reservationResponseList.size(); i++) {
-            ReadReservationListResponse response = ReadReservationListResponse.builder()
-                    .reservationId(reservationResponseList.get(i).id())
-                    .firstItemName(firstItemResponse.get(i).itemName())
-                    .itemQuantity(firstItemResponse.get(i).itemQuantity())
-                    .createdAt(reservationResponseList.get(i).createdAt())
-                    .pickupTime(reservationResponseList.get(i).pickupTime())
-                    .reservationState(reservationResponseList.get(i).reservationState())
-                    .build();
-
-            responseList.add(response);
-        }
-
-        return ResponseEntity.ok(responseList);
+    public ResponseEntity<List<ReadReservationListResponse>> getProceedingReservationsByStoreId(@RequestParam String storeId) throws ExecutionException, InterruptedException {
+        return ResponseEntity.ok(reservationService.getProcessingByStoreId(storeId));
     }
 
     @Operation(summary = "storeId 값, 시간 값으로 해당 가게의 완료 예약들을 가져옵니다.", description = "storeId 값, 시간 값으로 해당 가게의 완료 예약들을 가져옵니다.")
@@ -126,26 +71,7 @@ public class ReservationRestController {
 
         Timestamp ts = Timestamp.parseTimestamp(timestamp);
 
-        List<ReadReservationResponse> reservationResponseList = reservationService.getEndByStoreIdAndTimestamp(storeId, ts);
-        List<ReadFirstItemResponse> firstItemResponse = itemsService.getFirstItemNamesFromReservations(reservationResponseList);
-        List<ReadReservationListResponse> responseList = new ArrayList<>();
-
-
-
-        for(int i=0; i<reservationResponseList.size(); i++) {
-            ReadReservationListResponse response = ReadReservationListResponse.builder()
-                    .reservationId(reservationResponseList.get(i).id())
-                    .firstItemName(firstItemResponse.get(i).itemName())
-                    .itemQuantity(firstItemResponse.get(i).itemQuantity())
-                    .createdAt(reservationResponseList.get(i).createdAt())
-                    .pickupTime(reservationResponseList.get(i).pickupTime())
-                    .reservationState(reservationResponseList.get(i).reservationState())
-                    .build();
-
-            responseList.add(response);
-        }
-
-        return ResponseEntity.ok(responseList);
+        return ResponseEntity.ok(reservationService.getEndByStoreIdAndTimestamp(storeId, ts));
     }
 
     @Operation(summary = "reservationId를 받아 해당 예약의 상태를 수락으로 변경합니다.", description = "reservationId를 받아 해당 예약의 상태를 수락으로 변경합니다.")
@@ -158,17 +84,6 @@ public class ReservationRestController {
     public ResponseEntity<Void> updateAccept(@RequestParam String reservationId) {
 
         reservationService.reservationAccept(reservationId);
-
-        ReadReservationResponse dto = reservationService.getReservationById(reservationId);
-        try {
-            List<String> tokens = userService.getTokensByUserRef(dto.userRef());
-            fcmService.sendAcceptMessage(tokens);
-
-        } catch (ExecutionException | InterruptedException e) {
-            log.info("user 토큰을 찾지 못했습니다.");
-        } catch (IOException e) {
-            log.info("수락 fcm 메세지 전송에 실패하였습니다.");
-        }
 
         return ResponseEntity.noContent().build();
     }
@@ -183,17 +98,6 @@ public class ReservationRestController {
     public ResponseEntity<Void> updateFail(@RequestParam String reservationId) {
 
         reservationService.reservationFail(reservationId);
-
-        ReadReservationResponse dto = reservationService.getReservationById(reservationId);
-        try {
-            List<String> tokens = userService.getTokensByUserRef(dto.userRef());
-            fcmService.sendRejectMessage(tokens);
-
-        } catch (ExecutionException | InterruptedException e) {
-            log.info("user 토큰을 찾지 못했습니다.");
-        } catch (IOException e) {
-            log.info("거절 fcm 메세지 전송에 실패하였습니다.");
-        }
 
         return ResponseEntity.noContent().build();
     }
@@ -220,48 +124,14 @@ public class ReservationRestController {
     })
     @GetMapping("/reservation-detail")
     public ResponseEntity<ReadReservationDetailResponse> getItemByReservationId(@RequestParam String reservationId) {
-        ReadReservationResponse reservation = reservationService.getReservationById(reservationId);
-        List<ReadCartsResponse> carts = cartService.getCartsByReservation(reservationId);
-        ReadUserResponse user = usersService.getUserById(reservation.userRef());
-        List<String> itemName = new ArrayList<>();
-        List<Integer> itemCount = new ArrayList<>();
-        List<Double> subTotal = new ArrayList<>();
-        Integer totalQuantity = 0;
-
-        for(ReadCartsResponse cart : carts) {
-            ReadItemResponse item = itemsService.getItemByCartId(cart.cartId());
-            itemName.add(item.itemName());
-            itemCount.add(cart.itemCount());
-            subTotal.add(cart.subtotal());
-            totalQuantity += cart.itemCount();
-        }
-
-        return ResponseEntity.ok(ReadReservationDetailResponse.builder()
-                    .itemName(itemName)
-                    .itemCount(itemCount)
-                    .subTotal(subTotal)
-                    .totalQuantity(totalQuantity)
-                    .reservationId(reservationId)
-                    .request(reservation.reservationRequest())
-                    .createdAt(reservation.createdAt())
-                    .pickupTime(reservation.pickupTime())
-                    .totalPrice(reservation.totalPrice())
-                    .reservationIsPlastic(reservation.reservationIsPlastics())
-                    .userNickName(user.displayName())
-                    .reservationState(reservation.reservationState())
-                    .menuTypeCount(carts.size())
-                    .build());
+        return ResponseEntity.ok(reservationService.getReservationDetailById(reservationId));
     }
 
 
     @PutMapping("/reservation/all-fail")
     public ResponseEntity<Void> reservationFailByStoreId(@RequestParam String storeId) {
 
-        List<ReadReservationResponse> reservationList = reservationService.getNewByStoreId(storeId);
-
-        for(ReadReservationResponse reservation : reservationList) {
-            reservationService.reservationFail(reservation.id());
-        }
+        reservationService.reservationFailByStoreId(storeId);
 
         return ResponseEntity.noContent().build();
     }
