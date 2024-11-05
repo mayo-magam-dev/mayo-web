@@ -46,7 +46,6 @@ public class ReservationRestController {
     private final UsersService usersService;
     private final UsersService userService;
     private final FCMService fcmService;
-    private final SseService sseService;
 
     @Operation(summary = "ID 값으로 reservation 객체를 가져옵니다.", description = "reservation PK 값으로 객체를 가져옵니다.")
     @ApiResponses(value = {
@@ -88,34 +87,6 @@ public class ReservationRestController {
         return ResponseEntity.ok(responseList);
     }
 
-    @Operation(summary = "storeId 값으로 해당 가게의 신규 예약들을 비동기로 가져옵니다.", description = "storeId 값으로 해당 가게의 신규 예약들을 비동기로 가져옵니다.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "신규 예약 조회 성공", content = @Content(schema = @Schema(implementation = CompletableFuture.class))),
-            @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
-            @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
-    })
-    @GetMapping("/reservation-new-async")
-    public CompletableFuture<ResponseEntity<List<ReadReservationListResponse>>> getNewReservationsByStoreIdAsync(@RequestParam String storeId) {
-        return reservationService.getNewReservationsByStoreId(storeId)
-                .thenApply(reservationResponseList -> {
-                    List<ReadFirstItemResponse> firstItemResponseList = itemsService.getFirstItemNamesFromReservations(reservationResponseList);
-                    List<ReadReservationListResponse> responseList = new ArrayList<>();
-                    for (int i = 0; i < reservationResponseList.size(); i++) {
-                        ReadReservationListResponse response = ReadReservationListResponse.builder()
-                                .reservationId(reservationResponseList.get(i).id())
-                                .firstItemName(firstItemResponseList.get(i).itemName())
-                                .itemQuantity(firstItemResponseList.get(i).itemQuantity())
-                                .createdAt(reservationResponseList.get(i).createdAt())
-                                .pickupTime(reservationResponseList.get(i).pickupTime())
-                                .reservationState(reservationResponseList.get(i).reservationState())
-                                .build();
-                        responseList.add(response);
-                    }
-
-                    return ResponseEntity.ok(responseList);
-                });
-    }
-
     @Operation(summary = "storeId 값으로 해당 가게의 진행 예약들을 가져옵니다.", description = "storeId 값으로 해당 가게의 진행 예약들을 가져옵니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "진행 예약 조회 성공", content = @Content(schema = @Schema(implementation = List.class))),
@@ -125,61 +96,6 @@ public class ReservationRestController {
     @GetMapping("/reservation-proceed")
     public ResponseEntity<List<ReadReservationListResponse>> getProceedingReservationsByStoreId(@RequestParam String storeId) {
         List<ReadReservationResponse> reservationResponseList = reservationService.getProcessingByStoreId(storeId);
-        List<ReadFirstItemResponse> firstItemResponse = itemsService.getFirstItemNamesFromReservations(reservationResponseList);
-        List<ReadReservationListResponse> responseList = new ArrayList<>();
-
-        for(int i=0; i<reservationResponseList.size(); i++) {
-            ReadReservationListResponse response = ReadReservationListResponse.builder()
-                    .reservationId(reservationResponseList.get(i).id())
-                    .firstItemName(firstItemResponse.get(i).itemName())
-                    .itemQuantity(firstItemResponse.get(i).itemQuantity())
-                    .createdAt(reservationResponseList.get(i).createdAt())
-                    .pickupTime(reservationResponseList.get(i).pickupTime())
-                    .reservationState(reservationResponseList.get(i).reservationState())
-                    .build();
-
-            responseList.add(response);
-        }
-
-        return ResponseEntity.ok(responseList);
-    }
-
-    @Operation(summary = "storeId 값으로 해당 가게의 진행 예약들을 비동기로 가져옵니다.", description = "storeId 값으로 해당 가게의 진행 예약들을 비동기로 가져옵니다.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "신규 예약 조회 성공", content = @Content(schema = @Schema(implementation = CompletableFuture.class))),
-            @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
-            @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
-    })
-    @GetMapping("/reservation-proceed-async")
-    public CompletableFuture<ResponseEntity<List<ReadReservationListResponse>>> getProceedingReservationsByStoreIdAsync(@RequestParam String storeId) {
-        return reservationService.getProceedingReservationsByStoreId(storeId)
-                .thenApply(reservationResponseList -> {
-                    List<ReadFirstItemResponse> firstItemResponseList = itemsService.getFirstItemNamesFromReservations(reservationResponseList);
-                    List<ReadReservationListResponse> responseList = new ArrayList<>();
-                    for (int i = 0; i < reservationResponseList.size(); i++) {
-                        ReadReservationListResponse response = ReadReservationListResponse.builder()
-                                .reservationId(reservationResponseList.get(i).id())
-                                .firstItemName(firstItemResponseList.get(i).itemName())
-                                .itemQuantity(firstItemResponseList.get(i).itemQuantity())
-                                .createdAt(reservationResponseList.get(i).createdAt())
-                                .pickupTime(reservationResponseList.get(i).pickupTime())
-                                .reservationState(reservationResponseList.get(i).reservationState())
-                                .build();
-                        responseList.add(response);
-                    }
-                    return ResponseEntity.ok(responseList);
-                });
-    }
-
-    @Operation(summary = "storeId 값으로 해당 가게의 완료 예약들을 가져옵니다.", description = "storeId 값으로 해당 가게의 완료 예약들을 가져옵니다.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "완료 예약 조회 성공", content = @Content(schema = @Schema(implementation = List.class))),
-            @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
-            @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
-    })
-    @GetMapping("/reservation-done")
-    public ResponseEntity<List<ReadReservationListResponse>> getDoneReservationsByStoreId(@RequestParam String storeId) {
-        List<ReadReservationResponse> reservationResponseList = reservationService.getEndByStoreId(storeId);
         List<ReadFirstItemResponse> firstItemResponse = itemsService.getFirstItemNamesFromReservations(reservationResponseList);
         List<ReadReservationListResponse> responseList = new ArrayList<>();
 
@@ -230,33 +146,6 @@ public class ReservationRestController {
         }
 
         return ResponseEntity.ok(responseList);
-    }
-
-    @Operation(summary = "storeId 값으로 해당 가게의 완료 예약들을 비동기로 가져옵니다.", description = "storeId 값으로 해당 가게의 완료 예약들을 비동기로 가져옵니다.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "신규 예약 조회 성공", content = @Content(schema = @Schema(implementation = CompletableFuture.class))),
-            @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
-            @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
-    })
-    @GetMapping("/reservation-done-async")
-    public CompletableFuture<ResponseEntity<List<ReadReservationListResponse>>> getEndReservationsByStoreIdAsync(@RequestParam String storeId) {
-        return reservationService.getEndReservationsByStoreId(storeId)
-                .thenApply(reservationResponseList -> {
-                    List<ReadFirstItemResponse> firstItemResponseList = itemsService.getFirstItemNamesFromReservations(reservationResponseList);
-                    List<ReadReservationListResponse> responseList = new ArrayList<>();
-                    for (int i = 0; i < reservationResponseList.size(); i++) {
-                        ReadReservationListResponse response = ReadReservationListResponse.builder()
-                                .reservationId(reservationResponseList.get(i).id())
-                                .firstItemName(firstItemResponseList.get(i).itemName())
-                                .itemQuantity(firstItemResponseList.get(i).itemQuantity())
-                                .createdAt(reservationResponseList.get(i).createdAt())
-                                .pickupTime(reservationResponseList.get(i).pickupTime())
-                                .reservationState(reservationResponseList.get(i).reservationState())
-                                .build();
-                        responseList.add(response);
-                    }
-                    return ResponseEntity.ok(responseList);
-                });
     }
 
     @Operation(summary = "reservationId를 받아 해당 예약의 상태를 수락으로 변경합니다.", description = "reservationId를 받아 해당 예약의 상태를 수락으로 변경합니다.")
@@ -364,7 +253,143 @@ public class ReservationRestController {
                     .build());
     }
 
-//    @Operation(summary = "storeId 값으로 해당 가게의 신규 예약들을 SSE를 통해 가져옵니다.", description = "storeId 값으로 해당 가게의 신규 예약들을 SSE를 통해 가져옵니다.")
+
+    @PutMapping("/reservation/all-fail")
+    public ResponseEntity<Void> reservationFailByStoreId(@RequestParam String storeId) {
+
+        List<ReadReservationResponse> reservationList = reservationService.getNewByStoreId(storeId);
+
+        for(ReadReservationResponse reservation : reservationList) {
+            reservationService.reservationFail(reservation.id());
+        }
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "유저 Id와 가게 Id값으로 해당 유저의 알림을 받을 수 있는 리스너를 생성합니다.", description = "유저 Id와 가게 Id값으로 해당 유저의 알림을 받을 수 있는 리스너를 생성합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "알림 리스너 성공"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
+            @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
+    })
+    @PostMapping("/reservation-new/fcm")
+    public ResponseEntity<Void> reservationNewFCM(@RequestParam String storeId, @RequestParam String userId) {
+        reservationService.sendFCMNewReservation(storeId, userId);
+        return ResponseEntity.noContent().build();
+    }
+
+//    @Operation(summary = "storeId 값으로 해당 가게의 신규 예약들을 비동기로 가져옵니다.", description = "storeId 값으로 해당 가게의 신규 예약들을 비동기로 가져옵니다.")
+//    @ApiResponses(value = {
+//            @ApiResponse(responseCode = "200", description = "신규 예약 조회 성공", content = @Content(schema = @Schema(implementation = CompletableFuture.class))),
+//            @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
+//            @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
+//    })
+//    @GetMapping("/reservation-new-async")
+//    public CompletableFuture<ResponseEntity<List<ReadReservationListResponse>>> getNewReservationsByStoreIdAsync(@RequestParam String storeId) {
+//        return reservationService.getNewReservationsByStoreId(storeId)
+//                .thenApply(reservationResponseList -> {
+//                    List<ReadFirstItemResponse> firstItemResponseList = itemsService.getFirstItemNamesFromReservations(reservationResponseList);
+//                    List<ReadReservationListResponse> responseList = new ArrayList<>();
+//                    for (int i = 0; i < reservationResponseList.size(); i++) {
+//                        ReadReservationListResponse response = ReadReservationListResponse.builder()
+//                                .reservationId(reservationResponseList.get(i).id())
+//                                .firstItemName(firstItemResponseList.get(i).itemName())
+//                                .itemQuantity(firstItemResponseList.get(i).itemQuantity())
+//                                .createdAt(reservationResponseList.get(i).createdAt())
+//                                .pickupTime(reservationResponseList.get(i).pickupTime())
+//                                .reservationState(reservationResponseList.get(i).reservationState())
+//                                .build();
+//                        responseList.add(response);
+//                    }
+//
+//                    return ResponseEntity.ok(responseList);
+//                });
+//    }
+
+//    @Operation(summary = "storeId 값으로 해당 가게의 진행 예약들을 비동기로 가져옵니다.", description = "storeId 값으로 해당 가게의 진행 예약들을 비동기로 가져옵니다.")
+//    @ApiResponses(value = {
+//            @ApiResponse(responseCode = "200", description = "신규 예약 조회 성공", content = @Content(schema = @Schema(implementation = CompletableFuture.class))),
+//            @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
+//            @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
+//    })
+//    @GetMapping("/reservation-proceed-async")
+//    public CompletableFuture<ResponseEntity<List<ReadReservationListResponse>>> getProceedingReservationsByStoreIdAsync(@RequestParam String storeId) {
+//        return reservationService.getProceedingReservationsByStoreId(storeId)
+//                .thenApply(reservationResponseList -> {
+//                    List<ReadFirstItemResponse> firstItemResponseList = itemsService.getFirstItemNamesFromReservations(reservationResponseList);
+//                    List<ReadReservationListResponse> responseList = new ArrayList<>();
+//                    for (int i = 0; i < reservationResponseList.size(); i++) {
+//                        ReadReservationListResponse response = ReadReservationListResponse.builder()
+//                                .reservationId(reservationResponseList.get(i).id())
+//                                .firstItemName(firstItemResponseList.get(i).itemName())
+//                                .itemQuantity(firstItemResponseList.get(i).itemQuantity())
+//                                .createdAt(reservationResponseList.get(i).createdAt())
+//                                .pickupTime(reservationResponseList.get(i).pickupTime())
+//                                .reservationState(reservationResponseList.get(i).reservationState())
+//                                .build();
+//                        responseList.add(response);
+//                    }
+//                    return ResponseEntity.ok(responseList);
+//                });
+//    }
+
+//    @Operation(summary = "storeId 값으로 해당 가게의 완료 예약들을 가져옵니다.", description = "storeId 값으로 해당 가게의 완료 예약들을 가져옵니다.")
+//    @ApiResponses(value = {
+//            @ApiResponse(responseCode = "200", description = "완료 예약 조회 성공", content = @Content(schema = @Schema(implementation = List.class))),
+//            @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
+//            @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
+//    })
+//    @GetMapping("/reservation-done")
+//    public ResponseEntity<List<ReadReservationListResponse>> getDoneReservationsByStoreId(@RequestParam String storeId) {
+//        List<ReadReservationResponse> reservationResponseList = reservationService.getEndByStoreId(storeId);
+//        List<ReadFirstItemResponse> firstItemResponse = itemsService.getFirstItemNamesFromReservations(reservationResponseList);
+//        List<ReadReservationListResponse> responseList = new ArrayList<>();
+//
+//        for(int i=0; i<reservationResponseList.size(); i++) {
+//            ReadReservationListResponse response = ReadReservationListResponse.builder()
+//                    .reservationId(reservationResponseList.get(i).id())
+//                    .firstItemName(firstItemResponse.get(i).itemName())
+//                    .itemQuantity(firstItemResponse.get(i).itemQuantity())
+//                    .createdAt(reservationResponseList.get(i).createdAt())
+//                    .pickupTime(reservationResponseList.get(i).pickupTime())
+//                    .reservationState(reservationResponseList.get(i).reservationState())
+//                    .build();
+//
+//            responseList.add(response);
+//        }
+//
+//        return ResponseEntity.ok(responseList);
+//    }
+
+//    @Operation(summary = "storeId 값으로 해당 가게의 완료 예약들을 비동기로 가져옵니다.", description = "storeId 값으로 해당 가게의 완료 예약들을 비동기로 가져옵니다.")
+//    @ApiResponses(value = {
+//            @ApiResponse(responseCode = "200", description = "신규 예약 조회 성공", content = @Content(schema = @Schema(implementation = CompletableFuture.class))),
+//            @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
+//            @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
+//    })
+//    @GetMapping("/reservation-done-async")
+//    public CompletableFuture<ResponseEntity<List<ReadReservationListResponse>>> getEndReservationsByStoreIdAsync(@RequestParam String storeId) {
+//        return reservationService.getEndReservationsByStoreId(storeId)
+//                .thenApply(reservationResponseList -> {
+//                    List<ReadFirstItemResponse> firstItemResponseList = itemsService.getFirstItemNamesFromReservations(reservationResponseList);
+//                    List<ReadReservationListResponse> responseList = new ArrayList<>();
+//                    for (int i = 0; i < reservationResponseList.size(); i++) {
+//                        ReadReservationListResponse response = ReadReservationListResponse.builder()
+//                                .reservationId(reservationResponseList.get(i).id())
+//                                .firstItemName(firstItemResponseList.get(i).itemName())
+//                                .itemQuantity(firstItemResponseList.get(i).itemQuantity())
+//                                .createdAt(reservationResponseList.get(i).createdAt())
+//                                .pickupTime(reservationResponseList.get(i).pickupTime())
+//                                .reservationState(reservationResponseList.get(i).reservationState())
+//                                .build();
+//                        responseList.add(response);
+//                    }
+//                    return ResponseEntity.ok(responseList);
+//                });
+//    }
+
+
+    //    @Operation(summary = "storeId 값으로 해당 가게의 신규 예약들을 SSE를 통해 가져옵니다.", description = "storeId 값으로 해당 가게의 신규 예약들을 SSE를 통해 가져옵니다.")
 //    @ApiResponses(value = {
 //            @ApiResponse(responseCode = "200", description = "신규 예약 조회 성공", content = @Content(schema = @Schema(implementation = SseEmitter.class))),
 //            @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
@@ -397,73 +422,48 @@ public class ReservationRestController {
 //        return emitter;
 //    }
 
-    @Operation(summary = "storeId 값으로 해당 가게의 신규 예약들을 SSE를 통해 가져옵니다.", description = "storeId 값으로 해당 가게의 신규 예약들을 SSE를 통해 가져옵니다.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "신규 예약 조회 성공", content = @Content(schema = @Schema(implementation = SseEmitter.class))),
-            @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
-            @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
-    })
-    @GetMapping(value = "/sse/reservations-new", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public ResponseEntity<SseEmitter> streamNewReservations(@RequestParam String storeId, @RequestParam String userId){
-        return ResponseEntity.ok(reservationService.getNewReservationsByStoreIdSse(userId, storeId));
-    }
+//    @Operation(summary = "storeId 값으로 해당 가게의 신규 예약들을 SSE를 통해 가져옵니다.", description = "storeId 값으로 해당 가게의 신규 예약들을 SSE를 통해 가져옵니다.")
+//    @ApiResponses(value = {
+//            @ApiResponse(responseCode = "200", description = "신규 예약 조회 성공", content = @Content(schema = @Schema(implementation = SseEmitter.class))),
+//            @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
+//            @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
+//    })
+//    @GetMapping(value = "/sse/reservations-new", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+//    public ResponseEntity<SseEmitter> streamNewReservations(@RequestParam String storeId, @RequestParam String userId){
+//        return ResponseEntity.ok(reservationService.getNewReservationsByStoreIdSse(userId, storeId));
+//    }
 
-    @Operation(summary = "storeId 값으로 해당 가게의 완료 예약들을 slice 형태로 가져옵니다.", description = "storeId 값으로 해당 가게의 완료 예약들을 slice 형태로 가져옵니다.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "완료 예약 조회 성공", content = @Content(schema = @Schema(implementation = Slice.class))),
-            @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
-            @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
-    })
-    @GetMapping("/reservations-end-slice-time")
-    public Slice<ReadReservationListResponse> endReservationsCursor(@RequestParam String storeId, @RequestParam int page, @RequestParam int size, @RequestParam String timeStamp) throws ExecutionException, InterruptedException {
-        Timestamp ts = Timestamp.parseTimestamp(timeStamp);
-
-        Slice<ReadReservationResponse> reservationResponseSlice = reservationService.getReservationsByStoreIdAndTimeSlice(storeId, ts, page, size);
-
-        List<ReadReservationResponse> reservationResponseList = reservationResponseSlice.getContent();
-
-        List<ReadFirstItemResponse> firstItemResponseList = itemsService.getFirstItemNamesFromReservations(reservationResponseList);
-        List<ReadReservationListResponse> responseList = new ArrayList<>();
-
-        for (int i = 0; i < reservationResponseList.size(); i++) {
-            ReadReservationListResponse response = ReadReservationListResponse.builder()
-                    .reservationId(reservationResponseList.get(i).id())
-                    .firstItemName(firstItemResponseList.get(i).itemName())
-                    .itemQuantity(firstItemResponseList.get(i).itemQuantity())
-                    .createdAt(reservationResponseList.get(i).createdAt())
-                    .pickupTime(reservationResponseList.get(i).pickupTime())
-                    .reservationState(reservationResponseList.get(i).reservationState())
-                    .build();
-            responseList.add(response);
-        }
-
-        Pageable pageable = PageRequest.of(page, size);
-
-        return new SliceImpl<>(responseList, pageable, reservationResponseSlice.hasNext());
-    }
-
-    @PutMapping("/reservation/all-fail")
-    public ResponseEntity<Void> reservationFailByStoreId(@RequestParam String storeId) {
-
-        List<ReadReservationResponse> reservationList = reservationService.getNewByStoreId(storeId);
-
-        for(ReadReservationResponse reservation : reservationList) {
-            reservationService.reservationFail(reservation.id());
-        }
-
-        return ResponseEntity.noContent().build();
-    }
-
-    @Operation(summary = "유저 Id와 가게 Id값으로 해당 유저의 알림을 받을 수 있는 리스너를 생성합니다.", description = "유저 Id와 가게 Id값으로 해당 유저의 알림을 받을 수 있는 리스너를 생성합니다.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "알림 리스너 성공"),
-            @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
-            @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
-    })
-    @PostMapping("/reservation-new/fcm")
-    public ResponseEntity<Void> reservationNewFCM(@RequestParam String storeId, @RequestParam String userId) {
-        reservationService.sendFCMNewReservation(storeId, userId);
-        return ResponseEntity.noContent().build();
-    }
-
+//    @Operation(summary = "storeId 값으로 해당 가게의 완료 예약들을 slice 형태로 가져옵니다.", description = "storeId 값으로 해당 가게의 완료 예약들을 slice 형태로 가져옵니다.")
+//    @ApiResponses(value = {
+//            @ApiResponse(responseCode = "200", description = "완료 예약 조회 성공", content = @Content(schema = @Schema(implementation = Slice.class))),
+//            @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
+//            @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
+//    })
+//    @GetMapping("/reservations-end-slice-time")
+//    public Slice<ReadReservationListResponse> endReservationsCursor(@RequestParam String storeId, @RequestParam int page, @RequestParam int size, @RequestParam String timeStamp) throws ExecutionException, InterruptedException {
+//        Timestamp ts = Timestamp.parseTimestamp(timeStamp);
+//
+//        Slice<ReadReservationResponse> reservationResponseSlice = reservationService.getReservationsByStoreIdAndTimeSlice(storeId, ts, page, size);
+//
+//        List<ReadReservationResponse> reservationResponseList = reservationResponseSlice.getContent();
+//
+//        List<ReadFirstItemResponse> firstItemResponseList = itemsService.getFirstItemNamesFromReservations(reservationResponseList);
+//        List<ReadReservationListResponse> responseList = new ArrayList<>();
+//
+//        for (int i = 0; i < reservationResponseList.size(); i++) {
+//            ReadReservationListResponse response = ReadReservationListResponse.builder()
+//                    .reservationId(reservationResponseList.get(i).id())
+//                    .firstItemName(firstItemResponseList.get(i).itemName())
+//                    .itemQuantity(firstItemResponseList.get(i).itemQuantity())
+//                    .createdAt(reservationResponseList.get(i).createdAt())
+//                    .pickupTime(reservationResponseList.get(i).pickupTime())
+//                    .reservationState(reservationResponseList.get(i).reservationState())
+//                    .build();
+//            responseList.add(response);
+//        }
+//
+//        Pageable pageable = PageRequest.of(page, size);
+//
+//        return new SliceImpl<>(responseList, pageable, reservationResponseSlice.hasNext());
+//    }
 }
