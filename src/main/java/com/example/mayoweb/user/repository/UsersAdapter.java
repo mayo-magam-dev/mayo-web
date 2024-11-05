@@ -3,6 +3,7 @@ import com.example.mayoweb.commons.exception.ApplicationException;
 import com.example.mayoweb.commons.exception.payload.ErrorStatus;
 import com.example.mayoweb.fcm.entity.FCMToken;
 import com.example.mayoweb.user.domain.UsersEntity;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.Timestamp;
 import com.google.cloud.firestore.*;
@@ -21,22 +22,7 @@ public class UsersAdapter {
 
     private static final String COLLECTION_NAME_FCM_TOKENS = "fcm_tokens";
     private static final String FIELD_FCM_TOKEN = "fcm_token";
-
-//    public UsersEntity getUserByDocRef(DocumentReference doc){
-//
-//        ApiFuture<DocumentSnapshot> userSnapshotFuture = doc.get();
-//        DocumentSnapshot userSnapshot = null;
-//
-//        try {
-//            userSnapshot = userSnapshotFuture.get();
-//        } catch (InterruptedException | ExecutionException e) {
-//            throw new ApplicationException(ErrorStatus.toErrorStatus("유저를 찾을 수 없습니다.", 404, LocalDateTime.now()));
-//        }
-//        if (userSnapshot.exists()) {
-//            return userSnapshot.toObject(UsersEntity.class);
-//        }
-//        return null;
-//    }
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     public Optional<UsersEntity> findByUserId(String userId) {
 
@@ -178,5 +164,21 @@ public class UsersAdapter {
                 .storeRef((DocumentReference) document.get("store_ref"))
                 .build();
     }
+
+    //    public UsersEntity getUserByDocRef(DocumentReference doc){
+//
+//        ApiFuture<DocumentSnapshot> userSnapshotFuture = doc.get();
+//        DocumentSnapshot userSnapshot = null;
+//
+//        try {
+//            userSnapshot = userSnapshotFuture.get();
+//        } catch (InterruptedException | ExecutionException e) {
+//            throw new ApplicationException(ErrorStatus.toErrorStatus("유저를 찾을 수 없습니다.", 404, LocalDateTime.now()));
+//        }
+//        if (userSnapshot.exists()) {
+//            return userSnapshot.toObject(UsersEntity.class);
+//        }
+//        return null;
+//    }
 }
 
