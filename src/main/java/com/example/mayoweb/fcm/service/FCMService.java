@@ -1,9 +1,12 @@
 package com.example.mayoweb.fcm.service;
 
+import com.example.mayoweb.commons.exception.ApplicationException;
+import com.example.mayoweb.commons.exception.payload.ErrorStatus;
 import com.example.mayoweb.fcm.dto.FCMMessageDto;
 import com.example.mayoweb.fcm.dto.WebPushNotificationsDto;
 import com.example.mayoweb.fcm.repository.WebPushNotificationsAdapter;
 import com.example.mayoweb.store.domain.dto.response.ReadStoreResponse;
+import com.example.mayoweb.store.repository.StoresAdapter;
 import com.example.mayoweb.store.service.StoresService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -30,7 +33,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class FCMService {
 
-    private final StoresService storesService;
+    private final StoresAdapter storesAdapter;
     private static final String ACCEPT_TITLE = "예약을 성공했어요!";
     private static final String ACCEPT_TEXT = "픽업시간내로 픽업해주세요.";
     private static final String REJECT_TITLE = "예약을 실패되었어요.";
@@ -158,7 +161,9 @@ public class FCMService {
 
     public boolean sendOpenMessage(List<String> tokens, String storeId) throws IOException {
 
-        ReadStoreResponse store = storesService.getStoreById(storeId);
+        ReadStoreResponse store = ReadStoreResponse.fromEntity(storesAdapter.findByStoreId(storeId).orElseThrow(() -> new ApplicationException(
+                ErrorStatus.toErrorStatus("가게를 찾지 못했습니다.", 404, LocalDateTime.now())
+        )));
 
         List<Boolean> results = new ArrayList<>();
         for (String token : tokens) {
