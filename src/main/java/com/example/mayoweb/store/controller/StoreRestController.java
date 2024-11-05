@@ -91,7 +91,6 @@ public class StoreRestController {
     @PutMapping("/store/close")
     public ResponseEntity<Void> closeStore(@RequestParam String storeId) {
 
-        itemsService.closeTask(storeId);
         storesService.closeStore(storeId);
 
         return ResponseEntity.ok().build();
