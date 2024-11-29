@@ -7,7 +7,6 @@ import com.example.mayoweb.items.service.ItemsService;
 import com.example.mayoweb.items.domain.request.CreateItemRequest;
 import com.example.mayoweb.items.domain.response.ReadItemResponse;
 import com.example.mayoweb.reservation.domain.dto.response.ReadReservationResponse;
-import com.example.mayoweb.storage.service.StorageService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -30,7 +29,6 @@ import java.util.List;
 public class ItemRestController {
 
     private final ItemsService itemsService;
-    private final StorageService storageService;
 
     @Operation(summary = "itemId 값으로 해당 item객체를 가져옵니다.", description = "item PK값으로 해당 item 객체를 가져옵니다.")
     @ApiResponses(value = {
@@ -69,9 +67,7 @@ public class ItemRestController {
         }
 
         if(file != null && !file.isEmpty()) {
-            String imageUrl = storageService.uploadFirebaseBucket(file, request.itemName());
-            CreateItemRequest createItemRequest = CreateItemRequest.updateItemURL(request, imageUrl);
-            itemsService.save(createItemRequest, storeId);
+            itemsService.save(request, storeId, file);
         } else {
             itemsService.save(request, storeId);
         }
@@ -94,9 +90,7 @@ public class ItemRestController {
         }
 
         if(file != null && !file.isEmpty()) {
-            String imageUrl = storageService.uploadFirebaseBucket(file, request.itemName());
-            UpdateItemRequest updateItemRequest = UpdateItemRequest.updateItemURL(request, imageUrl);
-            itemsService.updateItem(updateItemRequest);
+            itemsService.updateItem(request, file);
         } else {
             itemsService.updateItem(request);
         }

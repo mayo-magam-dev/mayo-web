@@ -29,9 +29,6 @@ import java.util.List;
 public class StoreRestController {
 
     private final StoresService storesService;
-    private final ItemsService itemsService;
-    private final FCMService fcmService;
-    private final UsersService userService;
 
     @Operation(summary = "ID 값으로 store 객체를 가져옵니다.", description = "store PK 값으로 객체를 가져옵니다.")
     @ApiResponses(value = {
@@ -69,13 +66,7 @@ public class StoreRestController {
     @PutMapping("/store/open")
     public ResponseEntity<Void> openStore(@RequestBody(required = false) OpenItemRequest openItemRequest, @RequestParam String storeId){
 
-        if(openItemRequest.itemIdList() != null && openItemRequest.quantityList() != null) {
-            itemsService.openTask(openItemRequest.itemIdList(), openItemRequest.quantityList());
-        }
-
-        storesService.openStore(storeId);
-        List<String> tokens = userService.getTokensByStoresRef(storeId);
-        fcmService.sendOpenMessage(tokens, storeId);
+        storesService.openStore(openItemRequest, storeId);
 
         return ResponseEntity.ok().build();
     }
