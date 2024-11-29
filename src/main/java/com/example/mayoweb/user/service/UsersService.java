@@ -17,12 +17,6 @@ public class UsersService {
 
     private final UsersAdapter usersAdapter;
 
-//    public ReadUserResponse getUserByDocRef(DocumentReference doc){
-//        if(doc != null) {
-//            return ReadUserResponse.fromEntity(usersAdapter.getUserByDocRef(doc));
-//        }
-//        return null;
-//    }
 
     public ReadUserResponse getUserById(String userId) {
         return ReadUserResponse.fromEntity(usersAdapter.findByUserId(userId)

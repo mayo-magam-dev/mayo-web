@@ -178,47 +178,4 @@ public class ReservationService {
                     .menuTypeCount(carts.size())
                     .build();
     }
-
-//    public CompletableFuture<List<ReadReservationResponse>> getProceedingReservationsByStoreId(String storeId) {
-//        return reservationsAdapter.getProceedingByStoreIdAsync(storeId).thenApply(reservationEntities ->
-//                reservationEntities.stream().map(ReadReservationResponse::fromEntity).collect(Collectors.toList())
-//        );
-//    }
-//
-//    public List<ReadReservationResponse> getEndByStoreId(String storeId) {
-//        return reservationsAdapter.getEndByStoreRef(storeId).stream().map(ReadReservationResponse::fromEntity).toList();
-
-
-//    public CompletableFuture<List<ReadReservationResponse>> getEndReservationsByStoreId(String storeId) {
-//        return reservationsAdapter.getEndByStoreIdAsync(storeId).thenApply(reservationEntities ->
-//                reservationEntities.stream().map(ReadReservationResponse::fromEntity).collect(Collectors.toList())
-//        );
-//    }
-//
-//    public Slice<ReadReservationResponse> getReservationsByStoreIdAndTimeSlice(String storeId, Timestamp timestamp, int page, int size) throws ExecutionException, InterruptedException {
-//        Pageable pageable = PageRequest.of(page, size);
-//        return reservationsAdapter.findEndReservationsByStoreIdAndTime(storeId, pageable, timestamp).get().map(ReadReservationResponse::fromEntity);
-//    }
-
-    //    public CompletableFuture<List<ReadReservationResponse>> getNewReservationsByStoreIdSse(String clientId, String storeId) throws ExecutionException, InterruptedException {
-//        return reservationsAdapter.getNewByStoreIdSse(clientId, storeId).thenApply(reservationEntities ->
-//                reservationEntities.stream().map(ReadReservationResponse::fromEntity).toList()
-//        );
-//    }
-
-    //    public Slice<ReadReservationResponse> getReservationsByStoreIdSlice(String storeId, int page, int size) throws ExecutionException, InterruptedException {
-//        Pageable pageable = PageRequest.of(page, size);
-//        return reservationsAdapter.findEndReservationsByStoreId(storeId, pageable).get().map(ReadReservationResponse::fromEntity);
-//    }
-
-//    public SseEmitter getNewReservationsByStoreIdSse(String clientId, String storeId) {
-//        return reservationsAdapter.streamNewReservations(clientId, storeId);
-//    }
-
-//    public CompletableFuture<List<ReadReservationResponse>> getNewReservationsByStoreId(String storeId) {
-//        return reservationsAdapter.getNewByStoreIdAsync(storeId).thenApply(reservationEntities ->
-//                reservationEntities.stream().map(ReadReservationResponse::fromEntity).toList()
-//        );
-//    }
-
 }
