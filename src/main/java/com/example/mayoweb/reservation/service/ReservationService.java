@@ -19,11 +19,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 @Service
 @RequiredArgsConstructor
@@ -39,30 +37,16 @@ public class ReservationService {
     public void reservationAccept(String id){
         reservationsAdapter.reservationProceeding(id);
         ReadReservationResponse dto = getReservationById(id);
-        try {
-            List<String> tokens = userService.getTokensByUserRef(dto.userRef());
-            fcmService.sendAcceptMessage(tokens);
+        List<String> tokens = userService.getTokensByUserRef(dto.userRef());
+        fcmService.sendAcceptMessage(tokens);
 
-        } catch (ExecutionException | InterruptedException e) {
-            log.info("user 토큰을 찾지 못했습니다.");
-        } catch (IOException e) {
-            log.info("수락 fcm 메세지 전송에 실패하였습니다.");
-        }
     }
 
     public void reservationFail(String id){
         reservationsAdapter.reservationFail(id);
-
         ReadReservationResponse dto = getReservationById(id);
-        try {
-            List<String> tokens = userService.getTokensByUserRef(dto.userRef());
-            fcmService.sendRejectMessage(tokens);
-
-        } catch (ExecutionException | InterruptedException e) {
-            log.info("user 토큰을 찾지 못했습니다.");
-        } catch (IOException e) {
-            log.info("거절 fcm 메세지 전송에 실패하였습니다.");
-        }
+        List<String> tokens = userService.getTokensByUserRef(dto.userRef());
+        fcmService.sendRejectMessage(tokens);
     }
 
     public void reservationDone(String id){
@@ -91,7 +75,7 @@ public class ReservationService {
         return responseList;
     }
 
-    public List<ReadReservationListResponse> getProcessingByStoreId(String storeId) throws ExecutionException, InterruptedException {
+    public List<ReadReservationListResponse> getProcessingByStoreId(String storeId) {
 
         List<ReadReservationResponse> reservationResponseList = reservationsAdapter.getProcessingByStoreRef(storeId).stream().map(ReadReservationResponse::fromEntity).toList();
 

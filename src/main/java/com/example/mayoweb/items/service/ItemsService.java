@@ -98,11 +98,11 @@ public class ItemsService {
         itemsAdapter.updateItemOnSale(itemdIList, quantityList);
     }
 
-    public void updateItemQuantityPlus(String itemId) throws ExecutionException, InterruptedException {
+    public void updateItemQuantityPlus(String itemId) {
         itemsAdapter.updateItemQuantityPlus(itemId);
     }
 
-    public void updateItemQuantityMinus(String itemId) throws ExecutionException, InterruptedException {
+    public void updateItemQuantityMinus(String itemId) {
         itemsAdapter.updateItemQuantityMinus(itemId);
     }
 }
