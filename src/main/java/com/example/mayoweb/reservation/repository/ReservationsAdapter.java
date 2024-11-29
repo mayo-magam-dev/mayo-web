@@ -16,7 +16,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
@@ -28,7 +27,6 @@ import java.util.concurrent.ExecutionException;
 @Slf4j
 public class ReservationsAdapter {
 
-//    private final SseService sseService;
     private final CartsAdapter cartsAdapter;
     private final ItemsAdapter itemsAdapter;
     private final FCMService fcmService;
