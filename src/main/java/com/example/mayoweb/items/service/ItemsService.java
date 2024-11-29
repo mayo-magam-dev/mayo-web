@@ -12,10 +12,12 @@ import com.example.mayoweb.items.repository.ItemsAdapter;
 import com.example.mayoweb.reservation.domain.ReservationEntity;
 import com.example.mayoweb.reservation.domain.dto.response.ReadReservationResponse;
 import com.example.mayoweb.reservation.repository.ReservationsAdapter;
+import com.example.mayoweb.storage.service.StorageService;
 import com.example.mayoweb.store.repository.StoresAdapter;
 import com.google.cloud.firestore.DocumentReference;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -29,12 +31,7 @@ public class ItemsService {
     private final CartsAdapter cartsAdapter;
     private final StoresAdapter storesAdapter;
     private final ReservationsAdapter reservationsAdapter;
-
-//    public ReadItemResponse getItemByDocRef(DocumentReference doc){
-//        return ReadItemResponse.fromEntity(itemsAdapter.getItemByDocRef(doc).orElseThrow(() -> new ApplicationException(
-//                ErrorStatus.toErrorStatus("아이템을 찾을 수 없습니다. ", 404, LocalDateTime.now())
-//        )));
-//    }
+    private final StorageService storageService;
 
     public ReadItemResponse getItemByCartId(String cartId) {
 
@@ -81,8 +78,24 @@ public class ItemsService {
         itemsAdapter.saveItem(item.createEntity(storeRef));
     }
 
+    public void save(CreateItemRequest request, String storeId, MultipartFile file) {
+
+        String imageUrl = storageService.uploadFirebaseBucket(file, request.itemName());
+        CreateItemRequest createItemRequest = CreateItemRequest.updateItemURL(request, imageUrl);
+
+        DocumentReference storeRef = storesAdapter.getDocsRef(storeId);
+
+        itemsAdapter.saveItem(createItemRequest.createEntity(storeRef));
+    }
+
     public void updateItem(UpdateItemRequest item) {
         itemsAdapter.updateItem(item.updateEntity());
+    }
+
+    public void updateItem(UpdateItemRequest request, MultipartFile file) {
+        String imageUrl = storageService.uploadFirebaseBucket(file, request.itemName());
+        UpdateItemRequest updateItemRequest = UpdateItemRequest.updateItemURL(request, imageUrl);
+        itemsAdapter.updateItem(updateItemRequest.updateEntity());
     }
 
     public void deleteItem(String itemId) {
