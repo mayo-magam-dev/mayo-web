@@ -7,7 +7,6 @@ import com.example.mayoweb.items.service.ItemsService;
 import com.example.mayoweb.items.domain.request.CreateItemRequest;
 import com.example.mayoweb.items.domain.response.ReadItemResponse;
 import com.example.mayoweb.reservation.domain.dto.response.ReadReservationResponse;
-import com.example.mayoweb.storage.service.StorageService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -22,9 +21,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 @Tag(name = "아이템 API", description = "아이템 관리 API")
 @RestController
@@ -32,7 +29,6 @@ import java.util.concurrent.ExecutionException;
 public class ItemRestController {
 
     private final ItemsService itemsService;
-    private final StorageService storageService;
 
     @Operation(summary = "itemId 값으로 해당 item객체를 가져옵니다.", description = "item PK값으로 해당 item 객체를 가져옵니다.")
     @ApiResponses(value = {
@@ -64,16 +60,14 @@ public class ItemRestController {
             @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
     })
     @PostMapping("/item")
-    public ResponseEntity<Void> createItem(@RequestPart @Valid CreateItemRequest request, @RequestParam String storeId, @RequestParam(value = "itemImage", required = false) MultipartFile file, BindingResult bindingResult) throws IOException {
+    public ResponseEntity<Void> createItem(@RequestPart @Valid CreateItemRequest request, BindingResult bindingResult, @RequestParam String storeId, @RequestParam(value = "itemImage", required = false) MultipartFile file) {
 
         if (bindingResult.hasErrors()) {
             throw new ValidationFailedException(bindingResult);
         }
 
         if(file != null && !file.isEmpty()) {
-            String imageUrl = storageService.uploadFirebaseBucket(file, request.itemName());
-            CreateItemRequest createItemRequest = CreateItemRequest.updateItemURL(request, imageUrl);
-            itemsService.save(createItemRequest, storeId);
+            itemsService.save(request, storeId, file);
         } else {
             itemsService.save(request, storeId);
         }
@@ -89,16 +83,14 @@ public class ItemRestController {
             @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
     })
     @PutMapping("/item")
-    public ResponseEntity<Void> updateItem(@RequestPart @Valid UpdateItemRequest request, @RequestParam(value = "itemImage", required = false) MultipartFile file, BindingResult bindingResult) throws IOException {
+    public ResponseEntity<Void> updateItem(@RequestPart @Valid UpdateItemRequest request, BindingResult bindingResult, @RequestParam(value = "itemImage", required = false) MultipartFile file) {
 
         if (bindingResult.hasErrors()) {
             throw new ValidationFailedException(bindingResult);
         }
 
         if(file != null && !file.isEmpty()) {
-            String imageUrl = storageService.uploadFirebaseBucket(file, request.itemName());
-            UpdateItemRequest updateItemRequest = UpdateItemRequest.updateItemURL(request, imageUrl);
-            itemsService.updateItem(updateItemRequest);
+            itemsService.updateItem(request, file);
         } else {
             itemsService.updateItem(request);
         }
@@ -133,14 +125,14 @@ public class ItemRestController {
     }
 
     @PostMapping("/item-quantity-plus")
-    public ResponseEntity<Void> itemQuantityPlus(@RequestParam String itemId) throws ExecutionException, InterruptedException {
+    public ResponseEntity<Void> itemQuantityPlus(@RequestParam String itemId){
         itemsService.updateItemQuantityPlus(itemId);
 
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/item-quantity-minus")
-    public ResponseEntity<Void> itemQuantityMinus(@RequestParam String itemId) throws ExecutionException, InterruptedException {
+    public ResponseEntity<Void> itemQuantityMinus(@RequestParam String itemId) {
         itemsService.updateItemQuantityMinus(itemId);
 
         return ResponseEntity.noContent().build();
