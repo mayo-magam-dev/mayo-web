@@ -64,7 +64,7 @@ public class ItemRestController {
             @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
     })
     @PostMapping("/item")
-    public ResponseEntity<Void> createItem(@RequestPart @Valid CreateItemRequest request, @RequestParam String storeId, @RequestParam(value = "itemImage", required = false) MultipartFile file, BindingResult bindingResult) throws IOException {
+    public ResponseEntity<Void> createItem(@RequestPart @Valid CreateItemRequest request, BindingResult bindingResult, @RequestParam String storeId, @RequestParam(value = "itemImage", required = false) MultipartFile file) {
 
         if (bindingResult.hasErrors()) {
             throw new ValidationFailedException(bindingResult);
@@ -89,7 +89,7 @@ public class ItemRestController {
             @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
     })
     @PutMapping("/item")
-    public ResponseEntity<Void> updateItem(@RequestPart @Valid UpdateItemRequest request, @RequestParam(value = "itemImage", required = false) MultipartFile file, BindingResult bindingResult) throws IOException {
+    public ResponseEntity<Void> updateItem(@RequestPart @Valid UpdateItemRequest request, BindingResult bindingResult, @RequestParam(value = "itemImage", required = false) MultipartFile file) {
 
         if (bindingResult.hasErrors()) {
             throw new ValidationFailedException(bindingResult);
@@ -133,14 +133,14 @@ public class ItemRestController {
     }
 
     @PostMapping("/item-quantity-plus")
-    public ResponseEntity<Void> itemQuantityPlus(@RequestParam String itemId) throws ExecutionException, InterruptedException {
+    public ResponseEntity<Void> itemQuantityPlus(@RequestParam String itemId){
         itemsService.updateItemQuantityPlus(itemId);
 
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/item-quantity-minus")
-    public ResponseEntity<Void> itemQuantityMinus(@RequestParam String itemId) throws ExecutionException, InterruptedException {
+    public ResponseEntity<Void> itemQuantityMinus(@RequestParam String itemId) {
         itemsService.updateItemQuantityMinus(itemId);
 
         return ResponseEntity.noContent().build();

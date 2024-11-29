@@ -71,7 +71,7 @@ public class ReservationsAdapter {
 
 
     //가게 document id를 받아 해당 가게의 진행중인 예약들을 가져옵니다.
-    public List<ReservationEntity> getProcessingByStoreRef(String storesRef) throws ExecutionException, InterruptedException {
+    public List<ReservationEntity> getProcessingByStoreRef(String storesRef) {
 
         List<ReservationEntity> reservations = new ArrayList<>();
 
@@ -81,7 +81,12 @@ public class ReservationsAdapter {
         Query query = reservationsRef.whereEqualTo("store_ref", storeDocumentId).whereEqualTo("reservation_state",State.PROCEEDING.ordinal());
         ApiFuture<QuerySnapshot> querySnapshotApiFuture = query.get();
         QuerySnapshot querySnapshot = null;
-        querySnapshot = querySnapshotApiFuture.get();
+
+        try {
+            querySnapshot = querySnapshotApiFuture.get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new ApplicationException(ErrorStatus.toErrorStatus("firebase 통신 중 오류가 발생하였습니다.", 500, LocalDateTime.now()));
+        }
 
 
         Comparator<ReservationEntity> createdAtComparator = Comparator
@@ -310,19 +315,12 @@ public class ReservationsAdapter {
             if (querySnapshot != null) {
 
                 Set<String> tokens = new HashSet<>();
-                try {
-                    tokens.addAll(userService.getTokensByUserRef(userId));
-                    log.info("tokens : {}", tokens);
-                } catch (ExecutionException | InterruptedException ex) {
-                    throw new RuntimeException(ex);
-                }
+                tokens.addAll(userService.getTokensByUserRef(userId));
+                log.info("tokens : {}", tokens);
+
                 CompletableFuture.runAsync(() -> {
-                    try {
-                        fcmService.sendNewReservationMessage(tokens.stream().toList());
-                        log.info("fcm send");
-                    } catch (IOException ex) {
-                        throw new RuntimeException(ex);
-                    }
+                    fcmService.sendNewReservationMessage(tokens.stream().toList());
+                    log.info("fcm send");
                 });
             }
         });
