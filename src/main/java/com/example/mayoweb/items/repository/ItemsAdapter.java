@@ -73,7 +73,7 @@ public class ItemsAdapter {
         }
     }
 
-    public void updateItemQuantityPlus(String itemId) throws ExecutionException, InterruptedException {
+    public void updateItemQuantityPlus(String itemId)  {
 
         Firestore db = FirestoreClient.getFirestore();
 
@@ -96,7 +96,7 @@ public class ItemsAdapter {
         }
     }
 
-    public void updateItemQuantityMinus(String itemId) throws ExecutionException, InterruptedException {
+    public void updateItemQuantityMinus(String itemId) {
 
         Firestore db = FirestoreClient.getFirestore();
 

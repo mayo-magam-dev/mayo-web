@@ -69,7 +69,7 @@ public class StoreRestController {
             @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
     })
     @PutMapping("/store/open")
-    public ResponseEntity<Void> openStore(@RequestBody(required = false)OpenItemRequest openItemRequest, @RequestParam String storeId) throws ExecutionException, InterruptedException, IOException {
+    public ResponseEntity<Void> openStore(@RequestBody(required = false) OpenItemRequest openItemRequest, @RequestParam String storeId){
 
         if(openItemRequest.itemIdList() != null && openItemRequest.quantityList() != null) {
             itemsService.openTask(openItemRequest.itemIdList(), openItemRequest.quantityList());
