@@ -1,6 +1,5 @@
 package com.example.mayoweb.fcm.entity;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.cloud.firestore.annotation.PropertyName;
 import lombok.Builder;

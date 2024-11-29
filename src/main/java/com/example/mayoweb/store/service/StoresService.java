@@ -36,7 +36,7 @@ public class StoresService {
         itemService.closeTask(storeId);
     }
 
-    public void openStore(String storeId) throws ExecutionException, InterruptedException, IOException {
+    public void openStore(String storeId) {
         storesAdapter.openStore(storeId);
     }
 
