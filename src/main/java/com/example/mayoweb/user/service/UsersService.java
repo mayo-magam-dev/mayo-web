@@ -35,19 +35,19 @@ public class UsersService {
                 )));
     }
 
-    public List<String> getTokensByUserRef(String userRef) throws ExecutionException, InterruptedException {
+    public List<String> getTokensByUserRef(String userRef){
         return usersAdapter.getFCMTokenByUserRef(userRef);
     }
 
-    public List<String> getTokensByStoresRef(String storesRef) throws ExecutionException, InterruptedException {
+    public List<String> getTokensByStoresRef(String storesRef)  {
         return usersAdapter.getFCMTokenByStoresRef(storesRef);
     }
 
-    public List<String> getTokensByStoresId(String storeId) throws ExecutionException, InterruptedException {
+    public List<String> getTokensByStoresId(String storeId) {
         return usersAdapter.getFCMTokenByStoresId(storeId);
     }
 
-    public void createWebFCMToken(CreateFCMTokenRequest request) throws ExecutionException, InterruptedException, JsonProcessingException {
+    public void createWebFCMToken(CreateFCMTokenRequest request) {
         usersAdapter.createFCMTokenById(request.userId(), request.fcmToken());
     }
 }

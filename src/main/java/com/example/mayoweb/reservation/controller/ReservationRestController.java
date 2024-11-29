@@ -56,7 +56,7 @@ public class ReservationRestController {
             @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
     })
     @GetMapping("/reservation-proceed")
-    public ResponseEntity<List<ReadReservationListResponse>> getProceedingReservationsByStoreId(@RequestParam String storeId) throws ExecutionException, InterruptedException {
+    public ResponseEntity<List<ReadReservationListResponse>> getProceedingReservationsByStoreId(@RequestParam String storeId){
         return ResponseEntity.ok(reservationService.getProcessingByStoreId(storeId));
     }
 

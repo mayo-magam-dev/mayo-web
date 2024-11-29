@@ -26,6 +26,7 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import org.apache.http.HttpHeaders;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -44,19 +45,24 @@ public class FCMService {
     private final ObjectMapper objectMapper;
     private final WebPushNotificationsAdapter webPushNotificationsAdapter;
 
-    public Boolean sendMessageTo(String targetToken, String title, String body, String image) throws IOException {
+    public Boolean sendMessageTo(String targetToken, String title, String body, String image){
 
         String message = makeMessage(targetToken, title, body, image);
 
         OkHttpClient client = new OkHttpClient();
         RequestBody requestBody = RequestBody.create(message, MediaType.get("application/json; charset=UTF-8"));
 
-        Request request = new Request.Builder()
-                .url(API_URL)
-                .post(requestBody)
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + getAccessToken())
-                .header(HttpHeaders.CONTENT_TYPE, "application/json; UTF-8")
-                .build();
+        Request request = null;
+        try {
+            request = new Request.Builder()
+                    .url(API_URL)
+                    .post(requestBody)
+                    .header(HttpHeaders.AUTHORIZATION, "Bearer " + getAccessToken())
+                    .header(HttpHeaders.CONTENT_TYPE, "application/json; UTF-8")
+                    .build();
+        } catch (IOException e) {
+            throw new ApplicationException(ErrorStatus.toErrorStatus("fcm 요청 생성 중 오류가 발생하였습니다.", 500, LocalDateTime.now()));
+        }
 
         Response response;
 
@@ -72,7 +78,7 @@ public class FCMService {
         return result;
     }
 
-    private String makeMessage(String targetToken, String title, String body, String image) throws JsonProcessingException {
+    private String makeMessage(String targetToken, String title, String body, String image)  {
         FCMMessageDto fcmMessageDto = FCMMessageDto.builder()
                 .message(
                         FCMMessageDto.Message.builder()
@@ -89,7 +95,11 @@ public class FCMService {
                 .validateOnly(false)
                 .build();
 
-        return objectMapper.writeValueAsString(fcmMessageDto);
+        try {
+            return objectMapper.writeValueAsString(fcmMessageDto);
+        } catch (JsonProcessingException e) {
+            throw new ApplicationException(ErrorStatus.toErrorStatus("json 변경 중 오류가 발생하였습니다.", 500, LocalDateTime.now()));
+        }
     }
 
     //web_push_notification에 추가
@@ -107,7 +117,7 @@ public class FCMService {
         return googleCredentials.getAccessToken().getTokenValue();
     }
 
-    public boolean sendAcceptMessage(List<String> tokens) throws IOException {
+    public boolean sendAcceptMessage(List<String> tokens) {
 
         List<Boolean> results = new ArrayList<>();
 
@@ -133,7 +143,7 @@ public class FCMService {
         return status;
     }
 
-    public boolean sendRejectMessage(List<String> tokens) throws IOException {
+    public boolean sendRejectMessage(List<String> tokens)  {
 
         List<Boolean> results = new ArrayList<>();
 
@@ -159,7 +169,7 @@ public class FCMService {
         return status;
     }
 
-    public boolean sendOpenMessage(List<String> tokens, String storeId) throws IOException {
+    public boolean sendOpenMessage(List<String> tokens, String storeId)  {
 
         ReadStoreResponse store = ReadStoreResponse.fromEntity(storesAdapter.findByStoreId(storeId).orElseThrow(() -> new ApplicationException(
                 ErrorStatus.toErrorStatus("가게를 찾지 못했습니다.", 404, LocalDateTime.now())
@@ -187,7 +197,7 @@ public class FCMService {
         return status;
     }
 
-    public boolean sendNewReservationMessage(List<String> tokens) throws IOException {
+    public boolean sendNewReservationMessage(List<String> tokens){
 
         List<Boolean> results = new ArrayList<>();
 
