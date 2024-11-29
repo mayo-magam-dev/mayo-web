@@ -21,9 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 @Tag(name = "가게 API", description = "가게 관리 API")
 @RestController
@@ -31,9 +29,6 @@ import java.util.concurrent.ExecutionException;
 public class StoreRestController {
 
     private final StoresService storesService;
-    private final ItemsService itemsService;
-    private final FCMService fcmService;
-    private final UsersService userService;
 
     @Operation(summary = "ID 값으로 store 객체를 가져옵니다.", description = "store PK 값으로 객체를 가져옵니다.")
     @ApiResponses(value = {
@@ -69,15 +64,9 @@ public class StoreRestController {
             @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
     })
     @PutMapping("/store/open")
-    public ResponseEntity<Void> openStore(@RequestBody(required = false)OpenItemRequest openItemRequest, @RequestParam String storeId) throws ExecutionException, InterruptedException, IOException {
+    public ResponseEntity<Void> openStore(@RequestBody(required = false) OpenItemRequest openItemRequest, @RequestParam String storeId){
 
-        if(openItemRequest.itemIdList() != null && openItemRequest.quantityList() != null) {
-            itemsService.openTask(openItemRequest.itemIdList(), openItemRequest.quantityList());
-        }
-
-        storesService.openStore(storeId);
-        List<String> tokens = userService.getTokensByStoresRef(storeId);
-        fcmService.sendOpenMessage(tokens, storeId);
+        storesService.openStore(openItemRequest, storeId);
 
         return ResponseEntity.ok().build();
     }

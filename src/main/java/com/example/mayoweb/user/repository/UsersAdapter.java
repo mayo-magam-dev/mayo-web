@@ -119,16 +119,26 @@ public class UsersAdapter {
         return fcmTokens;
     }
 
-    public void createFCMTokenById(String userId, String token) throws ExecutionException, InterruptedException {
+    public void createFCMTokenById(String userId, String token){
         Firestore firestore = FirestoreClient.getFirestore();
         DocumentReference userRef = firestore.collection("users").document(userId);
 
-        DocumentSnapshot userDocument = userRef.get().get();
+        DocumentSnapshot userDocument = null;
+        try {
+            userDocument = userRef.get().get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new ApplicationException(ErrorStatus.toErrorStatus("firebase 통신 중 오류가 발생하였습니다.", 500, LocalDateTime.now()));
+        }
 
         if (userDocument.exists()) {
             CollectionReference fcmTokensCollectionRef = userRef.collection(COLLECTION_NAME_FCM_TOKENS);
             ApiFuture<QuerySnapshot> future = fcmTokensCollectionRef.get();
-            List<QueryDocumentSnapshot> documents = future.get().getDocuments();
+            List<QueryDocumentSnapshot> documents = null;
+            try {
+                documents = future.get().getDocuments();
+            } catch (InterruptedException | ExecutionException e) {
+                throw new ApplicationException(ErrorStatus.toErrorStatus("firebase 통신 중 오류가 발생하였습니다.", 500, LocalDateTime.now()));
+            }
 
             for (QueryDocumentSnapshot document : documents) {
                 String fcmToken = document.getString(FIELD_FCM_TOKEN);
@@ -143,12 +153,9 @@ public class UsersAdapter {
                     .deviceType("web")
                     .build();
 
-            Map<String, String> fcmMap = new HashMap<>();
-            fcmMap.put("fcm_token", fcmToken.getToken());
-            fcmMap.put("created_at", fcmToken.getCreatedAt());
-            fcmMap.put("device_type", "web");
+            Map<String, Object> jsonFCM = objectMapper.convertValue(fcmToken, Map.class);
 
-            fcmTokensCollectionRef.add(fcmMap);
+            fcmTokensCollectionRef.add(jsonFCM);
         }
     }
 

@@ -19,11 +19,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 @Service
 @RequiredArgsConstructor
@@ -39,30 +37,16 @@ public class ReservationService {
     public void reservationAccept(String id){
         reservationsAdapter.reservationProceeding(id);
         ReadReservationResponse dto = getReservationById(id);
-        try {
-            List<String> tokens = userService.getTokensByUserRef(dto.userRef());
-            fcmService.sendAcceptMessage(tokens);
+        List<String> tokens = userService.getTokensByUserRef(dto.userRef());
+        fcmService.sendAcceptMessage(tokens);
 
-        } catch (ExecutionException | InterruptedException e) {
-            log.info("user 토큰을 찾지 못했습니다.");
-        } catch (IOException e) {
-            log.info("수락 fcm 메세지 전송에 실패하였습니다.");
-        }
     }
 
     public void reservationFail(String id){
         reservationsAdapter.reservationFail(id);
-
         ReadReservationResponse dto = getReservationById(id);
-        try {
-            List<String> tokens = userService.getTokensByUserRef(dto.userRef());
-            fcmService.sendRejectMessage(tokens);
-
-        } catch (ExecutionException | InterruptedException e) {
-            log.info("user 토큰을 찾지 못했습니다.");
-        } catch (IOException e) {
-            log.info("거절 fcm 메세지 전송에 실패하였습니다.");
-        }
+        List<String> tokens = userService.getTokensByUserRef(dto.userRef());
+        fcmService.sendRejectMessage(tokens);
     }
 
     public void reservationDone(String id){
@@ -91,7 +75,7 @@ public class ReservationService {
         return responseList;
     }
 
-    public List<ReadReservationListResponse> getProcessingByStoreId(String storeId) throws ExecutionException, InterruptedException {
+    public List<ReadReservationListResponse> getProcessingByStoreId(String storeId) {
 
         List<ReadReservationResponse> reservationResponseList = reservationsAdapter.getProcessingByStoreRef(storeId).stream().map(ReadReservationResponse::fromEntity).toList();
 
@@ -194,47 +178,4 @@ public class ReservationService {
                     .menuTypeCount(carts.size())
                     .build();
     }
-
-//    public CompletableFuture<List<ReadReservationResponse>> getProceedingReservationsByStoreId(String storeId) {
-//        return reservationsAdapter.getProceedingByStoreIdAsync(storeId).thenApply(reservationEntities ->
-//                reservationEntities.stream().map(ReadReservationResponse::fromEntity).collect(Collectors.toList())
-//        );
-//    }
-//
-//    public List<ReadReservationResponse> getEndByStoreId(String storeId) {
-//        return reservationsAdapter.getEndByStoreRef(storeId).stream().map(ReadReservationResponse::fromEntity).toList();
-
-
-//    public CompletableFuture<List<ReadReservationResponse>> getEndReservationsByStoreId(String storeId) {
-//        return reservationsAdapter.getEndByStoreIdAsync(storeId).thenApply(reservationEntities ->
-//                reservationEntities.stream().map(ReadReservationResponse::fromEntity).collect(Collectors.toList())
-//        );
-//    }
-//
-//    public Slice<ReadReservationResponse> getReservationsByStoreIdAndTimeSlice(String storeId, Timestamp timestamp, int page, int size) throws ExecutionException, InterruptedException {
-//        Pageable pageable = PageRequest.of(page, size);
-//        return reservationsAdapter.findEndReservationsByStoreIdAndTime(storeId, pageable, timestamp).get().map(ReadReservationResponse::fromEntity);
-//    }
-
-    //    public CompletableFuture<List<ReadReservationResponse>> getNewReservationsByStoreIdSse(String clientId, String storeId) throws ExecutionException, InterruptedException {
-//        return reservationsAdapter.getNewByStoreIdSse(clientId, storeId).thenApply(reservationEntities ->
-//                reservationEntities.stream().map(ReadReservationResponse::fromEntity).toList()
-//        );
-//    }
-
-    //    public Slice<ReadReservationResponse> getReservationsByStoreIdSlice(String storeId, int page, int size) throws ExecutionException, InterruptedException {
-//        Pageable pageable = PageRequest.of(page, size);
-//        return reservationsAdapter.findEndReservationsByStoreId(storeId, pageable).get().map(ReadReservationResponse::fromEntity);
-//    }
-
-//    public SseEmitter getNewReservationsByStoreIdSse(String clientId, String storeId) {
-//        return reservationsAdapter.streamNewReservations(clientId, storeId);
-//    }
-
-//    public CompletableFuture<List<ReadReservationResponse>> getNewReservationsByStoreId(String storeId) {
-//        return reservationsAdapter.getNewByStoreIdAsync(storeId).thenApply(reservationEntities ->
-//                reservationEntities.stream().map(ReadReservationResponse::fromEntity).toList()
-//        );
-//    }
-
 }
