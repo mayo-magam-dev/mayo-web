@@ -30,8 +30,7 @@ Swagger를 통해 API 명세서를 제공합니다.
     - [x] storeId 값으로 해당 가게의 신규 예약들을 가져옵니다.
     - [x] storeId 값으로 해당 가게의 진행 예약들을 가져옵니다.
     - [x] storeId 값으로 해당 가게의 완료, 실패 예약들을 가져옵니다.
-    - [x] reservationId로 예약 상태를 변경합니다.(진행, 완료, 실패)
-    - [x] sse를 통해 신규 예약이 오면 client에게 메세지를 보냅니다.<br><br>
+    - [x] reservationId로 예약 상태를 변경합니다.(진행, 완료, 실패)<br><br>
 
 - [x] 가게
     - [x] storeId로 가게 정보를 가져옵니다.
