@@ -1,9 +1,6 @@
 package com.example.mayoweb.user.domain.dto.response;
 
-import com.example.mayoweb.user.domain.UsersEntity;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.google.cloud.firestore.DocumentReference;
-import com.google.firebase.database.annotations.Nullable;
+import com.example.mayoweb.user.domain.UserEntity;
 import lombok.*;
 
 import java.util.Date;
@@ -43,7 +40,7 @@ public record ReadUserResponse (
       String storeRef
 )
 {
-      public static ReadUserResponse fromEntity(UsersEntity entity) {
+      public static ReadUserResponse fromEntity(UserEntity entity) {
             return ReadUserResponse.builder()
                     .userid(entity.getUserid())
                     .uid(entity.getUid())

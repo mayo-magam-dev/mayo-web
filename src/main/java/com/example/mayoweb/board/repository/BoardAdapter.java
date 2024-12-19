@@ -4,8 +4,7 @@ import com.example.mayoweb.commons.exception.ApplicationException;
 import com.example.mayoweb.commons.exception.payload.ErrorStatus;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.*;
-import com.google.firebase.cloud.FirestoreClient;
-import lombok.extern.slf4j.Slf4j;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -15,13 +14,15 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 @Repository
+@RequiredArgsConstructor
 public class BoardAdapter {
+
+    private final Firestore firestore;
 
     public List<BoardEntity> getTermsBoard() {
 
         List<BoardEntity> boards = new ArrayList<>();
 
-        Firestore firestore = FirestoreClient.getFirestore();
         CollectionReference boardRef = firestore.collection("board");
         Query query = boardRef.whereEqualTo("category", Category.TERMSDETAIL.ordinal());
         ApiFuture<QuerySnapshot> querySnapshotApiFuture = query.get();
@@ -47,7 +48,6 @@ public class BoardAdapter {
 
         List<BoardEntity> boards = new ArrayList<>();
 
-        Firestore firestore = FirestoreClient.getFirestore();
         CollectionReference boardRef = firestore.collection("board");
         Query query = boardRef.whereEqualTo("category", Category.NOTICE.ordinal());
         ApiFuture<QuerySnapshot> querySnapshotApiFuture = query.get();
@@ -68,8 +68,7 @@ public class BoardAdapter {
 
     public Optional<BoardEntity> getBoardById(String boardId) {
 
-        Firestore db = FirestoreClient.getFirestore();
-        DocumentReference documentReference = db.collection("board").document(boardId);
+        DocumentReference documentReference = firestore.collection("board").document(boardId);
         ApiFuture<DocumentSnapshot> future = documentReference.get();
         DocumentSnapshot document = null;
 
