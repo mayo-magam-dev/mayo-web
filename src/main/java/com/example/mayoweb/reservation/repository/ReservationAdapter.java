@@ -7,6 +7,7 @@ import com.example.mayoweb.fcm.service.FCMService;
 import com.example.mayoweb.item.domain.response.ReadFirstItemResponse;
 import com.example.mayoweb.item.repository.ItemAdapter;
 import com.example.mayoweb.reservation.domain.ReservationEntity;
+import com.example.mayoweb.reservation.domain.type.ReservationState;
 import com.example.mayoweb.user.repository.UserAdapter;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.Timestamp;
@@ -40,7 +41,7 @@ public class ReservationAdapter {
         DocumentReference storeDocumentId = firestore.collection("stores").document(storeId);
         CollectionReference reservationsRef = firestore.collection("reservation");
         Query query = reservationsRef.whereEqualTo("store_ref", storeDocumentId)
-                .whereEqualTo("reservation_state", State.NEW.ordinal());
+                .whereEqualTo("reservation_state", ReservationState.NEW.getState());
 
         ApiFuture<QuerySnapshot> querySnapshotApiFuture = query.get();
         QuerySnapshot querySnapshot = null;
@@ -56,7 +57,7 @@ public class ReservationAdapter {
 
         for (QueryDocumentSnapshot reservationDocument : querySnapshot.getDocuments()) {
             ReservationEntity reservationEntity = reservationDocument.toObject(ReservationEntity.class);
-            if(reservationEntity.getReservationState() == State.NEW.ordinal()) {
+            if(reservationEntity.getReservationState() == ReservationState.NEW.getState()) {
                 newReservations.add(reservationEntity);
             }
         }
@@ -74,7 +75,7 @@ public class ReservationAdapter {
 
         DocumentReference storeDocumentId = firestore.collection("stores").document(storeId);
         CollectionReference reservationsRef = firestore.collection("reservation");
-        Query query = reservationsRef.whereEqualTo("store_ref", storeDocumentId).whereEqualTo("reservation_state",State.PROCEEDING.ordinal());
+        Query query = reservationsRef.whereEqualTo("store_ref", storeDocumentId).whereEqualTo("reservation_state",ReservationState.PROCEEDING.getState());
         ApiFuture<QuerySnapshot> querySnapshotApiFuture = query.get();
         QuerySnapshot querySnapshot = null;
 
@@ -133,8 +134,8 @@ public class ReservationAdapter {
 
             if ((!createdAtLocalDateTime.isBefore(startOfDay)) &&
                     (!createdAtLocalDateTime.isAfter(endOfDay)) &&
-                    (reservationEntity.getReservationState() == State.END.ordinal() ||
-                            reservationEntity.getReservationState() == State.FAIL.ordinal())) {
+                    (reservationEntity.getReservationState() == ReservationState.END.getState() ||
+                            reservationEntity.getReservationState() == ReservationState.FAIL.getState())) {
                 reservations.add(reservationEntity);
             }
         }
@@ -173,19 +174,7 @@ public class ReservationAdapter {
                     throw new RuntimeException(e);
                 }
 
-                ReservationEntity reservationEntity = ReservationEntity.builder()
-                        .id(document.getString("id"))
-                        .reservationId(document.getString("reservation_id"))
-                        .reservationIsPlastics(document.getBoolean("reservation_is_plastics"))
-                        .reservationState((document.get("reservation_state", Integer.class)))
-                        .reservationRequest(document.getString("reservation_request"))
-                        .createdAt(document.getTimestamp("created_at"))
-                        .pickupTime(document.getTimestamp("pickup_time"))
-                        .totalPrice(document.getDouble("total_price"))
-                        .storeRef((DocumentReference) document.get("store_ref"))
-                        .userRef((DocumentReference) document.get("user_ref"))
-                        .cartRef(cart_ref)
-                        .build();
+                ReservationEntity reservationEntity = fromDocument(document, cart_ref);
 
                 return Optional.ofNullable(reservationEntity);
             }
@@ -209,7 +198,7 @@ public class ReservationAdapter {
         }
 
         if (document.exists()) {
-            documentReference.update("reservation_state", State.PROCEEDING.ordinal());
+            documentReference.update("reservation_state", ReservationState.PROCEEDING.getState());
         }
     }
 
@@ -226,7 +215,7 @@ public class ReservationAdapter {
         }
 
         if (document.exists()) {
-            documentReference.update("reservation_state", State.END.ordinal());
+            documentReference.update("reservation_state", ReservationState.END.getState());
         }
 
     }
@@ -244,7 +233,7 @@ public class ReservationAdapter {
         }
 
         if (document.exists()) {
-            documentReference.update("reservation_state", State.FAIL.ordinal());
+            documentReference.update("reservation_state", ReservationState.FAIL.getState());
         }
     }
 
@@ -262,7 +251,7 @@ public class ReservationAdapter {
         CollectionReference reservationsRef = firestore.collection("reservation");
 
         Query query = reservationsRef.whereEqualTo("store_ref", storeDocumentId)
-                .whereEqualTo("reservation_state", State.NEW.ordinal());
+                .whereEqualTo("reservation_state", ReservationState.NEW.getState());
 
         CompletableFuture<Void> future = new CompletableFuture<>();
 
@@ -287,7 +276,20 @@ public class ReservationAdapter {
         return future;
     }
 
-    enum State {
-        NEW, PROCEEDING, END, FAIL
+    private static ReservationEntity fromDocument(DocumentSnapshot document, List<DocumentReference> cartRef) {
+        return ReservationEntity.builder()
+                .id(document.getString("id"))
+                .reservationId(document.getString("reservation_id"))
+                .reservationIsPlastics(document.getBoolean("reservation_is_plastics"))
+                .reservationState((document.get("reservation_state", Integer.class)))
+                .reservationRequest(document.getString("reservation_request"))
+                .createdAt(document.getTimestamp("created_at"))
+                .pickupTime(document.getTimestamp("pickup_time"))
+                .totalPrice(document.getDouble("total_price"))
+                .storeRef((DocumentReference) document.get("store_ref"))
+                .userRef((DocumentReference) document.get("user_ref"))
+                .cartRef(cartRef)
+                .build();
     }
+
 }
