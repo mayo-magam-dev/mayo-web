@@ -29,11 +29,9 @@ jobs:
             echo ${FIREBASE_JSON} > src/main/resources/key/mayo-app-280d4.json
 
       - name: Generate application.properties file
-        env:
-          APPLICATION_PROPERTIES: ${{ secrets.APPLICATION_PROPERTIES }}
         run: |
             mkdir -p src/main/resources
-            echo ${APPLICATION_PROPERTIES} > src/main/resources/application.properties
+            echo "${{ secrets.APPLICATION_PROPERTIES }}" > src/main/resources/application.properties
 
       - name: Grant execute permission for Gradle Wrapper
         run: chmod +x ./gradlew
