@@ -194,7 +194,7 @@ public class ReservationService {
                 .orElseThrow( () -> new ApplicationException(
                         ErrorStatus.toErrorStatus("해당하는 유저가 없습니다.", 404, LocalDateTime.now())
                 ));
-
+      
         List<String> itemName = new ArrayList<>();
         List<Integer> itemCount = new ArrayList<>();
         List<Double> subTotal = new ArrayList<>();

@@ -3,6 +3,7 @@ package com.example.mayoweb.board.service;
 import com.example.mayoweb.board.domain.dto.ReadBoardResponse;
 import com.example.mayoweb.board.repository.BoardAdapter;
 import com.example.mayoweb.commons.annotation.FirestoreTransactional;
+
 import com.example.mayoweb.commons.exception.ApplicationException;
 import com.example.mayoweb.commons.exception.payload.ErrorStatus;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @FirestoreTransactional
+
 public class BoardService {
 
     private final BoardAdapter boardAdapter;

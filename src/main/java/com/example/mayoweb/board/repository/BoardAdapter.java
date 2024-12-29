@@ -2,11 +2,13 @@ package com.example.mayoweb.board.repository;
 import com.example.mayoweb.board.domain.BoardEntity;
 import com.example.mayoweb.board.domain.type.BoardType;
 import com.example.mayoweb.commons.annotation.FirestoreTransactional;
+
 import com.example.mayoweb.commons.exception.ApplicationException;
 import com.example.mayoweb.commons.exception.payload.ErrorStatus;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.*;
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -28,6 +30,7 @@ public class BoardAdapter {
 
         CollectionReference boardRef = firestore.collection("board");
         Query query = boardRef.whereEqualTo("category", BoardType.TERMSDETAIL.getState());
+
         ApiFuture<QuerySnapshot> querySnapshotApiFuture = query.get();
 
         QuerySnapshot querySnapshot = null;
@@ -53,6 +56,7 @@ public class BoardAdapter {
 
         CollectionReference boardRef = firestore.collection("board");
         Query query = boardRef.whereEqualTo("category", BoardType.NOTICE.getState());
+
         ApiFuture<QuerySnapshot> querySnapshotApiFuture = query.get();
         QuerySnapshot querySnapshot = null;
 
@@ -72,6 +76,7 @@ public class BoardAdapter {
     public Optional<BoardEntity> getBoardById(String boardId) {
 
         DocumentReference documentReference = firestore.collection("board").document(boardId);
+
         ApiFuture<DocumentSnapshot> future = documentReference.get();
         DocumentSnapshot document = null;
 

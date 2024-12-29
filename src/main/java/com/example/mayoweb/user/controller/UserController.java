@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -59,6 +60,7 @@ public class UserController {
     @PostMapping("/fcm")
     public ResponseEntity<Void> createFCMToken(HttpServletRequest req, @RequestBody CreateFCMTokenRequest request) {
         userService.createWebFCMToken(req.getAttribute("uid").toString() ,request.fcmToken());
+
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 }
