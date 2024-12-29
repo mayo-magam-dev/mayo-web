@@ -1,5 +1,6 @@
 package com.example.mayoweb.reservation.controller;
 
+import com.example.mayoweb.commons.annotation.Authenticated;
 import com.example.mayoweb.reservation.domain.dto.response.ReadReservationDetailResponse;
 import com.example.mayoweb.reservation.domain.dto.response.ReadReservationListResponse;
 import com.example.mayoweb.reservation.domain.dto.response.ReadReservationResponse;
@@ -11,6 +12,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -32,6 +35,7 @@ public class ReservationRestController {
             @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
             @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
     })
+    @Authenticated
     @GetMapping("/reservation")
     public ResponseEntity<ReadReservationResponse> getReservationById(@RequestParam String reservationId) {
         return ResponseEntity.ok(reservationService.getReservationById(reservationId));
@@ -43,9 +47,10 @@ public class ReservationRestController {
             @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
             @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
     })
+    @Authenticated
     @GetMapping("/reservation-new")
-    public ResponseEntity<List<ReadReservationListResponse>> getNewReservationsByStoreId(@RequestParam String storeId) {
-        return ResponseEntity.ok(reservationService.getNewByStoreId(storeId));
+    public ResponseEntity<List<ReadReservationListResponse>> getNewReservations(HttpServletRequest req) {
+        return ResponseEntity.ok(reservationService.getNewByUserId(req.getAttribute("uid").toString()));
     }
 
     @Operation(summary = "storeId 값으로 해당 가게의 진행 예약들을 가져옵니다.", description = "storeId 값으로 해당 가게의 진행 예약들을 가져옵니다.")
@@ -54,9 +59,10 @@ public class ReservationRestController {
             @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
             @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
     })
+    @Authenticated
     @GetMapping("/reservation-proceed")
-    public ResponseEntity<List<ReadReservationListResponse>> getProceedingReservationsByStoreId(@RequestParam String storeId){
-        return ResponseEntity.ok(reservationService.getProcessingByStoreId(storeId));
+    public ResponseEntity<List<ReadReservationListResponse>> getProceedingReservations(HttpServletRequest req){
+        return ResponseEntity.ok(reservationService.getProcessingByStoreId(req.getAttribute("uid").toString()));
     }
 
     @Operation(summary = "storeId 값, 시간 값으로 해당 가게의 완료 예약들을 가져옵니다.", description = "storeId 값, 시간 값으로 해당 가게의 완료 예약들을 가져옵니다.")
@@ -65,12 +71,13 @@ public class ReservationRestController {
             @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
             @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
     })
+    @Authenticated
     @GetMapping("/reservation-done-time")
-    public ResponseEntity<List<ReadReservationListResponse>> getDoneReservationsByStoreId(@RequestParam String storeId, @RequestParam String timestamp) {
+    public ResponseEntity<List<ReadReservationListResponse>> getDoneReservations(HttpServletRequest req, @RequestParam String timestamp) {
 
         Timestamp ts = Timestamp.parseTimestamp(timestamp);
 
-        return ResponseEntity.ok(reservationService.getEndByStoreIdAndTimestamp(storeId, ts));
+        return ResponseEntity.ok(reservationService.getEndByStoreIdAndTimestamp(req.getAttribute("uid").toString(), ts));
     }
 
     @Operation(summary = "reservationId를 받아 해당 예약의 상태를 수락으로 변경합니다.", description = "reservationId를 받아 해당 예약의 상태를 수락으로 변경합니다.")
@@ -79,6 +86,7 @@ public class ReservationRestController {
             @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
             @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
     })
+    @Authenticated
     @PutMapping("/reservation-accept")
     public ResponseEntity<Void> updateAccept(@RequestParam String reservationId) {
 
@@ -93,6 +101,7 @@ public class ReservationRestController {
             @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
             @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
     })
+    @Authenticated
     @PutMapping("/reservation-fail")
     public ResponseEntity<Void> updateFail(@RequestParam String reservationId) {
 
@@ -107,6 +116,7 @@ public class ReservationRestController {
             @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
             @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
     })
+    @Authenticated
     @PutMapping("/reservation-done")
     public ResponseEntity<Void> updateDone(@RequestParam String reservationId) {
 
@@ -121,16 +131,17 @@ public class ReservationRestController {
             @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
             @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
     })
+    @Authenticated
     @GetMapping("/reservation-detail")
     public ResponseEntity<ReadReservationDetailResponse> getItemByReservationId(@RequestParam String reservationId) {
         return ResponseEntity.ok(reservationService.getReservationDetailById(reservationId));
     }
 
-
+    @Authenticated
     @PutMapping("/reservation/all-fail")
-    public ResponseEntity<Void> reservationFailByStoreId(@RequestParam String storeId) {
+    public ResponseEntity<Void> reservationFailByStoreId(HttpServletRequest req) {
 
-        reservationService.reservationFailByStoreId(storeId);
+        reservationService.reservationFailByStoreId(req.getAttribute("uid").toString());
 
         return ResponseEntity.noContent().build();
     }
@@ -141,9 +152,10 @@ public class ReservationRestController {
             @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
             @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
     })
+    @Authenticated
     @PostMapping("/reservation-new/fcm")
-    public ResponseEntity<Void> reservationNewFCM(@RequestParam String storeId, @RequestParam String userId) {
-        reservationService.sendFCMNewReservation(storeId, userId);
+    public ResponseEntity<Void> reservationNewFCM(HttpServletRequest req) {
+        reservationService.sendFCMNewReservation(req.getAttribute("uid").toString());
         return ResponseEntity.noContent().build();
     }
 }

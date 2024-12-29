@@ -1,6 +1,6 @@
 package com.example.mayoweb.store.domain.dto.response;
 
-import com.example.mayoweb.store.domain.StoresEntity;
+import com.example.mayoweb.store.domain.StoreEntity;
 import lombok.*;
 
 @Builder
@@ -21,22 +21,22 @@ public record ReadStoreResponse (
         String additionalComment
     )
 {
-    public static ReadStoreResponse fromEntity(StoresEntity storesEntity) {
+    public static ReadStoreResponse fromEntity(StoreEntity storeEntity) {
         return ReadStoreResponse.builder()
-                .storeId(storesEntity.getId())
-                .storeName(storesEntity.getStoreName())
-                .openState(storesEntity.getOpenState())
-                .address(storesEntity.getAddress())
-                .storeImage(storesEntity.getStoreImage())
-                .openTime(storesEntity.getOpenTime())
-                .closeTime(storesEntity.getCloseTime())
-                .saleStart(storesEntity.getSaleStart())
-                .saleEnd(storesEntity.getSaleEnd())
-                .storeDescription(storesEntity.getStoreDescription())
-                .storeNumber(storesEntity.getStoreNumber())
-                .storeMapUrl(storesEntity.getStoreMapUrl())
-                .originInfo(storesEntity.getOriginInfo())
-                .additionalComment(storesEntity.getAdditionalComment())
+                .storeId(storeEntity.getId())
+                .storeName(storeEntity.getStoreName())
+                .openState(storeEntity.getOpenState())
+                .address(storeEntity.getAddress())
+                .storeImage(storeEntity.getStoreImage())
+                .openTime(storeEntity.getOpenTime())
+                .closeTime(storeEntity.getCloseTime())
+                .saleStart(storeEntity.getSaleStart())
+                .saleEnd(storeEntity.getSaleEnd())
+                .storeDescription(storeEntity.getStoreDescription())
+                .storeNumber(storeEntity.getStoreNumber())
+                .storeMapUrl(storeEntity.getStoreMapUrl())
+                .originInfo(storeEntity.getOriginInfo())
+                .additionalComment(storeEntity.getAdditionalComment())
                 .build();
     }
 }

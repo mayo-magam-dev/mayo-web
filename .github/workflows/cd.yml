@@ -2,7 +2,7 @@ name: Java CD with Gradle
 
 on:
   push:
-    branches: [ "develop", "main" ]
+    branches: [ "main" ]
 
 permissions: write-all
 
@@ -27,6 +27,8 @@ jobs:
           REMOTE_USER: ${{ secrets.SSH_USER }}
           REMOTE_HOST: ${{ secrets.SSH_HOST }}
           REMOTE_DIR: ${{ secrets.REMOTE_DIR }}
+          MAYO_SECRET: ${{ secrets.MAYO_SECRET }}
+
         run: |
                mkdir -p ~/.ssh
                echo "${SSH_PRIVATE_KEY}" > ~/.ssh/github_rsa
@@ -35,5 +37,5 @@ jobs:
                ssh -i ~/.ssh/github_rsa -o StrictHostKeyChecking=no ${REMOTE_USER}@${REMOTE_HOST} << 'EOF'
                ps aux | grep mayoweb-0.0.1-SNAPSHOT.jar | grep -v grep | awk '{print $2}' | xargs kill -9
                cd mayo
-               nohup java -jar mayoweb-0.0.1-SNAPSHOT.jar > nohup.out 2>&1 &
+               nohup java -jar -DMAYO_SECRET=${MAYO_SECRET} mayoweb-0.0.1-SNAPSHOT.jar > nohup.out 2>&1 &
                EOF
