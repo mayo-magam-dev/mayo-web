@@ -1,5 +1,6 @@
 package com.example.mayoweb.store.repository;
 
+import com.example.mayoweb.commons.annotation.FirestoreTransactional;
 import com.example.mayoweb.commons.exception.ApplicationException;
 import com.example.mayoweb.commons.exception.payload.ErrorStatus;
 import com.example.mayoweb.store.domain.StoreEntity;
@@ -7,18 +8,24 @@ import com.example.mayoweb.store.domain.dto.request.UpdateStoreRequest;
 import com.example.mayoweb.store.domain.dto.response.UpdateStoreResponse;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.*;
+import com.google.firebase.cloud.FirestoreClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 @Repository
 @RequiredArgsConstructor
+@FirestoreTransactional
 public class StoreAdapter {
 
     private static final String COLLECTION_NAME = "stores";
+    private static final String TIME_PATTERN = "HH:mm";
     private final Firestore firestore;
 
     public DocumentReference getDocsRef(String storeId) {
@@ -40,7 +47,7 @@ public class StoreAdapter {
         return Optional.ofNullable(fromDocument(document));
     }
 
-    public void closeStore(String storeId){
+    public void closeStore(String storeId) {
 
         DocumentReference documentReference = firestore.collection(COLLECTION_NAME).document(storeId);
         ApiFuture<DocumentSnapshot> future = documentReference.get();
@@ -101,6 +108,54 @@ public class StoreAdapter {
         }
 
         throw new ApplicationException(ErrorStatus.toErrorStatus("스토어가 존재하지 않습니다.", 404, LocalDateTime.now()));
+    }
+
+    public List<StoreEntity> getCloseTimeStores(LocalDateTime now) {
+
+        List<StoreEntity> storeList = new ArrayList<>();
+
+        Query query = firestore.collection(COLLECTION_NAME)
+                .whereEqualTo("open_state", true)
+                .whereEqualTo("close_time", formattedTime(now));
+
+        try {
+            for (QueryDocumentSnapshot documentSnapshot : query.get().get()) {
+                storeList.add(fromDocument(documentSnapshot));
+            }
+
+        } catch (InterruptedException | ExecutionException e) {
+            throw new ApplicationException(ErrorStatus.toErrorStatus(
+                    "통신 중 오류가 발생하였습니다.", 500, LocalDateTime.now()
+            ));
+        }
+
+        return storeList;
+    }
+
+    public List<StoreEntity> getOpenTimeStores(LocalDateTime currentTime) {
+
+        List<StoreEntity> storeList = new ArrayList<>();
+        Query query = firestore.collection(COLLECTION_NAME).whereEqualTo("open_state", false)
+                .whereEqualTo("sale_start", formattedTime(currentTime))
+                .whereEqualTo("is_auto", true)
+                .whereArrayContains("open_day_of_week", currentTime.getDayOfWeek().getValue());
+
+        try {
+            for (QueryDocumentSnapshot documentSnapshot : query.get().get()) {
+                storeList.add(fromDocument(documentSnapshot));
+            }
+
+        } catch (InterruptedException | ExecutionException e) {
+            throw new ApplicationException(ErrorStatus.toErrorStatus(
+                    "통신 중 오류가 발생하였습니다.", 500, LocalDateTime.now()
+            ));
+        }
+        return storeList;
+    }
+
+    private String formattedTime(LocalDateTime time) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(TIME_PATTERN);
+        return time.format(formatter);
     }
 
     private StoreEntity fromDocument(DocumentSnapshot document) {

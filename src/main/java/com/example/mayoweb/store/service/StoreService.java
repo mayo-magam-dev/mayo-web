@@ -69,7 +69,7 @@ public class StoreService {
 
         String storeId = storeRef.getId();
 
-        List<String> tokens = userAdapter.getFCMTokenByStoresRef(storeId);
+        List<String> tokens = userAdapter.getNoticeUserFCMTokenByStoresRef(storeId);
         fcmService.sendOpenMessage(tokens, storeId);
 
         storeAdapter.openStore(storeId);

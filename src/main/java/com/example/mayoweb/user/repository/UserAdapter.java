@@ -1,4 +1,5 @@
 package com.example.mayoweb.user.repository;
+import com.example.mayoweb.commons.annotation.FirestoreTransactional;
 import com.example.mayoweb.commons.exception.ApplicationException;
 import com.example.mayoweb.commons.exception.payload.ErrorStatus;
 import com.example.mayoweb.fcm.entity.FCMToken;
@@ -19,6 +20,7 @@ import java.util.concurrent.ExecutionException;
 @Repository
 @Slf4j
 @RequiredArgsConstructor
+@FirestoreTransactional
 public class UserAdapter {
 
     private static final String COLLECTION_NAME_FCM_TOKENS = "fcm_tokens";
@@ -87,7 +89,7 @@ public class UserAdapter {
         }
     }
 
-    public List<String> getFCMTokenByStoresRef(String storesRef) {
+    public List<String> getNoticeUserFCMTokenByStoresRef(String storesRef) {
 
         List<String> fcmTokens = new ArrayList<>();
         CollectionReference usersCollection = firestore.collection("users");

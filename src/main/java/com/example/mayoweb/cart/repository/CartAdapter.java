@@ -1,6 +1,7 @@
 package com.example.mayoweb.cart.repository;
 
 import com.example.mayoweb.cart.domain.CartEntity;
+import com.example.mayoweb.commons.annotation.FirestoreTransactional;
 import com.example.mayoweb.commons.exception.ApplicationException;
 import com.example.mayoweb.commons.exception.payload.ErrorStatus;
 import com.example.mayoweb.reservation.domain.ReservationEntity;
@@ -19,6 +20,7 @@ import java.util.concurrent.ExecutionException;
 
 @Repository
 @RequiredArgsConstructor
+@FirestoreTransactional
 public class CartAdapter {
 
     private final Firestore firestore;
