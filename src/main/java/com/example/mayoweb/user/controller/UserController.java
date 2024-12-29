@@ -1,31 +1,30 @@
 package com.example.mayoweb.user.controller;
 
+import com.example.mayoweb.commons.annotation.Authenticated;
 import com.example.mayoweb.fcm.dto.CreateFCMTokenRequest;
 import com.example.mayoweb.user.domain.dto.response.ReadUserResponse;
-import com.example.mayoweb.user.service.UsersService;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthException;
-import com.google.firebase.auth.FirebaseToken;
+import com.example.mayoweb.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 @Tag(name = "유저 API", description = "유저 정보 API")
 @RestController
 @RequiredArgsConstructor
 public class UserController {
 
-    private final UsersService userService;
+    private final UserService userService;
 
     @Operation(summary = "firebase 토큰 값으로 user정보를 가져옵니다.", description = "firebase 토큰 값으로 user정보를 가져옵니다.")
     @ApiResponses(value = {
@@ -33,14 +32,10 @@ public class UserController {
             @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
             @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
     })
+    @Authenticated
     @GetMapping("/user")
-    public ResponseEntity<ReadUserResponse> getUserByToken(@RequestHeader("Authorization") String authorizationHeader) throws FirebaseAuthException {
-
-        String idToken = authorizationHeader.substring(7);
-        FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(idToken);
-        String uid = decodedToken.getUid();
-
-        return ResponseEntity.ok(userService.getUserById(uid));
+    public ResponseEntity<ReadUserResponse> getUserByToken(HttpServletRequest req) {
+        return ResponseEntity.ok(userService.getUserById(req.getAttribute("uid").toString()));
     }
 
     @Operation(summary = "userId값으로 fcm 토큰을 가져옵니다.", description = "userId값으로 fcm 토큰을 가져옵니다.")
@@ -49,9 +44,10 @@ public class UserController {
             @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
             @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
     })
+    @Authenticated
     @GetMapping("/user-fcmToken")
-    public ResponseEntity<List<String>> getFcmTokenByUserId(@RequestParam String userId) throws ExecutionException, InterruptedException {
-        return ResponseEntity.ok(userService.getTokensByUserRef(userId));
+    public ResponseEntity<List<String>> getFcmTokenByUserId(HttpServletRequest req) {
+        return ResponseEntity.ok(userService.getTokensByUserRef(req.getAttribute("uid").toString()));
     }
 
     @Operation(summary = "userId값 및 fcmToken으로 해당 user의 fcm토큰을 생성합니다.", description = "userId값 및 fcmToken으로 해당 user의 fcm토큰을 생성합니다.")
@@ -60,9 +56,11 @@ public class UserController {
             @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
             @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
     })
+    @Authenticated
     @PostMapping("/fcm")
-    public ResponseEntity<Void> createFCMToken(@RequestBody CreateFCMTokenRequest request) throws Exception {
-        userService.createWebFCMToken(request);
+    public ResponseEntity<Void> createFCMToken(HttpServletRequest req, @RequestBody CreateFCMTokenRequest request) {
+        userService.createWebFCMToken(req.getAttribute("uid").toString() ,request.fcmToken());
+
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 }
