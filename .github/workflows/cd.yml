@@ -28,6 +28,7 @@ jobs:
           REMOTE_HOST: ${{ secrets.SSH_HOST }}
           REMOTE_DIR: ${{ secrets.REMOTE_DIR }}
           MAYO_SECRET: ${{ secrets.MAYO_SECRET }}
+
         run: |
                mkdir -p ~/.ssh
                echo "${SSH_PRIVATE_KEY}" > ~/.ssh/github_rsa

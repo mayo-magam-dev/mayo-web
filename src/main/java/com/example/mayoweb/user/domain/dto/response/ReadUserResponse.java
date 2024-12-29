@@ -2,7 +2,6 @@ package com.example.mayoweb.user.domain.dto.response;
 
 import com.example.mayoweb.user.domain.UserEntity;
 import lombok.*;
-
 import java.util.Date;
 
 @Builder
@@ -41,6 +40,7 @@ public record ReadUserResponse (
 )
 {
       public static ReadUserResponse fromEntity(UserEntity entity) {
+
             return ReadUserResponse.builder()
                     .userid(entity.getUserid())
                     .uid(entity.getUid())
