@@ -1,5 +1,7 @@
 package com.example.mayoweb.board.repository;
 import com.example.mayoweb.board.domain.BoardEntity;
+import com.example.mayoweb.board.domain.type.BoardType;
+import com.example.mayoweb.commons.annotation.FirestoreTransactional;
 import com.example.mayoweb.commons.exception.ApplicationException;
 import com.example.mayoweb.commons.exception.payload.ErrorStatus;
 import com.google.api.core.ApiFuture;
@@ -15,6 +17,7 @@ import java.util.concurrent.ExecutionException;
 
 @Repository
 @RequiredArgsConstructor
+@FirestoreTransactional
 public class BoardAdapter {
 
     private final Firestore firestore;
@@ -24,7 +27,7 @@ public class BoardAdapter {
         List<BoardEntity> boards = new ArrayList<>();
 
         CollectionReference boardRef = firestore.collection("board");
-        Query query = boardRef.whereEqualTo("category", Category.TERMSDETAIL.ordinal());
+        Query query = boardRef.whereEqualTo("category", BoardType.TERMSDETAIL.getState());
         ApiFuture<QuerySnapshot> querySnapshotApiFuture = query.get();
 
         QuerySnapshot querySnapshot = null;
@@ -49,7 +52,7 @@ public class BoardAdapter {
         List<BoardEntity> boards = new ArrayList<>();
 
         CollectionReference boardRef = firestore.collection("board");
-        Query query = boardRef.whereEqualTo("category", Category.NOTICE.ordinal());
+        Query query = boardRef.whereEqualTo("category", BoardType.NOTICE.getState());
         ApiFuture<QuerySnapshot> querySnapshotApiFuture = query.get();
         QuerySnapshot querySnapshot = null;
 
@@ -79,9 +82,5 @@ public class BoardAdapter {
         }
 
         return Optional.ofNullable(document.toObject(BoardEntity.class));
-    }
-
-    enum Category {
-        TERMS, NOTICE, EVENT, TERMSDETAIL
     }
 }

@@ -1,5 +1,6 @@
 package com.example.mayoweb.item.repository;
 
+import com.example.mayoweb.commons.annotation.FirestoreTransactional;
 import com.example.mayoweb.commons.exception.ApplicationException;
 import com.example.mayoweb.commons.exception.payload.ErrorStatus;
 import com.example.mayoweb.item.domain.ItemEntity;
@@ -15,6 +16,7 @@ import java.util.concurrent.ExecutionException;
 
 @Repository
 @RequiredArgsConstructor
+@FirestoreTransactional
 public class ItemAdapter {
 
     private final Firestore firestore;
@@ -52,7 +54,9 @@ public class ItemAdapter {
         try {
             querySnapshot = itemRef.whereEqualTo("store_ref", storesDocumentId).get().get();
         } catch (InterruptedException | ExecutionException e) {
-            throw new ApplicationException(ErrorStatus.toErrorStatus("해당 가게에 아이템이 없습니다.", 400, LocalDateTime.now()));
+            throw new ApplicationException(ErrorStatus.toErrorStatus(
+                    "해당 가게에 아이템이 없습니다.", 400, LocalDateTime.now()
+            ));
         }
 
         for (QueryDocumentSnapshot itemDocument : querySnapshot.getDocuments()) {
@@ -71,6 +75,13 @@ public class ItemAdapter {
                 item.update("item_on_sale", true, "item_quantity", quantityList.get(i));
             }
         }
+    }
+
+    public void updateItemOnSaleById(String itemId, Integer quantity) {
+        firestore.collection("items")
+                .document(itemId)
+                .update("item_on_sale", true,
+                        "item_quantity", quantity);
     }
 
     public void updateItemQuantityPlus(String itemId)  {

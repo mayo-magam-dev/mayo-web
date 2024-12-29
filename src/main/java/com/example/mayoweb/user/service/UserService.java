@@ -30,10 +30,6 @@ public class UserService {
         return userAdapter.getFCMTokenByUserRef(userRef);
     }
 
-    public List<String> getTokensByStoresRef(String storesRef)  {
-        return userAdapter.getFCMTokenByStoresRef(storesRef);
-    }
-
     public List<String> getTokensByStoresId(String storeId) {
         return userAdapter.getFCMTokenByStoresId(storeId);
     }

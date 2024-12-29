@@ -52,7 +52,7 @@ public class ItemRestController {
     @Authenticated
     @GetMapping("/item-store")
     public ResponseEntity<List<ReadItemResponse>> getItemsByUserId(HttpServletRequest req) {
-        return ResponseEntity.ok(itemService.getItemsByUserId(req.getParameter("uid").toString()));
+        return ResponseEntity.ok(itemService.getItemsByUserId(req.getAttribute("uid").toString()));
     }
 
     @Operation(summary = "storeId값과 아이템 생성 정보로 아이템을 만듭니다.", description = "storeId값과 아이템 생성 정보로 아이템을 만듭니다.")

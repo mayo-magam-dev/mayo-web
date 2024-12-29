@@ -25,12 +25,14 @@ public class FirestoreTransactionAspect {
             return firestore.runTransaction(transaction -> {
                 try {
                     return joinPoint.proceed();
+                } catch (ApplicationException e) {
+                  throw e;
                 } catch (Throwable e) {
-                    throw new ApplicationException(ErrorStatus.toErrorStatus("firebase transaction 오류", 500, LocalDateTime.now()));
+                    throw new ApplicationException(ErrorStatus.toErrorStatus("알 수 없는 오류가 발생하였습니다.", 500, LocalDateTime.now()));
                 }
             }).get();
         } catch (ExecutionException | InterruptedException e) {
-            throw new ApplicationException(ErrorStatus.toErrorStatus("firebase transaction 오류", 500, LocalDateTime.now()));
+            throw new ApplicationException(ErrorStatus.toErrorStatus("알 수 없는 오류가 발생하였습니다.", 500, LocalDateTime.now()));
         }
     }
 }

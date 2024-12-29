@@ -1,6 +1,7 @@
 package com.example.mayoweb.reservation.repository;
 
 import com.example.mayoweb.cart.repository.CartAdapter;
+import com.example.mayoweb.commons.annotation.FirestoreTransactional;
 import com.example.mayoweb.commons.exception.ApplicationException;
 import com.example.mayoweb.commons.exception.payload.ErrorStatus;
 import com.example.mayoweb.fcm.service.FCMService;
@@ -25,6 +26,7 @@ import java.util.concurrent.ExecutionException;
 @Repository
 @RequiredArgsConstructor
 @Slf4j
+@FirestoreTransactional
 public class ReservationAdapter {
 
     private final CartAdapter cartsAdapter;
