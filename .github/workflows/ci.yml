@@ -32,7 +32,8 @@ jobs:
         env:
           APPLICATION_PROPERTIES: ${{ secrets.APPLICATION_PROPERTIES }}
         run: |
-          echo ${APPLICATION_PROPERTIES} > src/main/resources/application.properties
+            mkdir -p src/main/resources
+            echo ${APPLICATION_PROPERTIES} > src/main/resources/application.properties
 
       - name: Grant execute permission for Gradle Wrapper
         run: chmod +x ./gradlew
