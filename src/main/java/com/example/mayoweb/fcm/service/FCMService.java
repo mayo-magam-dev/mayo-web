@@ -8,6 +8,7 @@ import com.example.mayoweb.fcm.dto.WebPushNotificationsDto;
 import com.example.mayoweb.fcm.repository.WebPushNotificationsAdapter;
 import com.example.mayoweb.store.domain.dto.response.ReadStoreResponse;
 import com.example.mayoweb.store.repository.StoreAdapter;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.auth.oauth2.GoogleCredentials;
@@ -35,6 +36,7 @@ import org.springframework.stereotype.Service;
 public class FCMService {
 
     private final StoreAdapter storeAdapter;
+
     private static final String ACCEPT_TITLE = "예약을 성공했어요!";
     private static final String ACCEPT_TEXT = "픽업시간내로 픽업해주세요.";
     private static final String REJECT_TITLE = "예약을 실패되었어요.";
@@ -172,6 +174,7 @@ public class FCMService {
     public boolean sendOpenMessage(List<String> tokens, String storeId)  {
 
         ReadStoreResponse store = ReadStoreResponse.fromEntity(storeAdapter.findByStoreId(storeId).orElseThrow(() -> new ApplicationException(
+
                 ErrorStatus.toErrorStatus("가게를 찾지 못했습니다.", 404, LocalDateTime.now())
         )));
 

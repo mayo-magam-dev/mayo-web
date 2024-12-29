@@ -1,6 +1,7 @@
 package com.example.mayoweb.reservation.controller;
 
 import com.example.mayoweb.commons.annotation.Authenticated;
+
 import com.example.mayoweb.reservation.domain.dto.response.ReadReservationDetailResponse;
 import com.example.mayoweb.reservation.domain.dto.response.ReadReservationListResponse;
 import com.example.mayoweb.reservation.domain.dto.response.ReadReservationResponse;
@@ -13,6 +14,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;

@@ -11,7 +11,7 @@ import org.springframework.web.servlet.config.annotation.*;
 public class WebMvcConfig implements WebMvcConfigurer {
 
     private final AuthenticationInterceptor authenticationInterceptor;
-
+  
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/img/**",
