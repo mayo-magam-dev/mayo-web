@@ -66,12 +66,9 @@ public class FCMService {
             throw new ApplicationException(ErrorStatus.toErrorStatus("fcm 요청 생성 중 오류가 발생하였습니다.", 500, LocalDateTime.now()));
         }
 
-        Response response;
-
         boolean result = false;
 
-        try {
-            response = client.newCall(request).execute();
+        try (Response response = client.newCall(request).execute()){
             result = response.isSuccessful();
         } catch (Exception e) {
             log.error("FCM sendMessageTo error:" + LocalDateTime.now() + ", msg: " + e.getMessage());

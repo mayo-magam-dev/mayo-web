@@ -27,7 +27,11 @@ public class ItemAdapter {
 
         DocumentReference storeDocumentId = firestore.collection("stores").document(storeId);
         CollectionReference itemsRef = firestore.collection("items");
-        Query query = itemsRef.whereEqualTo("store_ref", storeDocumentId);
+
+        Query query = itemsRef
+                .whereEqualTo("store_ref", storeDocumentId)
+                .whereEqualTo("is_active", true);
+
         ApiFuture<QuerySnapshot> querySnapshotApiFuture = query.get();
         QuerySnapshot querySnapshot = null;
 
@@ -239,7 +243,8 @@ public class ItemAdapter {
     }
 
     public void deleteItem(String itemId) {
-        firestore.collection("items").document(itemId).delete();
+        firestore.collection("items").document(itemId)
+                .update("is_active", false);
     }
 
     public ReadFirstItemResponse getFirstItemNameFromCart(DocumentReference cart) throws ExecutionException, InterruptedException {

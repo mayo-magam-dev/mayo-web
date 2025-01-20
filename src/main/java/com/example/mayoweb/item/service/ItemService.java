@@ -73,6 +73,11 @@ public class ItemService {
         return itemAdapter.getItemsByStoreId(storeId).stream().map(ReadItemResponse::fromEntity).toList();
     }
 
+    public List<ReadItemResponse> getItemsByStoreId(String storeId) {
+
+        return itemAdapter.getItemsByStoreId(storeId).stream().map(ReadItemResponse::fromEntity).toList();
+    }
+
     public ReadItemResponse getItemById(String itemId) {
 
         return ReadItemResponse.fromEntity(itemAdapter.getItemById(itemId)
