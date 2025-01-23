@@ -13,6 +13,8 @@ import com.example.mayoweb.reservation.domain.ReservationEntity;
 import com.example.mayoweb.reservation.domain.dto.response.ReadReservationDetailResponse;
 import com.example.mayoweb.reservation.domain.dto.response.ReadReservationListResponse;
 import com.example.mayoweb.reservation.domain.dto.response.ReadReservationResponse;
+import com.example.mayoweb.reservation.domain.dto.response.TotalReservationResponse;
+import com.example.mayoweb.reservation.domain.type.ReservationState;
 import com.example.mayoweb.reservation.repository.ReservationAdapter;
 import com.example.mayoweb.user.domain.UserEntity;
 import com.example.mayoweb.user.repository.UserAdapter;
@@ -22,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -122,14 +125,14 @@ public class ReservationService {
 
     public List<ReadReservationListResponse> getEndByStoreIdAndTimestamp(String userId, Timestamp timestamp) {
 
-        DocumentReference storeRef = userAdapter.getStoreRefByUserId(userId).
-                orElseThrow(() -> new ApplicationException(
-                        ErrorStatus.toErrorStatus("해당하는 가게가 없습니다.", 404, LocalDateTime.now())
+        DocumentReference storeRef = userAdapter.getStoreRefByUserId(userId)
+                .orElseThrow(() -> new ApplicationException(
+                    ErrorStatus.toErrorStatus("해당하는 가게가 없습니다.", 404, LocalDateTime.now())
                 ));
 
         String storeId = storeRef.getId();
 
-        List<ReservationEntity> reservationList =  reservationAdapter.getEndByStoreRefAndTimestamp(storeId, timestamp).stream().toList();
+        List<ReservationEntity> reservationList =  reservationAdapter.getEndByStoreRefAndTimestamp(storeId, timestamp);
         List<DocumentReference> carts = cartAdapter.getFirstCartsByReservations(reservationList);
         List<ReadFirstItemResponse> firstItemResponse = itemAdapter.getFirstItemNamesFromCarts(carts);
         List<ReadReservationListResponse> responseList = new ArrayList<>();
@@ -148,6 +151,62 @@ public class ReservationService {
         }
 
         return responseList;
+    }
+
+    public TotalReservationResponse getReservationsByDate(String userId, LocalDate date) {
+
+        DocumentReference storeRef = userAdapter.getStoreRefByUserId(userId)
+                .orElseThrow(() -> new ApplicationException(
+                        ErrorStatus.toErrorStatus("해당하는 가게가 없습니다.", 404, LocalDateTime.now())
+                ));
+
+        String storeId = storeRef.getId();
+
+        List<ReservationEntity> reservationList = reservationAdapter.getReservationsByStoreRefAndDate(storeId, date);
+        List<DocumentReference> carts = cartAdapter.getFirstCartsByReservations(reservationList);
+        List<ReadFirstItemResponse> firstItemResponse = itemAdapter.getFirstItemNamesFromCarts(carts);
+        List<ReadReservationListResponse> responseList = new ArrayList<>();
+
+        int newCount = 0;
+        int processingCount = 0;
+        int endCount = 0;
+        int failCount = 0;
+        Double totalAmount = 0.0;
+
+        for(int i=0; i<reservationList.size(); i++) {
+            ReadReservationListResponse response = ReadReservationListResponse.builder()
+                    .reservationId(reservationList.get(i).getId())
+                    .firstItemName(firstItemResponse.get(i).itemName())
+                    .itemQuantity(firstItemResponse.get(i).itemQuantity())
+                    .createdAt(reservationList.get(i).getCreatedAt())
+                    .pickupTime(reservationList.get(i).getPickupTime())
+                    .reservationState(reservationList.get(i).getReservationState())
+                    .build();
+
+            int state = reservationList.get(i).getReservationState();
+
+            if(state == ReservationState.NEW.getState()) {
+                newCount++;
+            } else if (state == ReservationState.PROCEEDING.getState()) {
+                processingCount++;
+            } else if (state == ReservationState.END.getState()) {
+                endCount++;
+                totalAmount += reservationList.get(i).getTotalPrice();
+            } else {
+                failCount++;
+            }
+
+            responseList.add(response);
+        }
+
+        return TotalReservationResponse.builder()
+                .totalAmount(totalAmount)
+                .newCount(newCount)
+                .processingCount(processingCount)
+                .endCount(endCount)
+                .failCount(failCount)
+                .reservationList(responseList)
+                .build();
     }
 
     public ReadReservationResponse getReservationById(String reservationId) {

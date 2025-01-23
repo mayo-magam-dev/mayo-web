@@ -49,6 +49,33 @@ public class ItemAdapter {
         return items;
     }
 
+    public List<ItemEntity> getItemsByStoreIdApp(String storeId) {
+
+        List<ItemEntity> items = new ArrayList<>();
+
+        DocumentReference storeDocumentId = firestore.collection("stores").document(storeId);
+        CollectionReference itemsRef = firestore.collection("items");
+
+        Query query = itemsRef
+                .whereEqualTo("store_ref", storeDocumentId);
+
+        ApiFuture<QuerySnapshot> querySnapshotApiFuture = query.get();
+        QuerySnapshot querySnapshot = null;
+
+        try {
+            querySnapshot = querySnapshotApiFuture.get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new ApplicationException(ErrorStatus.toErrorStatus("스토어로 아이템을 가져오는 중 에러가 발생하였습니다.", 400, LocalDateTime.now()));
+        }
+
+        for (QueryDocumentSnapshot itemDocument : querySnapshot.getDocuments()) {
+            ItemEntity item = fromDocument(itemDocument);
+            items.add(item);
+        }
+
+        return items;
+    }
+
     public void updateItemsStateOutOfStock(String storesRef) {
 
         CollectionReference itemRef = firestore.collection("items");
@@ -245,6 +272,11 @@ public class ItemAdapter {
     public void deleteItem(String itemId) {
         firestore.collection("items").document(itemId)
                 .update("is_active", false);
+    }
+
+    public void updateItemOnActive(String itemId) {
+        firestore.collection("items").document(itemId)
+                .update("is_active", true);
     }
 
     public ReadFirstItemResponse getFirstItemNameFromCart(DocumentReference cart) throws ExecutionException, InterruptedException {

@@ -80,8 +80,11 @@ public class ItemEntity {
     @JsonProperty("store_ref")
     public DocumentReference storeRef;
 
+    @PropertyName("is_active")
+    public Boolean isActive;
+
     @Builder
-    public ItemEntity(String itemId, String itemName, String itemDescription, Integer originalPrice, Double salePercent, Timestamp itemCreated, Timestamp itemModified, Integer itemQuantity, Boolean itemOnSale, String itemImage, String storeName, String storeAddress, Integer userItemQuantity, Double salePrice, Integer cookingTime, String additionalInformation, DocumentReference storeRef) {
+    public ItemEntity(String itemId, String itemName, String itemDescription, Integer originalPrice, Double salePercent, Timestamp itemCreated, Timestamp itemModified, Integer itemQuantity, Boolean itemOnSale, String itemImage, String storeName, String storeAddress, Integer userItemQuantity, Double salePrice, Integer cookingTime, String additionalInformation, DocumentReference storeRef, Boolean isActive) {
         this.itemId = itemId;
         this.itemName = itemName;
         this.itemDescription = itemDescription;
@@ -99,5 +102,6 @@ public class ItemEntity {
         this.cookingTime = cookingTime;
         this.additionalInformation = additionalInformation;
         this.storeRef = storeRef;
+        this.isActive = isActive;
     }
 }
