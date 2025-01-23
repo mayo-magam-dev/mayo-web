@@ -240,7 +240,7 @@ public class ItemAdapter {
 
         CollectionReference itemCollection = firestore.collection("items");
 
-        itemCollection.add(item);
+        itemCollection.add(item.toMap());
     }
 
     public void updateItem(ItemEntity itemEntity){
