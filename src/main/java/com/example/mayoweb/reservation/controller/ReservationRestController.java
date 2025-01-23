@@ -4,6 +4,7 @@ import com.example.mayoweb.commons.annotation.Authenticated;
 import com.example.mayoweb.reservation.domain.dto.response.ReadReservationDetailResponse;
 import com.example.mayoweb.reservation.domain.dto.response.ReadReservationListResponse;
 import com.example.mayoweb.reservation.domain.dto.response.ReadReservationResponse;
+import com.example.mayoweb.reservation.domain.dto.response.TotalReservationResponse;
 import com.example.mayoweb.reservation.service.ReservationService;
 import com.google.cloud.Timestamp;
 import io.swagger.v3.oas.annotations.Operation;
@@ -19,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Tag(name = "예약 API", description = "예약 관리 API")
@@ -157,5 +159,17 @@ public class ReservationRestController {
     public ResponseEntity<Void> reservationNewFCM(HttpServletRequest req) {
         reservationService.sendFCMNewReservation(req.getAttribute("uid").toString());
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "해당 유저의 가게 예약 정보들을 날짜를 통해 가져옵니다.", description = "해당 유저의 가게 예약 정보들을 날짜를 통해 가져옵니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "조회 성공"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
+            @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
+    })
+    @Authenticated
+    @GetMapping("/reservation-all")
+    public ResponseEntity<TotalReservationResponse> getAllReservations(HttpServletRequest req, @RequestParam LocalDate date) {
+        return ResponseEntity.ok(reservationService.getReservationsByDate(req.getAttribute("uid").toString(), date));
     }
 }

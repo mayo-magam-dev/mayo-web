@@ -25,7 +25,9 @@ public record ReadItemResponse(
 
          Integer cookingTime,
 
-         String additionalInformation
+         String additionalInformation,
+
+         Boolean isActive
 ) {
 
     public static ReadItemResponse fromEntity(ItemEntity entity) {
@@ -41,6 +43,7 @@ public record ReadItemResponse(
                 .salePrice(entity.getSalePrice())
                 .cookingTime(entity.getCookingTime())
                 .additionalInformation(entity.getAdditionalInformation())
+                .isActive(entity.getIsActive())
                 .build();
     }
 }

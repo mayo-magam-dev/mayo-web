@@ -43,7 +43,7 @@ public class ItemRestController {
         return ResponseEntity.ok(itemService.getItemById(itemId));
     }
 
-    @Operation(summary = "storeId 값으로 해당 해당 가게의 item객체들을 리스트로 가져옵니다.", description = "storeId 값으로 해당 해당 가게의 item객체들을 리스트로 가져옵니다.")
+    @Operation(summary = "해당 가게의 item객체들을 리스트로 가져옵니다.", description = "해당 가게의 item객체들을 리스트로 가져옵니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "스토어로 아이템 조회 성공", content = @Content(schema = @Schema(implementation = ReadItemResponse.class))),
             @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
@@ -53,6 +53,18 @@ public class ItemRestController {
     @GetMapping("/item-store")
     public ResponseEntity<List<ReadItemResponse>> getItemsByUserId(HttpServletRequest req) {
         return ResponseEntity.ok(itemService.getItemsByUserId(req.getAttribute("uid").toString()));
+    }
+
+    @Operation(summary = "어플리케이션용 해당 가게의 item객체들을 리스트로 가져옵니다.", description = "어플리케이션용 해당 가게의 item객체들을 리스트로 가져옵니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "스토어로 아이템 조회 성공", content = @Content(schema = @Schema(implementation = ReadItemResponse.class))),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
+            @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
+    })
+    @Authenticated
+    @GetMapping("/item-store-app")
+    public ResponseEntity<List<ReadItemResponse>> getItemsByUserIdApp(HttpServletRequest req) {
+        return ResponseEntity.ok(itemService.getItemsByUserIdApp(req.getAttribute("uid").toString()));
     }
 
     @Operation(summary = "storeId값과 아이템 생성 정보로 아이템을 만듭니다.", description = "storeId값과 아이템 생성 정보로 아이템을 만듭니다.")
@@ -143,6 +155,20 @@ public class ItemRestController {
     public ResponseEntity<Void> itemQuantityMinus(@RequestParam String itemId) {
         itemService.updateItemQuantityMinus(itemId);
 
+        return ResponseEntity.noContent().build();
+    }
+
+    @Authenticated
+    @PostMapping("/item-on")
+    public ResponseEntity<Void> itemOn(@RequestParam String itemId) {
+        itemService.updateItemOnActive(itemId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Authenticated
+    @PostMapping("/item-off")
+    public ResponseEntity<Void> itemOff(@RequestParam String itemId) {
+        itemService.updateItemOffActive(itemId);
         return ResponseEntity.noContent().build();
     }
 
