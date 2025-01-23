@@ -7,6 +7,9 @@ import com.google.cloud.firestore.annotation.DocumentId;
 import com.google.cloud.firestore.annotation.PropertyName;
 import lombok.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @NoArgsConstructor
 @Getter
 @ToString
@@ -80,6 +83,7 @@ public class ItemEntity {
     @JsonProperty("store_ref")
     public DocumentReference storeRef;
 
+    @JsonProperty("is_active")
     @PropertyName("is_active")
     public Boolean isActive;
 
@@ -103,5 +107,28 @@ public class ItemEntity {
         this.additionalInformation = additionalInformation;
         this.storeRef = storeRef;
         this.isActive = isActive;
+    }
+
+    public Map<String, Object> toMap() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("item_id", itemId);
+        map.put("item_name", itemName);
+        map.put("item_description", itemDescription);
+        map.put("original_price", originalPrice);
+        map.put("sale_percent", salePercent);
+        map.put("item_created", itemCreated);
+        map.put("item_modified", itemModified);
+        map.put("item_quantity", itemQuantity);
+        map.put("item_on_sale", itemOnSale);
+        map.put("item_image", itemImage);
+        map.put("store_name", storeName);
+        map.put("store_address", storeAddress);
+        map.put("user_item_quantity", userItemQuantity);
+        map.put("sale_price", salePrice);
+        map.put("cooking_time", cookingTime);
+        map.put("additional_information", additionalInformation);
+        map.put("store_ref", storeRef);
+        map.put("is_active", isActive);
+        return map;
     }
 }
