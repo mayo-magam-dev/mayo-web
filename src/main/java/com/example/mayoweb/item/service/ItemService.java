@@ -74,7 +74,6 @@ public class ItemService {
     }
 
     public List<ReadItemResponse> getItemsByStoreId(String storeId) {
-
         return itemAdapter.getItemsByStoreId(storeId).stream().map(ReadItemResponse::fromEntity).toList();
     }
 
@@ -137,5 +136,13 @@ public class ItemService {
 
     public void updateItemQuantityMinus(String itemId) {
         itemAdapter.updateItemQuantityMinus(itemId);
+    }
+
+    public void updateItemOn(String itemId) {
+        itemAdapter.updateItemOn(itemId);
+    }
+
+    public void updateItemOff(String itemId) {
+        itemAdapter.updateItemOff(itemId);
     }
 }

@@ -141,6 +141,35 @@ public class UserAdapter {
         return fcmTokens;
     }
 
+    public List<String> getFCMTokenAgreeMarketing() {
+
+        List<String> fcmTokens = new ArrayList<>();
+        CollectionReference usersCollection = firestore.collection("users");
+        Query query = usersCollection.whereEqualTo("agree_marketing", true);
+
+        ApiFuture<QuerySnapshot> querySnapshotApiFuture = query.get();
+
+        try {
+            for(QueryDocumentSnapshot userDocument : querySnapshotApiFuture.get().getDocuments()) {
+                CollectionReference fcmTokensCollection = userDocument.getReference()
+                        .collection(COLLECTION_NAME_FCM_TOKENS);
+                ApiFuture<QuerySnapshot> fcmTokenSnapshot = fcmTokensCollection.get();
+
+                if(!fcmTokenSnapshot.get().isEmpty()) {
+                    for(QueryDocumentSnapshot docSnap : fcmTokenSnapshot.get().getDocuments()) {
+                        fcmTokens.add(docSnap.getString(FIELD_FCM_TOKEN));
+                    }
+                }
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            throw new ApplicationException(
+                    ErrorStatus.toErrorStatus("db 통신 중 오류가 발생하였습니다.", 500, LocalDateTime.now())
+            );
+        }
+
+        return fcmTokens;
+    }
+
     public void createFCMTokenById(String userId, String token){
 
         DocumentReference userRef = firestore.collection("users").document(userId);
