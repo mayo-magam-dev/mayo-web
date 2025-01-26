@@ -87,8 +87,12 @@ public class ItemEntity {
     @PropertyName("is_active")
     public Boolean isActive;
 
+    @JsonProperty("is_display")
+    @PropertyName("is_display")
+    public Boolean isDisplay;
+
     @Builder
-    public ItemEntity(String itemId, String itemName, String itemDescription, Integer originalPrice, Double salePercent, Timestamp itemCreated, Timestamp itemModified, Integer itemQuantity, Boolean itemOnSale, String itemImage, String storeName, String storeAddress, Integer userItemQuantity, Double salePrice, Integer cookingTime, String additionalInformation, DocumentReference storeRef, Boolean isActive) {
+    public ItemEntity(String itemId, String itemName, String itemDescription, Integer originalPrice, Double salePercent, Timestamp itemCreated, Timestamp itemModified, Integer itemQuantity, Boolean itemOnSale, String itemImage, String storeName, String storeAddress, Integer userItemQuantity, Double salePrice, Integer cookingTime, String additionalInformation, DocumentReference storeRef, Boolean isActive, Boolean isDisplay) {
         this.itemId = itemId;
         this.itemName = itemName;
         this.itemDescription = itemDescription;
@@ -107,6 +111,7 @@ public class ItemEntity {
         this.additionalInformation = additionalInformation;
         this.storeRef = storeRef;
         this.isActive = isActive;
+        this.isDisplay = isDisplay;
     }
 
     public Map<String, Object> toMap() {
@@ -129,6 +134,7 @@ public class ItemEntity {
         map.put("additional_information", additionalInformation);
         map.put("store_ref", storeRef);
         map.put("is_active", isActive);
+        map.put("is_display", isDisplay);
         return map;
     }
 }

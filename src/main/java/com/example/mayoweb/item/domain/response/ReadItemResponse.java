@@ -27,7 +27,9 @@ public record ReadItemResponse(
 
          String additionalInformation,
 
-         Boolean isActive
+         Boolean isActive,
+
+         Boolean isDisplay
 ) {
 
     public static ReadItemResponse fromEntity(ItemEntity entity) {
@@ -44,6 +46,7 @@ public record ReadItemResponse(
                 .cookingTime(entity.getCookingTime())
                 .additionalInformation(entity.getAdditionalInformation())
                 .isActive(entity.getIsActive())
+                .isDisplay(entity.getIsDisplay())
                 .build();
     }
 }

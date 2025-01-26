@@ -55,18 +55,6 @@ public class ItemRestController {
         return ResponseEntity.ok(itemService.getItemsByUserId(req.getAttribute("uid").toString()));
     }
 
-    @Operation(summary = "어플리케이션용 해당 가게의 item객체들을 리스트로 가져옵니다.", description = "어플리케이션용 해당 가게의 item객체들을 리스트로 가져옵니다.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "스토어로 아이템 조회 성공", content = @Content(schema = @Schema(implementation = ReadItemResponse.class))),
-            @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
-            @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
-    })
-    @Authenticated
-    @GetMapping("/item-store-app")
-    public ResponseEntity<List<ReadItemResponse>> getItemsByUserIdApp(HttpServletRequest req) {
-        return ResponseEntity.ok(itemService.getItemsByUserIdApp(req.getAttribute("uid").toString()));
-    }
-
     @Operation(summary = "storeId값과 아이템 생성 정보로 아이템을 만듭니다.", description = "storeId값과 아이템 생성 정보로 아이템을 만듭니다.")
     @Parameter(name = "request", description = "아이템 이름, 설명, 가격, 할인 가격을 포함합니다.")
     @ApiResponses(value = {
@@ -161,15 +149,14 @@ public class ItemRestController {
     @Authenticated
     @PostMapping("/item-on")
     public ResponseEntity<Void> itemOn(@RequestParam String itemId) {
-        itemService.updateItemOnActive(itemId);
+        itemService.updateItemOn(itemId);
         return ResponseEntity.noContent().build();
     }
 
     @Authenticated
     @PostMapping("/item-off")
     public ResponseEntity<Void> itemOff(@RequestParam String itemId) {
-        itemService.updateItemOffActive(itemId);
+        itemService.updateItemOff(itemId);
         return ResponseEntity.noContent().build();
     }
-
 }

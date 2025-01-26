@@ -73,20 +73,7 @@ public class ItemService {
         return itemAdapter.getItemsByStoreId(storeId).stream().map(ReadItemResponse::fromEntity).toList();
     }
 
-    public List<ReadItemResponse> getItemsByUserIdApp(String userId) {
-
-        DocumentReference storeRef = userAdapter.getStoreRefByUserId(userId).
-                orElseThrow(() -> new ApplicationException(
-                        ErrorStatus.toErrorStatus("해당하는 가게가 없습니다.", 404, LocalDateTime.now())
-                ));
-
-        String storeId = storeRef.getId();
-
-        return itemAdapter.getItemsByStoreIdApp(storeId).stream().map(ReadItemResponse::fromEntity).toList();
-    }
-
     public List<ReadItemResponse> getItemsByStoreId(String storeId) {
-
         return itemAdapter.getItemsByStoreId(storeId).stream().map(ReadItemResponse::fromEntity).toList();
     }
 
@@ -151,11 +138,11 @@ public class ItemService {
         itemAdapter.updateItemQuantityMinus(itemId);
     }
 
-    public void updateItemOnActive(String itemId) {
-        itemAdapter.updateItemOnActive(itemId);
+    public void updateItemOn(String itemId) {
+        itemAdapter.updateItemOn(itemId);
     }
 
-    public void updateItemOffActive(String itemId) {
-        itemAdapter.deleteItem(itemId);
+    public void updateItemOff(String itemId) {
+        itemAdapter.updateItemOff(itemId);
     }
 }
