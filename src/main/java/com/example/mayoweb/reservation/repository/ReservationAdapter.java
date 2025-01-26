@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
@@ -114,7 +115,9 @@ public class ReservationAdapter {
         DocumentReference storeDocumentId = firestore.collection("stores").document(storesRef);
         CollectionReference reservationsRef = firestore.collection("reservation");
 
-        Query query = reservationsRef.whereEqualTo("store_ref", storeDocumentId);
+        Query query = reservationsRef.whereEqualTo("store_ref", storeDocumentId)
+                .whereEqualTo("reservation_state", ReservationState.END.getState())
+                .whereEqualTo("reservation_state", ReservationState.FAIL.getState());
 
         ApiFuture<QuerySnapshot> querySnapshotApiFuture = query.get();
         QuerySnapshot querySnapshot = null;
@@ -138,6 +141,43 @@ public class ReservationAdapter {
                     (!createdAtLocalDateTime.isAfter(endOfDay)) &&
                     (reservationEntity.getReservationState() == ReservationState.END.getState() ||
                             reservationEntity.getReservationState() == ReservationState.FAIL.getState())) {
+                reservations.add(reservationEntity);
+            }
+        }
+
+        reservations.sort(createdAtComparator);
+
+        return reservations;
+    }
+
+    public List<ReservationEntity> getReservationsByStoreRefAndDate(String storesRef, LocalDate date) {
+
+        List<ReservationEntity> reservations = new ArrayList<>();
+
+        DocumentReference storeDocumentId = firestore.collection("stores").document(storesRef);
+        CollectionReference reservationsRef = firestore.collection("reservation");
+
+        Query query = reservationsRef.whereEqualTo("store_ref", storeDocumentId);
+
+        ApiFuture<QuerySnapshot> querySnapshotApiFuture = query.get();
+        QuerySnapshot querySnapshot = null;
+
+        try {
+            querySnapshot = querySnapshotApiFuture.get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new ApplicationException(ErrorStatus.toErrorStatus("완료된 예약을 가져오는 도중 에러가 발생하였습니다.", 400, LocalDateTime.now()));
+        }
+
+        Comparator<ReservationEntity> createdAtComparator = Comparator
+                .comparing(ReservationEntity::getCreatedAt, Comparator.reverseOrder());
+
+        for (QueryDocumentSnapshot reservationDocument : querySnapshot.getDocuments()) {
+            ReservationEntity reservationEntity = reservationDocument.toObject(ReservationEntity.class);
+            Timestamp createdAt = reservationEntity.getCreatedAt();
+
+            LocalDateTime createdAtLocalDateTime = createdAt.toSqlTimestamp().toLocalDateTime();
+
+            if(createdAtLocalDateTime.getYear() == date.getYear() && createdAtLocalDateTime.getMonth() == date.getMonth()) {
                 reservations.add(reservationEntity);
             }
         }

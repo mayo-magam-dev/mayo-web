@@ -20,9 +20,6 @@ public record CreateItemRequest(
         @NotNull
         Integer originalPrice,
 
-        @NotNull
-        @Min(0)
-        @Max(100)
         Double salePercent,
 
         String itemImage,
@@ -41,12 +38,13 @@ public record CreateItemRequest(
                 .itemName(itemName)
                 .itemDescription(itemDescription)
                 .originalPrice(originalPrice)
-                .salePercent(salePercent)
+                .salePercent(Math.round((1 - (salePrice / originalPrice)) * 100 * 100) / 100.0)
                 .itemImage(itemImage)
                 .salePrice(salePrice)
                 .cookingTime(cookingTime)
                 .additionalInformation(additionalInformation)
                 .storeRef(storeDocument)
+                .isActive(true)
                 .build();
     }
 

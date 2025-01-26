@@ -43,7 +43,7 @@ public class ItemRestController {
         return ResponseEntity.ok(itemService.getItemById(itemId));
     }
 
-    @Operation(summary = "storeId 값으로 해당 해당 가게의 item객체들을 리스트로 가져옵니다.", description = "storeId 값으로 해당 해당 가게의 item객체들을 리스트로 가져옵니다.")
+    @Operation(summary = "해당 가게의 item객체들을 리스트로 가져옵니다.", description = "해당 가게의 item객체들을 리스트로 가져옵니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "스토어로 아이템 조회 성공", content = @Content(schema = @Schema(implementation = ReadItemResponse.class))),
             @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
@@ -146,4 +146,17 @@ public class ItemRestController {
         return ResponseEntity.noContent().build();
     }
 
+    @Authenticated
+    @PostMapping("/item-on")
+    public ResponseEntity<Void> itemOn(@RequestParam String itemId) {
+        itemService.updateItemOn(itemId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Authenticated
+    @PostMapping("/item-off")
+    public ResponseEntity<Void> itemOff(@RequestParam String itemId) {
+        itemService.updateItemOff(itemId);
+        return ResponseEntity.noContent().build();
+    }
 }

@@ -213,7 +213,7 @@ public class ItemAdapter {
 
         CollectionReference itemCollection = firestore.collection("items");
 
-        itemCollection.add(item);
+        itemCollection.add(item.toMap());
     }
 
     public void updateItem(ItemEntity itemEntity){
@@ -245,6 +245,16 @@ public class ItemAdapter {
     public void deleteItem(String itemId) {
         firestore.collection("items").document(itemId)
                 .update("is_active", false);
+    }
+
+    public void updateItemOff(String itemId) {
+        firestore.collection("items").document(itemId)
+                .update("is_display", false);
+    }
+
+    public void updateItemOn(String itemId) {
+        firestore.collection("items").document(itemId)
+                .update("is_display", true);
     }
 
     public ReadFirstItemResponse getFirstItemNameFromCart(DocumentReference cart) throws ExecutionException, InterruptedException {
@@ -296,6 +306,8 @@ public class ItemAdapter {
                 .cookingTime(document.get("cooking_time",Integer.class))
                 .additionalInformation(document.getString("additional_information"))
                 .storeRef((DocumentReference) document.get("store_ref"))
+                .isActive(document.getBoolean("is_active"))
+                .isDisplay(document.getBoolean("is_display"))
                 .build();
     }
 }
