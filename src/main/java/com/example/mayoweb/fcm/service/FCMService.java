@@ -4,11 +4,13 @@ import com.example.mayoweb.commons.annotation.FirestoreTransactional;
 import com.example.mayoweb.commons.exception.ApplicationException;
 import com.example.mayoweb.commons.exception.payload.ErrorStatus;
 import com.example.mayoweb.fcm.dto.FCMMessageDto;
+import com.example.mayoweb.fcm.dto.SendMessageRequest;
 import com.example.mayoweb.fcm.dto.WebPushNotificationsDto;
 import com.example.mayoweb.fcm.repository.WebPushNotificationsAdapter;
 import com.example.mayoweb.store.domain.dto.response.ReadStoreResponse;
 import com.example.mayoweb.store.repository.StoreAdapter;
 
+import com.example.mayoweb.user.repository.UserAdapter;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.auth.oauth2.GoogleCredentials;
@@ -46,6 +48,7 @@ public class FCMService {
     private static final String API_URL = "https://fcm.googleapis.com/v1/projects/mayo-app-280d4/messages:send";
     private final ObjectMapper objectMapper;
     private final WebPushNotificationsAdapter webPushNotificationsAdapter;
+    private final UserAdapter userAdapter;
 
     public Boolean sendMessageTo(String targetToken, String title, String body, String image){
 
@@ -218,6 +221,35 @@ public class FCMService {
         if (!addWebPushNotifications(webUserPushNotificationsDto)) {
             log.info("push notification false = " + Timestamp.now());
         }
+        return status;
+    }
+
+    public boolean sendMarketingMessage(SendMessageRequest request) {
+
+        List<Boolean> results = new ArrayList<>();
+
+        List<String> tokens = userAdapter.getFCMTokenAgreeMarketing();
+
+        for (String token : tokens) {
+            results.add(sendMessageTo(token, request.title(), request.content(), request.image() != null ? request.image() :
+                    "https://firebasestorage.googleapis.com/v0/b/mayo-app-280d4.appspot.com/o/FCMImages%2F%EB%A7%88%EC%9A%94-%EC%95%B1-%EB%A1%9C%EA%B3%A0-001%20(1).png?alt=media&token=0f3adcd4-ca7d-431b-a4ff-b75611382b5f"));
+        }
+
+        boolean status = !results.contains(false);
+
+        WebPushNotificationsDto webUserPushNotificationsDto = WebPushNotificationsDto.builder()
+                .notificationText(request.content())
+                .notificationTitle(request.title())
+                .sender(SERVER_NAME)
+                .numSent(results.size())
+                .timestamp(Timestamp.now())
+                .status(status)
+                .build();
+
+        if (!addWebPushNotifications(webUserPushNotificationsDto)) {
+            log.info("push notification false = " + Timestamp.now());
+        }
+
         return status;
     }
 
