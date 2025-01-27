@@ -1,11 +1,15 @@
 package com.example.mayoweb.user.domain;
 
+import com.google.cloud.Timestamp;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.annotation.DocumentId;
 import com.google.cloud.firestore.annotation.PropertyName;
 import lombok.*;
+
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @NoArgsConstructor
 @Getter
@@ -27,7 +31,7 @@ public class UserEntity {
     private String photoUrl;
 
     @PropertyName("created_time")
-    private Date createdTime;
+    private Timestamp createdTime;
 
     @PropertyName("phone_number")
     private String phoneNumber;
@@ -66,7 +70,7 @@ public class UserEntity {
     private List<DocumentReference> noticeStores;
 
     @Builder
-    public UserEntity(String userid, String uid, String email, String displayName, String photoUrl, Date createdTime, String phoneNumber, Boolean isManager, Boolean agreeTerms1, Boolean agreeTerms2, Boolean agreeMarketing, String currentLocation, String gender, String name, Date birthday, DocumentReference storeRef, List<DocumentReference> favoriteStores, List<DocumentReference> noticeStores) {
+    public UserEntity(String userid, String uid, String email, String displayName, String photoUrl, Timestamp createdTime, String phoneNumber, Boolean isManager, Boolean agreeTerms1, Boolean agreeTerms2, Boolean agreeMarketing, String currentLocation, String gender, String name, Date birthday, DocumentReference storeRef, List<DocumentReference> favoriteStores, List<DocumentReference> noticeStores) {
         this.userid = userid;
         this.uid = uid;
         this.email = email;
@@ -85,5 +89,28 @@ public class UserEntity {
         this.storeRef = storeRef;
         this.favoriteStores = favoriteStores;
         this.noticeStores = noticeStores;
+    }
+
+    public Map<String, Object> toMap() {
+        Map<String, Object> result = new HashMap<>();
+        result.put("uid", getUid());
+        result.put("email", getEmail());
+        result.put("display_name", getDisplayName());
+        result.put("photo_url", getPhotoUrl());
+        result.put("created_time", getCreatedTime());
+        result.put("phone_number", getPhoneNumber());
+        result.put("is_manager", getIsManager());
+        result.put("agree_terms1", getAgreeTerms1());
+        result.put("agree_terms2", getAgreeTerms2());
+        result.put("agree_marketing", getAgreeMarketing());
+        result.put("currentLocation", getCurrentLocation());
+        result.put("gender", getGender());
+        result.put("name", getName());
+        result.put("birthday", getBirthday());
+        result.put("store_ref", getStoreRef());
+        result.put("favorite_stores", getFavoriteStores());
+        result.put("notice_stores", getNoticeStores());
+
+        return result;
     }
 }

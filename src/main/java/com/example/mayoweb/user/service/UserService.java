@@ -3,6 +3,7 @@ package com.example.mayoweb.user.service;
 import com.example.mayoweb.commons.annotation.FirestoreTransactional;
 import com.example.mayoweb.commons.exception.ApplicationException;
 import com.example.mayoweb.commons.exception.payload.ErrorStatus;
+import com.example.mayoweb.user.domain.dto.reqeust.CreateUserRequest;
 import com.example.mayoweb.user.domain.dto.response.ReadUserResponse;
 import com.example.mayoweb.user.repository.UserAdapter;
 import com.google.cloud.firestore.DocumentReference;
@@ -47,5 +48,9 @@ public class UserService {
                 .orElseThrow(() -> new ApplicationException(
                         ErrorStatus.toErrorStatus("해당하는 가게가 없습니다.", 404, LocalDateTime.now())
                 ));
+    }
+
+    public void createUser(CreateUserRequest request, String uid) {
+        userAdapter.save(request.toEntity(uid));
     }
 }

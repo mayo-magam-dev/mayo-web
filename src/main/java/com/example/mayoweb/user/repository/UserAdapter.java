@@ -27,6 +27,7 @@ public class UserAdapter {
     private static final String FIELD_FCM_TOKEN = "fcm_token";
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final Firestore firestore;
+    private static final String COLLECTION_NAME_USERS = "users";
 
     public Optional<UserEntity> findByUserId(String userId) {
 
@@ -240,6 +241,10 @@ public class UserAdapter {
                 .name(document.getString("name"))
                 .storeRef((DocumentReference) document.get("store_ref"))
                 .build();
+    }
+
+    public void save(UserEntity user) {
+        firestore.collection(COLLECTION_NAME_USERS).document(user.getUid()).set(user.toMap());
     }
 }
 
