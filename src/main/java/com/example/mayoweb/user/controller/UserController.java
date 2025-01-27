@@ -1,7 +1,9 @@
 package com.example.mayoweb.user.controller;
 
 import com.example.mayoweb.commons.annotation.Authenticated;
+import com.example.mayoweb.commons.annotation.CreateUser;
 import com.example.mayoweb.fcm.dto.CreateFCMTokenRequest;
+import com.example.mayoweb.user.domain.dto.reqeust.CreateUserRequest;
 import com.example.mayoweb.user.domain.dto.response.ReadUserResponse;
 import com.example.mayoweb.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -62,5 +64,18 @@ public class UserController {
         userService.createWebFCMToken(req.getAttribute("uid").toString() ,request.fcmToken());
 
         return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    @Operation(summary = "유저 회원 가입", description = "유저 회원가입")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "회원 가입 성공"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
+            @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
+    })
+    @CreateUser
+    @PostMapping
+    public ResponseEntity<Void> createUser(HttpServletRequest req, @RequestBody CreateUserRequest request) {
+        userService.createUser(request, req.getAttribute("uid").toString());
+        return ResponseEntity.noContent().build();
     }
 }
