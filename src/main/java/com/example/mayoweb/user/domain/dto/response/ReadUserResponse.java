@@ -1,6 +1,7 @@
 package com.example.mayoweb.user.domain.dto.response;
 
 import com.example.mayoweb.user.domain.UserEntity;
+import com.google.cloud.Timestamp;
 import lombok.*;
 import java.util.Date;
 
@@ -16,7 +17,7 @@ public record ReadUserResponse (
 
       String photoUrl,
 
-      Date createdTime,
+      Timestamp createdTime,
 
       String phoneNumber,
 
