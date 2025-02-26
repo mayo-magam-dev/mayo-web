@@ -305,12 +305,16 @@ public class ReservationAdapter {
 
             if (querySnapshot != null) {
 
-                Set<String> tokens = new HashSet<>(userAdapter.getFCMTokenByUserRef(userId));
-                log.info("tokens : {}", tokens);
+                querySnapshot.getDocumentChanges().forEach(change -> {
+                    if (change.getType() == DocumentChange.Type.ADDED) {
+                        Set<String> tokens = new HashSet<>(userAdapter.getFCMTokenByUserRef(userId));
+                        log.info("tokens : {}", tokens);
 
-                CompletableFuture.runAsync(() -> {
-                    fcmService.sendNewReservationMessage(tokens.stream().toList());
-                    log.info("fcm send");
+                        CompletableFuture.runAsync(() -> {
+                            fcmService.sendNewReservationMessage(tokens.stream().toList());
+                            log.info("fcm send");
+                        });
+                    }
                 });
             }
         });
