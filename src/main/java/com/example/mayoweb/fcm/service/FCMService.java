@@ -104,7 +104,7 @@ public class FCMService {
         }
     }
 
-    //web_push_notification에 추가
+    //push_notification에 추가
     public boolean addWebPushNotifications(WebPushNotificationsDto webPushNotificationsDto) {
         return webPushNotificationsAdapter.addWebPushNotifications(webPushNotificationsDto);
     }
