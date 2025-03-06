@@ -4,13 +4,14 @@ import com.example.mayoweb.reservation.domain.ReservationEntity;
 import com.example.mayoweb.reservation.domain.type.ReservationState;
 import lombok.Builder;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Arrays;
-import java.util.Date;
 
 @Builder
 public record ReadAllReservationResponse(
         String reservationState,
-        Date reservationDate,
+        LocalDate reservationDate,
         String storeName,
         Integer itemCount,
         Double totalPrice,
@@ -26,7 +27,9 @@ public record ReadAllReservationResponse(
 
         return ReadAllReservationResponse.builder()
                 .reservationState(state)
-                .reservationDate(entity.getCreatedAt().toDate())
+                .reservationDate(entity.getCreatedAt().toDate().toInstant()
+                        .atZone(ZoneId.of("Asia/Seoul"))
+                        .toLocalDate())
                 .storeName(storeName)
                 .itemCount(itemCount)
                 .totalPrice(entity.getTotalPrice())
