@@ -20,6 +20,7 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -277,6 +278,40 @@ public class ReservationAdapter {
         if (document.exists()) {
             documentReference.update("reservation_state", ReservationState.FAIL.getState());
         }
+    }
+
+    public List<ReservationEntity> getReservationByYearAndMonth(int year, int month) {
+        CollectionReference reservationRef = firestore.collection("reservation");
+
+        LocalDateTime startOfMonth = LocalDateTime.of(year, month, 1, 0, 0);
+        LocalDateTime endOfMonth = startOfMonth.plusMonths(1);
+
+        Timestamp startTimestamp = Timestamp.of(Date.from(startOfMonth.atZone(ZoneId.of("Asia/Seoul")).toInstant()));
+        Timestamp endTimestamp = Timestamp.of(Date.from(endOfMonth.atZone(ZoneId.of("Asia/Seoul")).toInstant()));
+
+        Query query = reservationRef
+                .whereGreaterThanOrEqualTo("created_at", startTimestamp)
+                .whereLessThan("created_at", endTimestamp);
+
+        ApiFuture<QuerySnapshot> querySnapshotApiFuture = query.get();
+        List<ReservationEntity> reservations = new ArrayList<>();
+
+        try {
+            QuerySnapshot querySnapshot = querySnapshotApiFuture.get();
+
+            for (QueryDocumentSnapshot reservationDocument : querySnapshot.getDocuments()) {
+                ReservationEntity reservationEntity = reservationDocument.toObject(ReservationEntity.class);
+                reservations.add(reservationEntity);
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            throw new ApplicationException(ErrorStatus.toErrorStatus(
+                    "완료된 예약을 가져오는 도중 에러가 발생하였습니다.", 400, LocalDateTime.now()
+            ));
+        }
+
+        reservations.sort(Comparator.comparing(ReservationEntity::getCreatedAt, Comparator.reverseOrder()));
+
+        return reservations;
     }
 
     private ReadFirstItemResponse getFirstItemNameFromReservation(ReservationEntity reservationEntity) throws ExecutionException, InterruptedException {

@@ -10,12 +10,11 @@ import com.example.mayoweb.item.domain.ItemEntity;
 import com.example.mayoweb.item.domain.response.ReadFirstItemResponse;
 import com.example.mayoweb.item.repository.ItemAdapter;
 import com.example.mayoweb.reservation.domain.ReservationEntity;
-import com.example.mayoweb.reservation.domain.dto.response.ReadReservationDetailResponse;
-import com.example.mayoweb.reservation.domain.dto.response.ReadReservationListResponse;
-import com.example.mayoweb.reservation.domain.dto.response.ReadReservationResponse;
-import com.example.mayoweb.reservation.domain.dto.response.TotalReservationResponse;
+import com.example.mayoweb.reservation.domain.dto.response.*;
 import com.example.mayoweb.reservation.domain.type.ReservationState;
 import com.example.mayoweb.reservation.repository.ReservationAdapter;
+import com.example.mayoweb.store.domain.StoreEntity;
+import com.example.mayoweb.store.repository.StoreAdapter;
 import com.example.mayoweb.user.domain.UserEntity;
 import com.example.mayoweb.user.repository.UserAdapter;
 import com.google.cloud.Timestamp;
@@ -40,6 +39,7 @@ public class ReservationService {
     private final FCMService fcmService;
     private final CartAdapter cartAdapter;
     private final UserAdapter userAdapter;
+    private final StoreAdapter storeAdapter;
 
     public void reservationAccept(String id){
         reservationAdapter.reservationProceeding(id);
@@ -148,6 +148,34 @@ public class ReservationService {
                     .build();
 
             responseList.add(response);
+        }
+
+        return responseList;
+    }
+
+    public List<ReadAllReservationResponse> getReservationByYearAndMonth(int year, int month) {
+
+        List<ReadAllReservationResponse> responseList = new ArrayList<>();
+        List<ReservationEntity> reservationList = reservationAdapter.getReservationByYearAndMonth(year, month);
+
+        for(ReservationEntity reservation : reservationList) {
+            StoreEntity store = storeAdapter.findByStoreId(reservation.getStoreRef().getId())
+                    .orElseThrow(() -> new ApplicationException(
+                            ErrorStatus.toErrorStatus("해당 가게가 없습니다.", 404, LocalDateTime.now())
+                    ));
+
+            int itemCount = reservation.getCartRef().size();
+
+            UserEntity user = userAdapter.findByUserId(reservation.getUserRef().getId())
+                    .orElse(null);
+
+            String userName = "유저 이름 없음";
+
+            if(user != null) {
+                userName = user.getName();
+            }
+
+            responseList.add(ReadAllReservationResponse.fromEntity(reservation, store.getStoreName(), itemCount, userName));
         }
 
         return responseList;
