@@ -17,7 +17,7 @@ import com.google.cloud.firestore.WriteResult;
 @RequiredArgsConstructor
 public class WebPushNotificationsAdapter {
 
-    private static final String COLLECTION_NAME = "web_push_notifications";
+    private static final String COLLECTION_NAME = "push_notifications";
     private final Firestore firestore;
 
     public boolean addWebPushNotifications(WebPushNotificationsDto entity) {

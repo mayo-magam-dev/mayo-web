@@ -1,10 +1,9 @@
 package com.example.mayoweb.reservation.controller;
 
 import com.example.mayoweb.commons.annotation.Authenticated;
-import com.example.mayoweb.reservation.domain.dto.response.ReadReservationDetailResponse;
-import com.example.mayoweb.reservation.domain.dto.response.ReadReservationListResponse;
-import com.example.mayoweb.reservation.domain.dto.response.ReadReservationResponse;
-import com.example.mayoweb.reservation.domain.dto.response.TotalReservationResponse;
+import com.example.mayoweb.commons.exception.ApplicationException;
+import com.example.mayoweb.commons.exception.payload.ErrorStatus;
+import com.example.mayoweb.reservation.domain.dto.response.*;
 import com.example.mayoweb.reservation.service.ReservationService;
 import com.google.cloud.Timestamp;
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,10 +16,12 @@ import jakarta.servlet.http.HttpServletRequest;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Tag(name = "예약 API", description = "예약 관리 API")
@@ -30,6 +31,9 @@ import java.util.List;
 public class ReservationRestController {
 
     private final ReservationService reservationService;
+
+    @Value("${mayo.secret}")
+    private String globalSecret;
 
     @Operation(summary = "ID 값으로 reservation 객체를 가져옵니다.", description = "reservation PK 값으로 객체를 가져옵니다.")
     @ApiResponses(value = {
@@ -171,5 +175,15 @@ public class ReservationRestController {
     @GetMapping("/reservation-all")
     public ResponseEntity<TotalReservationResponse> getAllReservations(HttpServletRequest req, @RequestParam LocalDate date) {
         return ResponseEntity.ok(reservationService.getReservationsByDate(req.getAttribute("uid").toString(), date));
+    }
+
+    @GetMapping("/reservation/{secret}/{year}/{month}")
+    public ResponseEntity<List<ReadAllReservationResponse>> getReservations(@PathVariable String secret, @PathVariable int year, @PathVariable int month) {
+
+        if(!secret.equals(globalSecret)) {
+            throw new ApplicationException(ErrorStatus.toErrorStatus("secret이 일치하지 않습니다.", 404, LocalDateTime.now()));
+        }
+
+        return ResponseEntity.ok(reservationService.getReservationByYearAndMonth(year, month));
     }
 }
