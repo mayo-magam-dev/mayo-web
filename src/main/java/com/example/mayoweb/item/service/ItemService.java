@@ -5,6 +5,7 @@ import com.example.mayoweb.cart.repository.CartAdapter;
 import com.example.mayoweb.commons.annotation.FirestoreTransactional;
 import com.example.mayoweb.commons.exception.ApplicationException;
 import com.example.mayoweb.commons.exception.payload.ErrorStatus;
+import com.example.mayoweb.item.domain.ItemEntity;
 import com.example.mayoweb.item.domain.request.CreateItemRequest;
 import com.example.mayoweb.item.domain.request.UpdateItemRequest;
 import com.example.mayoweb.item.domain.response.ReadFirstItemResponse;
@@ -113,8 +114,16 @@ public class ItemService {
     }
 
     public void updateItem(UpdateItemRequest request, MultipartFile file) {
+
+        ItemEntity itemEntity = itemAdapter.getItemById(request.itemId())
+                .orElseThrow(() -> new ApplicationException(
+                        ErrorStatus.toErrorStatus("해당하는 아이템이 없습니다.", 404, LocalDateTime.now())
+                ));
+
+        storageService.deleteFirebaseBucket(itemEntity.getItemImage());
         String imageUrl = storageService.uploadFirebaseBucket(file, request.itemName());
         UpdateItemRequest updateItemRequest = UpdateItemRequest.updateItemURL(request, imageUrl);
+
         itemAdapter.updateItem(updateItemRequest.updateEntity());
     }
 

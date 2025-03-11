@@ -244,14 +244,18 @@ public class ReservationService {
                 )));
     }
 
-    public void sendFCMNewReservation(String userId) {
+    public void createListener(String userId) {
 
         DocumentReference storeRef = userAdapter.getStoreRefByUserId(userId).
                 orElseThrow(() -> new ApplicationException(
                         ErrorStatus.toErrorStatus("해당하는 가게가 없습니다.", 404, LocalDateTime.now())
                 ));
 
-        reservationAdapter.sendNewReservationFCM(storeRef.getId(), userId);
+        reservationAdapter.createListener(storeRef.getId(), userId);
+    }
+
+    public void stopListener(String userId) {
+        reservationAdapter.stopListener(userId);
     }
 
     public void reservationFailByStoreId(String userId) {
