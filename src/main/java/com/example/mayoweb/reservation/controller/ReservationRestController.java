@@ -55,8 +55,8 @@ public class ReservationRestController {
     })
     @Authenticated
     @GetMapping("/reservation-new")
-    public ResponseEntity<List<ReadReservationListResponse>> getNewReservations(HttpServletRequest req) {
-        return ResponseEntity.ok(reservationService.getNewByUserId(req.getAttribute("uid").toString()));
+    public ResponseEntity<List<ReadReservationListResponse>> getNewReservations(@RequestAttribute("uid") String uid) {
+        return ResponseEntity.ok(reservationService.getNewByUserId(uid));
     }
 
     @Operation(summary = "storeId 값으로 해당 가게의 진행 예약들을 가져옵니다.", description = "storeId 값으로 해당 가게의 진행 예약들을 가져옵니다.")
@@ -67,8 +67,8 @@ public class ReservationRestController {
     })
     @Authenticated
     @GetMapping("/reservation-proceed")
-    public ResponseEntity<List<ReadReservationListResponse>> getProceedingReservations(HttpServletRequest req){
-        return ResponseEntity.ok(reservationService.getProcessingByStoreId(req.getAttribute("uid").toString()));
+    public ResponseEntity<List<ReadReservationListResponse>> getProceedingReservations(@RequestAttribute("uid") String uid){
+        return ResponseEntity.ok(reservationService.getProcessingByStoreId(uid));
     }
 
     @Operation(summary = "storeId 값, 시간 값으로 해당 가게의 완료 예약들을 가져옵니다.", description = "storeId 값, 시간 값으로 해당 가게의 완료 예약들을 가져옵니다.")
@@ -79,11 +79,11 @@ public class ReservationRestController {
     })
     @Authenticated
     @GetMapping("/reservation-done-time")
-    public ResponseEntity<List<ReadReservationListResponse>> getDoneReservations(HttpServletRequest req, @RequestParam String timestamp) {
+    public ResponseEntity<List<ReadReservationListResponse>> getDoneReservations(@RequestAttribute("uid") String uid, @RequestParam String timestamp) {
 
         Timestamp ts = Timestamp.parseTimestamp(timestamp);
 
-        return ResponseEntity.ok(reservationService.getEndByStoreIdAndTimestamp(req.getAttribute("uid").toString(), ts));
+        return ResponseEntity.ok(reservationService.getEndByStoreIdAndTimestamp(uid, ts));
     }
 
     @Operation(summary = "reservationId를 받아 해당 예약의 상태를 수락으로 변경합니다.", description = "reservationId를 받아 해당 예약의 상태를 수락으로 변경합니다.")
@@ -145,9 +145,9 @@ public class ReservationRestController {
 
     @Authenticated
     @PutMapping("/reservation/all-fail")
-    public ResponseEntity<Void> reservationFailByStoreId(HttpServletRequest req) {
+    public ResponseEntity<Void> reservationFailByStoreId(@RequestAttribute("uid") String uid) {
 
-        reservationService.reservationFailByStoreId(req.getAttribute("uid").toString());
+        reservationService.reservationFailByStoreId(uid);
 
         return ResponseEntity.noContent().build();
     }
@@ -160,8 +160,21 @@ public class ReservationRestController {
     })
     @Authenticated
     @PostMapping("/reservation-new/fcm")
-    public ResponseEntity<Void> reservationNewFCM(HttpServletRequest req) {
-        reservationService.sendFCMNewReservation(req.getAttribute("uid").toString());
+    public ResponseEntity<Void> reservationNewFCM(@RequestAttribute("uid") String uid) {
+        reservationService.createListener(uid);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "생성된 리스너를 제거합니다.", description = "생성된 리스너를 제거합니다 (브라우저 닫을 때 실행).")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "리스너 제거 성공"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
+            @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
+    })
+    @Authenticated
+    @DeleteMapping("/reservation-new/fcm")
+    public ResponseEntity<Void> deleteFCM(@RequestAttribute("uid") String uid) {
+        reservationService.stopListener(uid);
         return ResponseEntity.noContent().build();
     }
 
@@ -173,8 +186,8 @@ public class ReservationRestController {
     })
     @Authenticated
     @GetMapping("/reservation-all")
-    public ResponseEntity<TotalReservationResponse> getAllReservations(HttpServletRequest req, @RequestParam LocalDate date) {
-        return ResponseEntity.ok(reservationService.getReservationsByDate(req.getAttribute("uid").toString(), date));
+    public ResponseEntity<TotalReservationResponse> getAllReservations(@RequestAttribute("uid") String uid, @RequestParam LocalDate date) {
+        return ResponseEntity.ok(reservationService.getReservationsByDate(uid, date));
     }
 
     @GetMapping("/reservation/{secret}/{year}/{month}")

@@ -31,43 +31,43 @@ public class StoreRestController {
     @Operation(summary = "ID 값으로 store 객체를 가져옵니다.", description = "store PK 값으로 객체를 가져옵니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "스토어 조회 성공", content = @Content(schema = @Schema(implementation = ReadStoreResponse.class))),
-            @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
-            @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
+            @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+            @ApiResponse(responseCode = "500", description = "서버 오류")
     })
     @Authenticated
     @GetMapping("/stores")
-    public ResponseEntity<ReadStoreResponse> getStoreById(HttpServletRequest req) {
-        return ResponseEntity.ok(storeService.getStoreById(req.getAttribute("uid").toString()));
+    public ResponseEntity<ReadStoreResponse> getStoreById(@RequestAttribute("uid") String uid) {
+        return ResponseEntity.ok(storeService.getStoreById(uid));
     }
 
     @Operation(summary = "가게 정보를 받아 업데이트 합니다.", description = "가게 정보를 받아 업데이트합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "업데이트 성공", content = @Content(schema = @Schema(implementation = UpdateStoreResponse.class))),
-            @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
-            @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
+            @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+            @ApiResponse(responseCode = "500", description = "서버 오류")
     })
     @Authenticated
     @PutMapping("/stores")
-    public ResponseEntity<UpdateStoreResponse> updateStore(HttpServletRequest req, @RequestBody @Valid UpdateStoreRequest request, BindingResult bindingResult) {
+    public ResponseEntity<UpdateStoreResponse> updateStore(@RequestAttribute("uid") String uid, @RequestBody @Valid UpdateStoreRequest request, BindingResult bindingResult) {
 
         if (bindingResult.hasErrors()) {
             throw new ValidationFailedException(bindingResult);
         }
 
-        return ResponseEntity.ok(storeService.updateStoreInformation(req.getAttribute("uid").toString(), request));
+        return ResponseEntity.ok(storeService.updateStoreInformation(uid, request));
     }
 
     @Operation(summary = "가게 상태 오픈으로 변경합니다.", description = "아이템 id 리스트와 수량 리스트를 받아 판매 상태로 변경 한 후 가게 상태를 오픈으로 변경합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "오픈 성공", content = @Content),
-            @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
-            @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
+            @ApiResponse(responseCode = "200", description = "오픈 성공"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+            @ApiResponse(responseCode = "500", description = "서버 오류")
     })
     @Authenticated
     @PutMapping("/store/open")
-    public ResponseEntity<Void> openStore(HttpServletRequest req, @RequestBody(required = false) OpenItemRequest openItemRequest){
+    public ResponseEntity<Void> openStore(@RequestAttribute("uid") String uid, @RequestBody(required = false) OpenItemRequest openItemRequest){
 
-        storeService.openStore(req.getAttribute("uid").toString(), openItemRequest);
+        storeService.openStore(uid, openItemRequest);
 
         return ResponseEntity.ok().build();
     }
@@ -80,11 +80,10 @@ public class StoreRestController {
     })
     @Authenticated
     @PutMapping("/store/close")
-    public ResponseEntity<Void> closeStore(HttpServletRequest req) {
+    public ResponseEntity<Void> closeStore(@RequestAttribute("uid") String uid) {
 
-        storeService.closeStore(req.getAttribute("uid").toString());
+        storeService.closeStore(uid);
 
         return ResponseEntity.ok().build();
     }
-
 }
