@@ -300,7 +300,7 @@ public class ItemAdapter {
                 .itemOnSale(document.getBoolean("item_on_sale"))
                 .itemImage(document.getString("item_image"))
                 .storeName(document.getString("store_name"))
-                .storeAddress(document.getString("store-address"))
+                .storeAddress(document.getString("store_address"))
                 .userItemQuantity(document.get("user_item_quantity", Integer.class))
                 .salePrice(document.getDouble("sale_price"))
                 .cookingTime(document.get("cooking_time",Integer.class))

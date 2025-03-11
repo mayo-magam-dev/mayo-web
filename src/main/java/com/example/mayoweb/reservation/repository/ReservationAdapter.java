@@ -20,7 +20,6 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -36,6 +35,8 @@ public class ReservationAdapter {
     private final FCMService fcmService;
     private final Firestore firestore;
     private final UserAdapter userAdapter;
+
+    private final Map<String, ListenerRegistration> listenerRegistry = new HashMap<>();
 
     //가게 도큐먼트 id를 받아 해당 가게의 신규 예약들을 가져옵니다.
     public List<ReservationEntity> getNewByStoreId(String storeId){
@@ -322,7 +323,7 @@ public class ReservationAdapter {
     }
 
     //비동기적으로 fcmToken을 수신하는 Listener를 실행합니다.
-    public CompletableFuture<Void> sendNewReservationFCM(String storeId, String userId) {
+    public CompletableFuture<Void> createListener(String storeId, String userId) {
 
         DocumentReference storeDocumentId = firestore.collection("stores").document(storeId);
         CollectionReference reservationsRef = firestore.collection("reservation");
@@ -332,7 +333,7 @@ public class ReservationAdapter {
 
         CompletableFuture<Void> future = new CompletableFuture<>();
 
-        query.addSnapshotListener((querySnapshot, e) -> {
+        ListenerRegistration registration = query.addSnapshotListener((querySnapshot, e) -> {
             if (e != null) {
                 future.completeExceptionally(e);
                 return;
@@ -354,7 +355,18 @@ public class ReservationAdapter {
             }
         });
 
+        listenerRegistry.put(userId, registration);
+
         return future;
+    }
+
+    public void stopListener(String userId) {
+        ListenerRegistration registration = listenerRegistry.get(userId);
+        if (registration != null) {
+            registration.remove();
+            listenerRegistry.remove(userId);
+            log.info("리스너 제거 성공 : {}", userId);
+        }
     }
 
     private static ReservationEntity fromDocument(DocumentSnapshot document, List<DocumentReference> cartRef) {

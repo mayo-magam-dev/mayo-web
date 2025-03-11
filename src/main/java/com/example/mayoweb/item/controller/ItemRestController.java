@@ -15,7 +15,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -46,34 +45,34 @@ public class ItemRestController {
     @Operation(summary = "해당 가게의 item객체들을 리스트로 가져옵니다.", description = "해당 가게의 item객체들을 리스트로 가져옵니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "스토어로 아이템 조회 성공", content = @Content(schema = @Schema(implementation = ReadItemResponse.class))),
-            @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
-            @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
+            @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+            @ApiResponse(responseCode = "500", description = "서버 오류")
     })
     @Authenticated
     @GetMapping("/item-store")
-    public ResponseEntity<List<ReadItemResponse>> getItemsByUserId(HttpServletRequest req) {
-        return ResponseEntity.ok(itemService.getItemsByUserId(req.getAttribute("uid").toString()));
+    public ResponseEntity<List<ReadItemResponse>> getItemsByUserId(@RequestAttribute("uid") String uid) {
+        return ResponseEntity.ok(itemService.getItemsByUserId(uid));
     }
 
     @Operation(summary = "storeId값과 아이템 생성 정보로 아이템을 만듭니다.", description = "storeId값과 아이템 생성 정보로 아이템을 만듭니다.")
     @Parameter(name = "request", description = "아이템 이름, 설명, 가격, 할인 가격을 포함합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "아이템 생성 성공", content = @Content),
-            @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
-            @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
+            @ApiResponse(responseCode = "200", description = "아이템 생성 성공"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+            @ApiResponse(responseCode = "500", description = "서버 오류")
     })
     @Authenticated
     @PostMapping("/item")
-    public ResponseEntity<Void> createItem(HttpServletRequest req, @RequestPart @Valid CreateItemRequest request, BindingResult bindingResult, @RequestParam(value = "itemImage", required = false) MultipartFile file) {
+    public ResponseEntity<Void> createItem(@RequestAttribute("uid") String uid, @RequestPart @Valid CreateItemRequest request, BindingResult bindingResult, @RequestParam(value = "itemImage", required = false) MultipartFile file) {
 
         if (bindingResult.hasErrors()) {
             throw new ValidationFailedException(bindingResult);
         }
 
         if(file != null && !file.isEmpty()) {
-            itemService.save(request, req.getAttribute("uid").toString(), file);
+            itemService.save(request, uid, file);
         } else {
-            itemService.save(request, req.getAttribute("uid").toString());
+            itemService.save(request, uid);
         }
 
         return ResponseEntity.noContent().build();
@@ -82,9 +81,9 @@ public class ItemRestController {
     @Operation(summary = "아이템 수정 정보로 아이템을 수정합니다.", description = "아이템 수정 정보로 아이템을 수정합니다.")
     @Parameter(name = "request", description = "아이템 아이디, 아이템 이름, 설명, 가격, 할인 가격을 포함합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "아이템 수정 성공", content = @Content),
-            @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
-            @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
+            @ApiResponse(responseCode = "200", description = "아이템 수정 성공"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+            @ApiResponse(responseCode = "500", description = "서버 오류")
     })
     @Authenticated
     @PutMapping("/item")
@@ -121,8 +120,8 @@ public class ItemRestController {
     @Operation(summary = "예약들로 각 예약의 첫번째 아이템이름을 가져옵니다.", description = "예약들로 각 예약의 첫번째 아이템이름을 가져옵니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "아이템 수정 성공", content = @Content(schema = @Schema(implementation = List.class))),
-            @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
-            @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
+            @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+            @ApiResponse(responseCode = "500", description = "서버 오류")
     })
     @GetMapping("/first-item")
     public ResponseEntity<List<ReadFirstItemResponse>> getFirstItemByReservations(@RequestBody List<ReadReservationResponse> reservations) {
