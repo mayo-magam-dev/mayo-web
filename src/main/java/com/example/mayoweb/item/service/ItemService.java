@@ -51,7 +51,6 @@ public class ItemService {
         return itemAdapter.getFirstItemNamesFromCarts(carts);
     }
 
-    @Cacheable(value = "store-item")
     public List<ReadItemResponse> getItemsByUserId(String userId) {
 
         DocumentReference storeRef = userAdapter.getStoreRefByUserId(userId).
