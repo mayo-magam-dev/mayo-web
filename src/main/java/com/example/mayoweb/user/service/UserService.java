@@ -21,7 +21,7 @@ public class UserService {
 
     private final UserAdapter userAdapter;
 
-    @Cacheable(value = "user")
+    @Cacheable(value = "user", key = "#userId")
     public ReadUserResponse getUserById(String userId) {
         return ReadUserResponse.fromEntity(userAdapter.findByUserId(userId)
                 .orElseThrow(() -> new ApplicationException(
