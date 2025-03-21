@@ -8,6 +8,7 @@ import com.example.mayoweb.user.domain.dto.response.ReadUserResponse;
 import com.example.mayoweb.user.repository.UserAdapter;
 import com.google.cloud.firestore.DocumentReference;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -20,6 +21,7 @@ public class UserService {
 
     private final UserAdapter userAdapter;
 
+    @Cacheable(value = "user")
     public ReadUserResponse getUserById(String userId) {
         return ReadUserResponse.fromEntity(userAdapter.findByUserId(userId)
                 .orElseThrow(() -> new ApplicationException(

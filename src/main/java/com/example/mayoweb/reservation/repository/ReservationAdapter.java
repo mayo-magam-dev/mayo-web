@@ -325,6 +325,11 @@ public class ReservationAdapter {
     //비동기적으로 fcmToken을 수신하는 Listener를 실행합니다.
     public CompletableFuture<Void> createListener(String storeId, String userId) {
 
+        if (listenerRegistry.containsKey(userId)) {
+            listenerRegistry.get(userId).remove();
+            listenerRegistry.remove(userId);
+        }
+
         DocumentReference storeDocumentId = firestore.collection("stores").document(storeId);
         CollectionReference reservationsRef = firestore.collection("reservation");
 

@@ -18,6 +18,7 @@ import com.example.mayoweb.storage.service.StorageService;
 import com.example.mayoweb.user.repository.UserAdapter;
 import com.google.cloud.firestore.DocumentReference;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -36,18 +37,6 @@ public class ItemService {
     private final ReservationAdapter reservationAdapter;
     private final StorageService storageService;
 
-    public ReadItemResponse getItemByCartId(String cartId) {
-
-        CartEntity cart = cartsAdapter.findCartById(cartId).orElseThrow(() -> new ApplicationException(
-                ErrorStatus.toErrorStatus("카트를 찾을 수 없습니다.", 404, LocalDateTime.now()
-        )));
-
-        return ReadItemResponse.fromEntity(itemAdapter.getItemByDocRef(cart.getItem()).orElseThrow(() -> new ApplicationException(
-                ErrorStatus.toErrorStatus("아이템을 찾을 수 없습니다.", 404, LocalDateTime.now())
-        )));
-
-    }
-
     public List<ReadFirstItemResponse> getFirstItemNamesFromReservations(List<ReadReservationResponse> readReservationResponseList) {
 
         List<ReservationEntity> reservationList = new ArrayList<>();
@@ -62,6 +51,7 @@ public class ItemService {
         return itemAdapter.getFirstItemNamesFromCarts(carts);
     }
 
+    @Cacheable(value = "store-item")
     public List<ReadItemResponse> getItemsByUserId(String userId) {
 
         DocumentReference storeRef = userAdapter.getStoreRefByUserId(userId).
@@ -71,10 +61,6 @@ public class ItemService {
 
         String storeId = storeRef.getId();
 
-        return itemAdapter.getItemsByStoreId(storeId).stream().map(ReadItemResponse::fromEntity).toList();
-    }
-
-    public List<ReadItemResponse> getItemsByStoreId(String storeId) {
         return itemAdapter.getItemsByStoreId(storeId).stream().map(ReadItemResponse::fromEntity).toList();
     }
 
@@ -130,14 +116,6 @@ public class ItemService {
     public void deleteItem(String itemId) {
         itemAdapter.deleteItem(itemId);
     }
-
-//    public void closeTask(String storeId) {
-//        itemsAdapter.updateItemsStateOutOfStock(storeId);
-//    }
-//
-//    public void openTask(List<String> itemdIList, List<Integer> quantityList) {
-//        itemsAdapter.updateItemOnSale(itemdIList, quantityList);
-//    }
 
     public void updateItemQuantityPlus(String itemId) {
         itemAdapter.updateItemQuantityPlus(itemId);
