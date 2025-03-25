@@ -18,8 +18,6 @@
   - Firestore Database
 - Storage
   - Firebase Storage
-- ERD
-  - ERDCloud
 - AWS
   - EC2
 - 기타
