@@ -118,8 +118,7 @@ public class ReservationAdapter {
         CollectionReference reservationsRef = firestore.collection("reservation");
 
         Query query = reservationsRef.whereEqualTo("store_ref", storeDocumentId)
-                .whereEqualTo("reservation_state", ReservationState.END.getState())
-                .whereEqualTo("reservation_state", ReservationState.FAIL.getState());
+                .whereIn("reservation_state", Arrays.asList(ReservationState.END.getState(), ReservationState.FAIL.getState()));
 
         ApiFuture<QuerySnapshot> querySnapshotApiFuture = query.get();
         QuerySnapshot querySnapshot = null;
