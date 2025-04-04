@@ -29,7 +29,6 @@ public class StoreService {
     private final UserAdapter userAdapter;
     private final FCMService fcmService;
 
-    @Cacheable(value = "store")
     public ReadStoreResponse getStoreById(String userId){
 
         DocumentReference storeRef = userAdapter.getStoreRefByUserId(userId).
