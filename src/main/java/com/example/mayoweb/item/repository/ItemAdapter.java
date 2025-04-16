@@ -8,6 +8,7 @@ import com.example.mayoweb.item.domain.response.ReadFirstItemResponse;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -17,6 +18,7 @@ import java.util.concurrent.ExecutionException;
 @Repository
 @RequiredArgsConstructor
 @FirestoreTransactional
+@Slf4j
 public class ItemAdapter {
 
     private final Firestore firestore;
@@ -147,11 +149,12 @@ public class ItemAdapter {
         return Optional.empty();
     }
 
-    public List<ReadFirstItemResponse> getFirstItemNamesFromCarts(List<DocumentReference> carts){
+    public List<ReadFirstItemResponse> getFirstItemNamesFromCarts(List<DocumentReference> carts) {
 
         List<ReadFirstItemResponse> firstItemResponse = new ArrayList<>();
 
         for (DocumentReference cart : carts) {
+
             DocumentSnapshot cartSnapshot = null;
 
             try {
@@ -172,6 +175,7 @@ public class ItemAdapter {
                     }
 
                     if (itemSnapshot.exists()) {
+
                         ReadFirstItemResponse response = ReadFirstItemResponse.builder()
                                         .itemName(itemSnapshot.getString("item_name"))
                                         .itemQuantity(cartSnapshot.get("itemCount", Integer.class))
@@ -186,6 +190,11 @@ public class ItemAdapter {
                                 .build());
                     }
                 }
+            } else {
+                firstItemResponse.add(ReadFirstItemResponse.builder()
+                        .itemName(" ")
+                        .itemQuantity(0)
+                        .build());
             }
         }
         return firstItemResponse;

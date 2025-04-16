@@ -45,6 +45,7 @@ public record CreateItemRequest(
                 .additionalInformation(additionalInformation)
                 .storeRef(storeDocument)
                 .isActive(true)
+                .isDisplay(true)
                 .build();
     }
 
