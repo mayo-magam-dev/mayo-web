@@ -76,6 +76,9 @@ public class ReservationService {
         List<ReadReservationListResponse> responseList = new ArrayList<>();
 
         for(int i=0; i<reservationList.size(); i++) {
+
+            log.info("createdAt : {}, itemName : {}", reservationList.get(i).getCreatedAt(), firstItemResponse.get(i).itemName());
+
             ReadReservationListResponse response = ReadReservationListResponse.builder()
                     .reservationId(reservationList.get(i).getId())
                     .firstItemName(firstItemResponse.get(i).itemName())
