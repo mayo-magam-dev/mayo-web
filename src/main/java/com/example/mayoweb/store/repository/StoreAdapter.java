@@ -100,7 +100,8 @@ public class StoreAdapter {
                     "close_time", storeRequest.closeTime(),
                     "sale_start", storeRequest.saleStart(),
                     "sale_end", storeRequest.saleEnd(),
-                    "additional_comment", storeRequest.additionalComment());
+                    "additional_comment", storeRequest.additionalComment(),
+                    "open_day_of_week", storeRequest.openDayOfWeek());
 
             return UpdateStoreResponse.builder()
                     .storeId(storeRequest.storeId())
